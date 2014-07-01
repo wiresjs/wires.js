@@ -1,0 +1,19 @@
+<a href="/app/#user">to user</a>
+<h5>Try pink</h5>
+<h1>Color:<span style="color: $color">$color</span> {# $color==='pink' ? 'so gay choice' : '' #}</h1>
+<input type="text" value="$color">
+<hr>
+<h4>Users</h4>
+<div each="$user in $users" >
+    <div style="border:1px solid #ececec; margin-bottom:3px;">
+    <div style="background-color: $parent.color">$user.id <span> $user.name</span></div>
+    </div>
+</div> 
+
+<h4>Modify userJose.name</h4>
+<input type="text" value="$userJose.name">
+
+<h4>Modify userIvan.name</h4>
+<input type="text" value="$userIvan.name">
+
+
