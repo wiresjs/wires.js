@@ -19,8 +19,10 @@
 <script src="../node_modules/htmlparser/lib/htmlparser.js"></script>
 <script src="../node_modules/async/lib/async.js"></script>
   
- 
+
 <script src="../src/wires-object-utils.js"></script>
+<script src="../src/acts/main.js"></script>
+<script src="../src/acts/toggle.js"></script>
 <script src="../src/wires-node.js"></script>
 <script src="../src/wires-attr.js"></script>
 <script src="../src/wires-text-node.js"></script>
@@ -29,13 +31,20 @@
 <script src="../src/wires-exec.js"></script>
 <script src="../src/wires-variable.js"></script>
 <script src="../src/wires-watcher.js"></script>
+<script src="../src/wires-base-attr.js"></script>
 <script src="../src/attributes/visible.js"></script>
 <script src="../src/attributes/each.js"></script>
 <script src="../src/attributes/value.js"></script>
+<script src="../src/attributes/click.js"></script>
+<script src="../src/attributes/slide.js"></script>
+
+
+
 <script src="../src/mvc/wires-mvc.js"></script>
   
   <!-- <script src="/build/wires.js"></script>  -->
-<script src="./controllers/main_controller.js"></script>  
+<script src="./controllers/main_controller.js"></script>
+<script src="./controllers/animate_controller.js"></script>   
 <script src="./controllers/test_controller.js"></script>
 <script src="./app.js"></script>
 </head>
@@ -46,6 +55,7 @@ padding:10px; border:1px solid gray;margin:5px;
 </style>
 <body>
     <div id="modal-box" class='modal-box'></div>
+    <a href="/app/#animate">Animations</a>
     <div id="content"></div>
 
 

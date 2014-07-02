@@ -2,7 +2,7 @@ var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
 	'use strict';
-	Wires.attrs.visible = Wires.Attr.extend({
+	Wires.BaseAttribute = Wires.Attr.extend({
 		initialize : function(scope, dom, element, attr) {
 			this.scope = scope;
 			this.instance = scope.instance;
@@ -13,10 +13,8 @@ Wires.attrs = Wires.attrs || {};
 			this.bindEssentials(this.condition);
 		},
 		setValue : function(newVariable, newValue) {
-			
-			var result = this.executeStatement(newVariable, newValue, 'return');
-			$(this.element).css('display', result ? 'block' : 'none');
-			
 		},
-	},{addAttibute : false});
+	}, {
+		addAttibute : false
+	});
 })();

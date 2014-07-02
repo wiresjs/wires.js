@@ -16,10 +16,12 @@ var Wires = Wires || {};
 			//});
 		},
 		// Execute statement
-		executeStatement : function(incomingVar, newValue) {
+		executeStatement : function(incomingVar, newValue, resultNeeded) {
+			
 			return Wires.Exec.expression({
 				statement : this.attr.value,
 				incomingVar : incomingVar,
+				resultNeeded : resultNeeded,
 				newValue : newValue,
 				scope : this.scope,
 				variables : this.variables

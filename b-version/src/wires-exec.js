@@ -14,6 +14,8 @@ var Wires = Wires || {};
 
 			// STRING: The new variable that's coming
 			var incomingVar = options.incomingVar;
+			
+			var resultNeeded = options.resultNeeded  !== undefined ? options.resultNeeded : true;
 
 			// STRING: New value that has to be set
 			var newValue = options.newValue;
@@ -23,6 +25,7 @@ var Wires = Wires || {};
 
 			// Attached variables
 			var variables = options.variables;
+			
 			var data = {};
 
 			// Going through given parameters
@@ -32,24 +35,26 @@ var Wires = Wires || {};
 			// Replacing . (DOT) sign with underscore solves this problem
 			
 			_.each(variables, function(variable) {
-				var value = variable.getValue();
-				if (newValue) {
+				
+				var value = variable.getValue ? variable.getValue() : variable;
+				if (newValue !== undefined && !variable.service) {
 					value = variable.equalsTo(incomingVar) ? newValue : value;
 				}
-				
-				
 				var key = variable.name.replace(/[\[.\]]/ig,'_');
 				
 				data[key] = value;
 				statement = statement.split(variable.name).join(key);
 			});
 			
+			
+			
 			// Creating function
-			var func = '(function(' + _.keys(data) + '){ return ' + statement + '})';
+			var func = '(function(' + _.keys(data) + '){ '+(resultNeeded ? 'return' : '') +' ' + statement + '})';
 			var result = '';
 			
 			// Getting "this"
 			var _this = this.getThisPointer(scope);
+			
 			try {
 				result = eval(func).apply(_this, _.values(data));
 			} catch (e) {

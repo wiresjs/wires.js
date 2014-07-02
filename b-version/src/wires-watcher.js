@@ -13,6 +13,7 @@ var Wires = Wires || {};
 				var property = variable.target.property;
 
 				instance.watch(property, function(a, b, newvalue) {
+					
 					this.valueChanged(newvalue);
 					return newvalue;
 				}.bind(this));
@@ -22,7 +23,6 @@ var Wires = Wires || {};
 			var self = this;
 			
 			_.each(this.nodeCollection, function(node) {
-				//console.log('changed', node.element);
 				node.setValue(self.variable, value);
 			});
 		},

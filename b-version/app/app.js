@@ -9,6 +9,7 @@ $(function() {
 	//history.register(new RegExp('.*?'), app.BaseController);
 	history.register('', app.MainController);
 	history.register('user', app.UserController);
+	history.register('animate', app.AnimateController);
 	
 	history.start();
 });
