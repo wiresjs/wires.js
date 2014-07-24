@@ -12,6 +12,7 @@ var app = app || {};
 			this.userIvan = { id : 1, name : 'ivan' };
 			this.userJose = { id : 2, name : 'jose' };
 			this.ids = 3;
+			this.zero = 0;
 			this.newUserName = 'Sam';
 			window.a = this;
 		},

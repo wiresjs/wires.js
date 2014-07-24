@@ -21,8 +21,9 @@ var Wires = Wires || {};
 		setValue : function(variable, value) {
 		
 		//	this.async(function() {
-				
-				this.element.nodeValue = this.compileValue(variable, value);
+				var value = this.compileValue(variable, value);
+				//console.log(value);
+				this.element.nodeValue = value;
 		//	});
 		},
 		getElement : function() {

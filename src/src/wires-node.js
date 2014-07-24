@@ -25,7 +25,7 @@ var Wires = Wires || {};
 				 }
 				if (value !== undefined) {
 					map[variable.tag] = value;
-					template = template.split(variable.name).join(value ? value.toString() : '');
+					template = template.split(variable.name).join(value !== undefined ? value.toString() : '');
 				}
 			});
 			return template;
