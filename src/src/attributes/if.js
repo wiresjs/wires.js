@@ -6,7 +6,7 @@ Wires.attrs = Wires.attrs || {};
 		initialize : function() {
 			Wires.attrs['if'].__super__.initialize.apply(this, arguments);
 			var self = this;
-			// Using defer, cuz at current moment we don't have it in the DOM
+			// Using defer, cuz at the current moment we don't have it in the DOM
 			_.defer(function() {
 				self.node.placeholder.nodeValue = 'wires-if: ' + self.condition;
 			});

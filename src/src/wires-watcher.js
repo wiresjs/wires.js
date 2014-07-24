@@ -34,20 +34,19 @@ var Wires = Wires || {};
 			var self = this;
 			var index = this.index++;
 			var el = node.element;
-
-			el.addEventListener("DOMNodeInserted", function() {
-				var watchedElement = (this.node instanceof Wires.TextNode) ? node.element.parentNode || node.element
-						: node.element;
-				watchedElement.addEventListener("DOMNodeRemoved", function() {
-					delete self.nodeCollection[this.index];
-				}.bind({
-					index : index
-				}), false);
-
+			
+			// TODO: Weired stuff going on here */
+			 /*
+			var watchedElement = (this.node instanceof Wires.TextNode) ? node.element.parentNode || node.element
+					: node.element;
+			watchedElement.addEventListener("DOMNodeRemoved", function() {
+				console.log('removed', this.node.element);
+				delete self.nodeCollection[this.index];
 			}.bind({
 				index : index,
 				node : node
-			}), false);
+			}), false);*/
+
 
 			this.nodeCollection[index] = node;
 		}
