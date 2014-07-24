@@ -3,10 +3,12 @@ var Wires = Wires || {};
 	'use strict';
 	Wires.TagNode = Wires.Node.extend({
 		initialize : function(scope, dom, target, options) {
+			var self = this;
 			this.dom = dom;
 			this.scope = scope;
 			
 			this.instance = scope.instance;
+			this.attributes = [];
 			this.element = this.getElement();
 			
 			// We continue parsing in case of attibute does not do it manualluy
@@ -30,6 +32,10 @@ var Wires = Wires || {};
 					target.appendChild(this.placeholder);
 				}
 			}
+			_.each(this.attributes, function(attribute){
+				if ( attribute.onElementReady)
+					attribute.onElementReady(self);
+			});
 		},
 		bindAttribute : function(attr, element) {
 			new Wires.Attr(this.scope, this.dom, element, attr);
@@ -73,8 +79,7 @@ var Wires = Wires || {};
 			});
 			
 			_.each(customAttributes, function(data) {
-				
-				new data.handler(self.scope, self.dom, element, data.attr, self);
+				self.attributes.push( new data.handler(self.scope, self.dom, element, data.attr, self) );
 			});
 			return element;
 		}

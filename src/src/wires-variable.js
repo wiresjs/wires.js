@@ -105,8 +105,9 @@ var Wires = Wires || {};
 		},
 		_executeFunction : function() {
 			var func = this.compiledFunction;
+			
 			var _this = Wires.Exec.getThisPointer(this.scope);
-			;
+			
 			var result = '';
 			try {
 				result = func.apply(_this);
@@ -122,7 +123,9 @@ var Wires = Wires || {};
 		},
 		// Gets the value of variable / expression
 		getValue : function(incomingVar, newValue) {
+			
 			if (this.expression) {
+				
 				return Wires.Exec.expression({
 					statement : this.expression,
 					incomingVar : incomingVar,
@@ -131,12 +134,17 @@ var Wires = Wires || {};
 					variables : this.expressionVariables
 				});
 			}
+			if ( !_.isObject(this.target.instance) ){
+				return this.target.instance;
+			}
 			if (!this.isFunction && this.target.instance[this.target.property] !== undefined) {
 				return this._executeFunction();
 			}
+			
 			if (this.isFunction) {
 				return this._executeFunction();
 			}
+			
 			return '';
 		},
 		setValue : function(value) {

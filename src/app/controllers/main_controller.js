@@ -17,7 +17,7 @@ var app = app || {};
 		},
 		addUser : function()
 		{
-			console.log(this.newUserName);
+			
 			if ( this.newUserName ) {
 				this.ids++;
 				this.users.push({id : this.ids, name : this.newUserName});
@@ -26,6 +26,7 @@ var app = app || {};
 		},
 		index : function(params, render) {
 			
+			this.numbers = [1,2,3,4];
 			this.color = 'gray';
 			//this.showdiv = true; 
 			this.users = [this.userIvan, this.userJose];

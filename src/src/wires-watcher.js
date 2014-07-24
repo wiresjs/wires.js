@@ -13,7 +13,7 @@ var Wires = Wires || {};
 				var property = variable.target.property;
 
 				instance.watch(property, function(a, b, newvalue) {
-					
+
 					this.valueChanged(newvalue);
 					return newvalue;
 				}.bind(this));
@@ -21,32 +21,28 @@ var Wires = Wires || {};
 		},
 		valueChanged : function(value) {
 			var self = this;
-			
+
 			_.each(this.nodeCollection, function(node) {
 				node.setValue(self.variable, value);
 			});
 		},
 		setInitial : function(node) {
-			
-			node.setValue(this.variable);
+			node.setValue(this.variable, undefined, true);
 		},
 		add : function(node) {
 			var self = this;
 			var index = this.index++;
 			var el = node.element;
-			
-			// TODO: Weired stuff going on here */
-			 /*
-			var watchedElement = (this.node instanceof Wires.TextNode) ? node.element.parentNode || node.element
-					: node.element;
-			watchedElement.addEventListener("DOMNodeRemoved", function() {
-				console.log('removed', this.node.element);
-				delete self.nodeCollection[this.index];
-			}.bind({
-				index : index,
-				node : node
-			}), false);*/
 
+			// TODO: Weired stuff going on here */
+			/*
+			 * var watchedElement = (this.node instanceof Wires.TextNode) ?
+			 * node.element.parentNode || node.element : node.element;
+			 * watchedElement.addEventListener("DOMNodeRemoved", function() {
+			 * console.log('removed', this.node.element); delete
+			 * self.nodeCollection[this.index]; }.bind({ index : index, node : node
+			 * }), false);
+			 */
 
 			this.nodeCollection[index] = node;
 		}
@@ -56,6 +52,7 @@ var Wires = Wires || {};
 			console.log('unwatch', variable, node.element);
 		},
 		spy : function(scope, variable, node) {
+
 			var instance = scope.instance;
 			var variableName = variable.name;
 
@@ -67,14 +64,30 @@ var Wires = Wires || {};
 			var variableName = variable.target && variable.target.property ? variable.target.property : variable.name;
 			// Refere to the correct instance
 			instance = variable.target && variable.target.instance ? variable.target.instance : instance;
+
+			// Numbers are ignored. They can't be watchable;
+			// if ( _.isNumber(instance) ){
+			// node.setValue(instance);
+			// console.log(instance, 'is', 'number');
+			// return;
+			// }
+			// console.log(instance.uniqueId, variableName);
+
 			// Create unique listener
+			var instanceId = instance.uniqueId;
 			if (!this.collections[instance.uniqueId]) {
-				this.collections[instance.uniqueId] = new Wires.Watcher(node, variable);// {};
+
+				var watcher = new Wires.Watcher(node, variable);
+				;
+
+				this.collections[instanceId] = watcher;
+
 			}
-			if (!this.collections[instance.uniqueId][variableName]) {
-				this.collections[instance.uniqueId][variableName] = new Wires.Watcher(node, variable);
+
+			if (!this.collections[instanceId][variableName]) {
+				this.collections[instanceId][variableName] = new Wires.Watcher(node, variable);
 			}
-			var singleWatcher = this.collections[instance.uniqueId][variableName];
+			var singleWatcher = this.collections[instanceId][variableName];
 			// Adding node to the watcher
 			// console.log( node instanceof Wires.TextNode );
 			singleWatcher.add(node);

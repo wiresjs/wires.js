@@ -5,12 +5,9 @@ Wires.attrs = Wires.attrs || {};
 	Wires.attrs['if'] = Wires.BaseAttribute.extend({
 		initialize : function() {
 			Wires.attrs['if'].__super__.initialize.apply(this, arguments);
-			var self = this;
-			// Using defer, cuz at the current moment we don't have it in the DOM
-			_.defer(function() {
-				self.node.placeholder.nodeValue = 'wires-if: ' + self.condition;
-			});
-
+		},
+		onElementReady : function() {
+			this.node.placeholder.nodeValue = 'wires-if: ' + this.condition;
 		},
 		setValue : function(newVariable, newValue) {
 			var result = this.executeStatement(newVariable, newValue, 'return');
