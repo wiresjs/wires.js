@@ -1,14 +1,35 @@
 <a href="/app/#user">to user</a>
 <h5>Try pink</h5>
-<h1>Color:<span style="color: $color">$color</span> {# $color==='pink' ? 'so gay choice' : '' #}</h1>
+<h1>
+	Color:<span style="color: $color">$color</span> {# $color==='pink' ? 'so gay choice' : '' #}
+</h1>
 <input type="text" value="$color">
 <hr>
 <h4>Users</h4>
-<div each="$user in $users" >
-    <div style="border:1px solid #ececec; margin-bottom:3px;">
-    <div style="background-color: $parent.color">$user.id <span> $user.name</span></div>
-    </div>
-</div> 
+
+
+<table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>First Name</th>
+          
+          
+        </tr>
+      </thead>
+      <tbody>
+        <tr repeat="$user in $users" visible="$user.name !== 'test'">
+          <td>$user.id</td>
+          <td>$user.name</td>
+        </tr>
+       
+      </tbody>
+    </table>
+    
+    
+    <input type="text" value="$newUserName">
+    <div click="this.addUser()" class="btn btn-primary">Add user $newUserName</div>
+
 
 <h4>Modify userJose.name</h4>
 <input type="text" value="$userJose.name">

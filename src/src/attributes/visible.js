@@ -17,7 +17,12 @@ Wires.attrs = Wires.attrs || {};
 				break;
 			default:
 				// Default is just toggling
-				el.css('display', result ? 'block' : 'none');
+				if ( result ){
+					el.show();
+				} else {
+					el.hide();
+				}
+				//el.css('display', result ? 'block' : 'none');
 				break;
 			}
 		},

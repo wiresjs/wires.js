@@ -11,7 +11,18 @@ var app = app || {};
 		{
 			this.userIvan = { id : 1, name : 'ivan' };
 			this.userJose = { id : 2, name : 'jose' };
+			this.ids = 3;
+			this.newUserName = '111';
 			window.a = this;
+		},
+		addUser : function()
+		{
+			console.log(this.newUserName);
+			if ( this.newUserName ) {
+				this.ids++;
+				this.users.push({id : this.ids, name : this.newUserName});
+			}
+			this.newUserName = "";
 		},
 		index : function(params, render) {
 			

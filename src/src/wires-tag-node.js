@@ -2,17 +2,34 @@ var Wires = Wires || {};
 (function() {
 	'use strict';
 	Wires.TagNode = Wires.Node.extend({
-		initialize : function(scope, dom, target, parent) {
+		initialize : function(scope, dom, target, options) {
 			this.dom = dom;
 			this.scope = scope;
 			
 			this.instance = scope.instance;
 			this.element = this.getElement();
+			
 			// We continue parsing in case of attibute does not do it manualluy
-			if (dom.children && !this.attributeClamsChildren) {
+			
+			// In case if this element needs to be inserted before node
+			// Here we ignore options
+			if ( options && options.insertBefore){
+				$(this.element).insertBefore(options.insertBefore);
 				Wires.World.parse(scope, dom.children, this.element);
+				
+			} else {
+				// In any other case, regular routine
+				if (dom.children && !this.attributeClamsChildren) {
+					Wires.World.parse(scope, dom.children, this.element);
+				}
+					
+				if ( this.shouldAppendElement ){
+					target.appendChild(this.element);
+				} else {
+					this.placeholder = document.createComment('placeholder');
+					target.appendChild(this.placeholder);
+				}
 			}
-			target.appendChild(this.element);
 		},
 		bindAttribute : function(attr, element) {
 			new Wires.Attr(this.scope, this.dom, element, attr);
@@ -20,6 +37,7 @@ var Wires = Wires || {};
 		getElement : function() {
 			var element = document.createElement(this.dom.name);
 			var self = this;
+			this.shouldAppendElement = true;
 			var customAttributes = [];
 			// Adding and processing attributes
 			_.each(this.dom.attribs, function(attrValue, attrKey) {
@@ -35,6 +53,9 @@ var Wires = Wires || {};
 					});
 					if (handler.claimsChildren === true) {
 						self.attributeClamsChildren = true;
+					}
+					if ( handler.shouldAppendElement !== undefined ){
+						self.shouldAppendElement = handler.shouldAppendElement
 					}
 					addAttribute = handler.addAttibute;
 				} else {
@@ -53,7 +74,7 @@ var Wires = Wires || {};
 			
 			_.each(customAttributes, function(data) {
 				
-				new data.handler(self.scope, self.dom, element, data.attr);
+				new data.handler(self.scope, self.dom, element, data.attr, self);
 			});
 			return element;
 		}

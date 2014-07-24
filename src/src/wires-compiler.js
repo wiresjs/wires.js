@@ -37,13 +37,16 @@ var Wires = Wires || {};
 			}
 			return newScope;
 		},
-		parse : function(scope, dom, target) {
+		parse : function(scope, dom, target, options) {
+			
 			_.each(dom, function(item) {
 				if (item.type === 'text') {
-					new Wires.TextNode(scope, item, target);
+					
+					new Wires.TextNode(scope, item, target,options);
 				}
 				if (item.type === 'tag') {
-					new Wires.TagNode(scope, item, target);
+					
+					new Wires.TagNode(scope, item, target,options);
 				}
 			});
 		},

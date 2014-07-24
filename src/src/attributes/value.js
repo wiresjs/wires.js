@@ -12,13 +12,17 @@ Wires.attrs = Wires.attrs || {};
 		},
 		bindChanges : function() {
 			var self = this;
+			 
 			this.element.addEventListener("keydown", function(evt) {
-				if (evt.keyCode === 13) {
+				clearInterval(self.interval);
+				self.interval = setTimeout(function(){
+					
 					if (self.variables.length > 0) {
 						self.ignoreNodeSetValue = true;
 						self.variables[0].setValue(this.value, {ignore : this.element});
 					}
-				}
+				}.bind(this),100);
+				
 			}, false);
 		},
 		setValue : function(variable, newValue) {

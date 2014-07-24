@@ -3,11 +3,12 @@ Wires.attrs = Wires.attrs || {};
 (function() {
 	'use strict';
 	Wires.attrs.each = Wires.Attr.extend({
-		initialize : function(scope, dom, element, attr) {
+		initialize : function(scope, dom, element, attr, node) {
 			this.instance = scope.instance;
 			this.scope = scope;
 			this.element = element;
 			this.attr = attr;
+			this.node = node;
 			this.dom = dom;
 			this.condition = this.attr.value;
 			// Get the essentials
