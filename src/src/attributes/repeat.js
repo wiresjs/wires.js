@@ -5,6 +5,12 @@ Wires.attrs = Wires.attrs || {};
 	Wires.attrs.repeat = Wires.attrs.each.extend({
 		initialize : function() {
 			Wires.attrs.repeat.__super__.initialize.apply(this, arguments);
+			
+			var self = this;
+			// Using defer, cuz at current moment we don't have it in the DOM
+			_.defer(function(){
+				self.node.placeholder.nodeValue = 'wires-repeat: ' + self.condition;
+			});
 		},
 		addItem : function(item, index) {
 			

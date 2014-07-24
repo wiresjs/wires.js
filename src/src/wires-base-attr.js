@@ -3,8 +3,9 @@ Wires.attrs = Wires.attrs || {};
 (function() {
 	'use strict';
 	Wires.BaseAttribute = Wires.Attr.extend({
-		initialize : function(scope, dom, element, attr) {
+		initialize : function(scope, dom, element, attr, node) {
 			this.scope = scope;
+			this.node = node;
 			this.instance = scope.instance;
 			this.element = element;
 			this.attr = attr;

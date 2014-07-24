@@ -26,7 +26,7 @@ var Wires = Wires || {};
 				if ( this.shouldAppendElement ){
 					target.appendChild(this.element);
 				} else {
-					this.placeholder = document.createComment('placeholder');
+					this.placeholder = document.createComment('');
 					target.appendChild(this.placeholder);
 				}
 			}
