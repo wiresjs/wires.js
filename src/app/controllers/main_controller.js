@@ -12,7 +12,7 @@ var app = app || {};
 			this.userIvan = { id : 1, name : 'ivan' };
 			this.userJose = { id : 2, name : 'jose' };
 			this.ids = 3;
-			this.newUserName = 'new user name';
+			this.newUserName = 'Sam';
 			window.a = this;
 		},
 		addUser : function()

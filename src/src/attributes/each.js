@@ -18,6 +18,7 @@ Wires.attrs = Wires.attrs || {};
 			Wires.Watcher.spy(this.instance, this.essentials.collection, this);
 		},
 		addItem : function(item, index) {
+			
 			if (!index) {
 				index = this.getArrayLength();
 			}
@@ -31,17 +32,24 @@ Wires.attrs = Wires.attrs || {};
 		bindArrayEvents : function(collection) {
 			this.array = collection.getValue();
 			if (_.isArray(this.array)) {
-				// Handle simple array
-				this.array._WiresEach = this;
-				this.array.push = function() {
-					var target = arguments.length > 0 ? arguments[0] : null;
-					if (target) {
-						this._WiresEach.addItem(target);
-					}
-					return Array.prototype.push.apply(this, arguments);
-				};
-			}
-			;
+				
+				// Prototype array only once
+				if ( !this.array._WiresEach){
+					this.array._WiresEach = [];
+					this.array.push = function() {
+						var target = arguments.length > 0 ? arguments[0] : null;
+						if (target) {
+							_.each(this._WiresEach, function(eachInstance){
+								eachInstance.addItem(target);
+							});
+						}
+						return Array.prototype.push.apply(this, arguments);
+					};
+				}
+				// Adding current instance of each
+				this.array._WiresEach.push(this);
+			};
+			
 		},
 		getArrayLength : function() {
 			return this.array.length;

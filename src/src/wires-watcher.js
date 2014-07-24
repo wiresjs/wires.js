@@ -27,7 +27,7 @@ var Wires = Wires || {};
 			});
 		},
 		setInitial : function(node) {
-			//console.log('set initial', node.element);
+			
 			node.setValue(this.variable);
 		},
 		add : function(node) {
@@ -35,7 +35,7 @@ var Wires = Wires || {};
 			var index = this.index++;
 			var el = node.element;
 
-			/*el.addEventListener("DOMNodeInserted", function() {
+			el.addEventListener("DOMNodeInserted", function() {
 				var watchedElement = (this.node instanceof Wires.TextNode) ? node.element.parentNode || node.element
 						: node.element;
 				watchedElement.addEventListener("DOMNodeRemoved", function() {
@@ -47,7 +47,7 @@ var Wires = Wires || {};
 			}.bind({
 				index : index,
 				node : node
-			}), false);*/
+			}), false);
 
 			this.nodeCollection[index] = node;
 		}
