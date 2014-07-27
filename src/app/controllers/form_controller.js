@@ -15,7 +15,10 @@ var app = app || {};
 			}.bind(this), 500);
 		},
 		index : function(params, render) {
+			window.a = this;
 			
+			this.opinion = 'It is really cool';
+			this.list = ['Wires is awesome', 'It is really cool', 'I want to use it']; 
 			render();
 		}
 	});
