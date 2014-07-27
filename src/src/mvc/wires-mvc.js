@@ -49,42 +49,7 @@ Wires.MVC = Wires.MVC || {};
 			});
 		}
 	}
-	// Collection ******************************
-	// Knockout backbone collection bridge
-	Wires.MVC.Collection = Backbone.Collection.extend({
-		// Here we bind events that will modify the ko array
-		initialize : function(models, options) {
-			this.observable = ko.observableArray([]);
-			this.bind("add", function(model) {
-				this.observable.push(model)
-			}.bind(this));
-			this.bind("remove", function(model) {
-				this.observable.remove(model)
-			}.bind(this));
-			var self = this;
-		}
-	});
-	// Knockout backbone model
-	Wires.MVC.Model = Backbone.Model.extend({
-		initialize : function() {
-
-		},
-
-		onServerError : function(model, response) {
-			var errMessage = JSON.parse(response.responseText);
-			var errors = [ {
-				message : errMessage.message
-			} ]
-			this.trigger("invalid", model, errors);
-		},
-		save : function(key, options) {
-			if (options.error === undefined) {
-				options.error = _.bind(this.onServerError, this)
-			}
-			return Backbone.Model.prototype.save.call(this, key, options);
-		},
-	});
-
+	
 	// Knockout interceptor
 	Wires.MVC.ControllerInterceptor = function(controller, ready) {
 		var loaders = controller.interceptors || {};
@@ -254,7 +219,7 @@ Wires.MVC = Wires.MVC || {};
 			done(Wires.MVC.controllerTemplates[template]);
 		}
 	};
-	Wires.MVC.Layout = Backbone.View.extend({
+	Wires.MVC.Layout = Wires.Class.extend({
 		template : function(template, callback, container) {
 			var self = this;
 			Wires.MVC.fetchTemplate(template, function(data) {

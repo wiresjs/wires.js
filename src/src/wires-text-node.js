@@ -19,12 +19,8 @@ var Wires = Wires || {};
 			}
 		},
 		setValue : function(variable, value) {
-		
-		//	this.async(function() {
-				var value = this.compileValue(variable, value);
-				//console.log(value);
-				this.element.nodeValue = value;
-		//	});
+			var value = this.compileValue(variable, value);
+			this.element.nodeValue = value;
 		},
 		getElement : function() {
 			return this.element;

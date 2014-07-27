@@ -62,7 +62,7 @@ var Wires = Wires || {};
 		};
 	};
 
-	Wires.Variable = Backbone.Model.extend({
+	Wires.Variable = Wires.Class.extend({
 
 		// The variable should be initialized after extraction
 		// So at this point it's not recommended to create it manually

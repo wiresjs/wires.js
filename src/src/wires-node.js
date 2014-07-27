@@ -1,7 +1,7 @@
 var Wires = Wires || {};
 (function() {
 	'use strict';
-	Wires.Node = Backbone.Model.extend({
+	Wires.Node = Wires.Class.extend({
 		bindEssentials : function(text) {
 			var self = this;
 			this.variables = Wires.Variable.extract(this.scope, text);

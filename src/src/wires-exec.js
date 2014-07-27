@@ -5,7 +5,7 @@ var Wires = Wires || {};
 	
 	'use strict';
 	
-	Wires.Exec = Backbone.Model.extend({}, {
+	Wires.Exec = Wires.Class.extend({}, {
 		// Compiling and execuing given expression
 		// All parameters should be given
 		expression : function(options) {

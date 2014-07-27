@@ -1,7 +1,7 @@
 var Wires = Wires || {};
 (function() {
 	'use strict';
-	Wires.World = Backbone.Model.extend({
+	Wires.World = Wires.Class.extend({
 		initialize : function(options) {
 			this.template = options.template;
 			this.target = options.target;

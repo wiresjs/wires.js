@@ -1,7 +1,7 @@
 var Wires = Wires || {};
 (function() {
 	'use strict';
-	Wires.Watcher = Backbone.Model.extend({
+	Wires.Watcher = Wires.Class.extend({
 		initialize : function(node, variable) {
 			this.nodeCollection = {};
 			this.index = 1;
