@@ -1,7 +1,7 @@
 var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
-	'use strict';
+	
 	Wires.attrs.repeat = Wires.attrs.each.extend({
 		initialize : function() {
 			Wires.attrs.repeat.__super__.initialize.apply(this, arguments);

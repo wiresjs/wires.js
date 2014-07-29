@@ -12,9 +12,9 @@ Wires.attrs = Wires.attrs || {};
 		{
 			var self = this;
 			$(this.element).submit(function(e){
-				console.log(1);
-				var result = self.executeStatement();
-				//e.originalEvent.preventDefault();
+				
+				self.executeStatement();
+				e.originalEvent.preventDefault();
 			});
 		},
 		setValue : function(newVariable, newValue) {

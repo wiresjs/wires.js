@@ -1,7 +1,7 @@
 var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
-	'use strict';
+	
 	Wires.attrs.each = Wires.Attr.extend({
 		initialize : function(scope, dom, element, attr, node) {
 			this.instance = scope.instance;
