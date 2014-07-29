@@ -198,7 +198,7 @@ Wires.MVC = Wires.MVC || {};
 	}
 	Wires.MVC.fetchTemplate = function(template, done) {
 		if (!Wires.MVC.controllerTemplates[template]) {
-			$.get('/app/views/' + template, function(e) {
+			$.get(Wires.Config.viewsFolder + template, function(e) {
 				var fns = [];
 				var includes = e.match(/\{\{\s?include (.*?)\}\}/ig);
 				_.each(includes, function(include) {
