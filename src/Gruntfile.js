@@ -3,8 +3,6 @@ module.exports = function(grunt) {
 	var targetFiles = [ 
 	    
 	    './lib/htmlparser.js',
-	    './lib/async.js',
-	    
 	    './src/wires-extend.js',
 	    './src/wires-object-utils.js',
 	    
