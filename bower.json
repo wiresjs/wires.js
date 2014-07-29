@@ -1,0 +1,29 @@
+{
+  "name": "wires.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/wiresjs/wires.js",
+  "authors": [
+    "iorlov <nchanged@gmail.com>"
+  ],
+  "description": "Wires.js - Wires your DOM",
+  "main": "build/wires.min.js",
+  "keywords": [
+    "dom",
+    "2 way binding",
+    "isomorphic"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "src",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+	    "jquery": "latest",
+	    "async": "latest",
+	    "lodash": "latest"
+  }
+}
