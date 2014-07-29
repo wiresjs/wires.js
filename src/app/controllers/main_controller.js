@@ -4,7 +4,7 @@ var app = app || {};
 	app.MainController = Wires.MVC.Controller.extend({
 		essentials : {
 			views : {
-				index : 'index.html'
+				'*' : 'index.html'
 			}
 		},
 		initialize : function()
@@ -14,7 +14,17 @@ var app = app || {};
 			this.ids = 3;
 			this.zero = 0;
 			this.newUserName = 'Sam';
+			
+			this.numbers = [1,2,3,4];
+			this.color = 'gray';
+			 
+			this.users = [this.userIvan, this.userJose];
 			window.a = this;
+		},
+		test : function(params, render)
+		{
+			this.color = 'pink';
+			render();
 		},
 		addUser : function()
 		{
@@ -27,10 +37,7 @@ var app = app || {};
 		},
 		index : function(params, render) {
 			
-			this.numbers = [1,2,3,4];
-			this.color = 'gray';
-			//this.showdiv = true; 
-			this.users = [this.userIvan, this.userJose];
+			this.color = 'blue';
 			render();
 		}
 	}, {displayName: 'Overview', controllerName: 'main'});

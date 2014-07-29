@@ -49,7 +49,7 @@ Wires.MVC = Wires.MVC || {};
 			});
 		}
 	}
-	
+
 	// Knockout interceptor
 	Wires.MVC.ControllerInterceptor = function(controller, ready) {
 		var loaders = controller.interceptors || {};
@@ -85,6 +85,7 @@ Wires.MVC = Wires.MVC || {};
 			c(Wires.MVC.getURLParameters());
 		});
 	}
+	Wires.MVC.LastOpenedView = null;
 	Wires.MVC.Essentials = function(controller, action, ready) {
 		var action = action || "index";
 		var essentials = controller.essentials || {};
@@ -92,7 +93,7 @@ Wires.MVC = Wires.MVC || {};
 		var collections = essentials.collections || {};
 		var container = essentials.containers ? essentials.containers['*'] || essentials.containers[action] : '#content';
 		var viewTemplate;
-		var templateFor = views[action] || null;
+		var templateFor = views['*'] ? views['*'] : views[action] || null;
 		var fns = [];
 		if (templateFor) {
 			fns.push(function(done) {
@@ -115,24 +116,26 @@ Wires.MVC = Wires.MVC || {};
 			}))
 		})
 		async.waterfall(fns, function() {
+
 			ready({
 				tpl : viewTemplate,
-				container : container
+				container : container,
+				sameView : templateFor === Wires.MVC.LastOpenedView
 			});
+			Wires.MVC.LastOpenedView = templateFor;
 		});
 	};
 	Wires.MVC.ExecuteTarget = function(controller, method) {
 		controller._currentMethod = method;
+
 		Wires.MVC.Essentials(controller, method, function(options) {
-
-			$(options.container).hide();
-			Wires.World.cleanUp($(options.container)[0]);
-
-			//_.defer(function() {
-				controller[method](Wires.MVC.getURLParameters(), function() {
-					controller.attach.bind(controller)(options);
-				});
-			//});
+			if (!options.sameView) {
+				$(options.container).hide();
+				Wires.World.cleanUp($(options.container)[0]);
+			}
+			controller[method](Wires.MVC.getURLParameters(), function() {
+				controller.attach.bind(controller)(options);
+			});
 		});
 	}
 	Wires.MVC.Router = function(routes) {
@@ -240,24 +243,30 @@ Wires.MVC = Wires.MVC || {};
 			}
 			var afterDone = options.afterDone || function() {
 			};
-			var container = $(options.container);
-			if (!container[0]) {
-				console.error(options.container, 'was not found in DOM');
-				console.error('Cannot render instance ', this)
-			} else {
-				// container.append(options.tpl);
-				container.show();
-				var self = this;
-				var wires = new Wires.World({
-					template : options.tpl,
-					scope : {
-						instance : self
-					},
-					target : container[0]
-				});
+			if (!options.sameView) {
 
-				// ko.cleanNode(container[0])
-				// ko.applyBindings(self, container[0]);
+				var container = $(options.container);
+				if (!container[0]) {
+					console.error(options.container, 'was not found in DOM');
+					console.error('Cannot render instance ', this)
+				} else {
+
+					container.show();
+					var self = this;
+					var wires = new Wires.World({
+						template : options.tpl,
+						scope : {
+							instance : self
+						},
+						target : container[0]
+					});
+
+					// ko.cleanNode(container[0])
+					// ko.applyBindings(self, container[0]);
+					afterDone();
+					this.afterRender();
+				}
+			} else {
 				afterDone();
 				this.afterRender();
 			}
