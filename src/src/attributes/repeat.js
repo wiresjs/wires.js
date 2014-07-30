@@ -43,6 +43,7 @@ Wires.attrs = Wires.attrs || {};
 					Wires.attrs.repeat.__super__.setValue.apply(this._this, this.args);
 				}.bind({ _this : this, args : arguments  });
 			} else {
+				
 				Wires.attrs.repeat.__super__.setValue.apply(this, arguments);
 			}
 		},

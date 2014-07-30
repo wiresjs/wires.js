@@ -29,6 +29,7 @@ module.exports = function(grunt) {
 	    './src/attributes/animation.js',
 	    './src/attributes/submit.js',
 	    './src/attributes/selected.js',
+	    './src/attributes/ws-class.js',
 	    
 	    './src/mvc/wires-mvc.js'
 	    
