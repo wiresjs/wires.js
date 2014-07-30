@@ -52,7 +52,7 @@ var Wires = Wires || {};
 			console.log('unwatch', variable, node.element);
 		},
 		spy : function(scope, variable, node) {
-
+			
 			var instance = scope.instance;
 			var variableName = variable.name;
 
@@ -62,9 +62,10 @@ var Wires = Wires || {};
 			// Get real variable name
 			// Otherwise we will listen twice for the same variable in instance
 			var variableName = variable.target && variable.target.property ? variable.target.property : variable.name;
+			
 			// Refere to the correct instance
 			instance = variable.target && variable.target.instance ? variable.target.instance : instance;
-
+			
 			// Numbers are ignored. They can't be watchable;
 			// if ( _.isNumber(instance) ){
 			// node.setValue(instance);

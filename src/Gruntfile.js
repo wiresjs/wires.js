@@ -22,7 +22,6 @@ module.exports = function(grunt) {
 	    
 	    './src/attributes/if.js',
 	    './src/attributes/visible.js',
-	    './src/attributes/each.js',
 	    './src/attributes/repeat.js',
 	    './src/attributes/value.js',
 	    './src/attributes/click.js',

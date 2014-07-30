@@ -11,9 +11,7 @@ var Wires = Wires || {};
 		},
 		setValue : function(variable, newValue) {
 			var value = this.compileValue(variable, newValue);
-			//this.async(function() {
-				this.attr.value = value;
-			//});
+			this.attr.value = value;
 		},
 		// Execute statement
 		executeStatement : function(incomingVar, newValue, resultNeeded) {

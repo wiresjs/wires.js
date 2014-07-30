@@ -11,6 +11,7 @@ $(function() {
 	history.register('user', app.UserController);
 	history.register('animate', app.AnimateController);
 	history.register('form', app.FormController);
+	history.register('repeat', app.RepeatController);
 	
 	history.start();
 });

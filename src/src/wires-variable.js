@@ -7,6 +7,7 @@ var Wires = Wires || {};
 	// Clean the path from it
 	// Return the parent instance from the scope
 	var extractParents = function(path, scope) {
+		
 		var parentsRegExp = new RegExp(/^(parent\.|parents\[(\d{1,4})\]\.)/m);
 		var pMatch = path.match(parentsRegExp);
 		var instance = scope.instance;

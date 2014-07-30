@@ -11,6 +11,7 @@ var Wires = Wires || {};
 			this.attributes = [];
 			this.element = this.getElement();
 			
+			
 			// We continue parsing in case of attibute does not do it manualluy
 			
 			// In case if this element needs to be inserted before node
@@ -20,6 +21,9 @@ var Wires = Wires || {};
 				Wires.World.parse(scope, dom.children, this.element);
 				
 			} else {
+				if ( !this.shouldAppendElement)
+					this.attributeClamsChildren = true;
+				
 				// In any other case, regular routine
 				if (dom.children && !this.attributeClamsChildren) {
 					Wires.World.parse(scope, dom.children, this.element);
@@ -28,9 +32,16 @@ var Wires = Wires || {};
 				if ( this.shouldAppendElement ){
 					target.appendChild(this.element);
 				} else {
-					this.placeholder = document.createComment('');
-					target.appendChild(this.placeholder);
+					this.placeholders = true;
 				}
+			}
+			if ( this.placeholders ){
+				
+				this.placeholderBefore = document.createComment('');
+				target.appendChild(this.placeholderBefore);
+				
+				this.placeholderAfter = document.createComment('');
+				target.appendChild(this.placeholderAfter);
 			}
 			_.each(this.attributes, function(attribute){
 				if ( attribute.onElementReady)
@@ -49,6 +60,7 @@ var Wires = Wires || {};
 			_.each(this.dom.attribs, function(attrValue, attrKey) {
 				var attr = document.createAttribute(attrKey);
 				attr.value = attrValue;
+			
 				var addAttribute = true;
 				// Custom attributes should be handled differently
 				if (Wires.attrs[attrKey]) {
@@ -59,6 +71,9 @@ var Wires = Wires || {};
 					});
 					if (handler.claimsChildren === true) {
 						self.attributeClamsChildren = true;
+					}
+					if ( handler.placeholders ){
+						self.placeholders = true;
 					}
 					if ( handler.shouldAppendElement !== undefined ){
 						self.shouldAppendElement = handler.shouldAppendElement

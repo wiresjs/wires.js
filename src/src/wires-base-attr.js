@@ -10,11 +10,10 @@ Wires.attrs = Wires.attrs || {};
 			this.element = element;
 			this.attr = attr;
 			this.condition = this.attr.value;
-			this.addAttibute = false;
 			this.bindEssentials(this.condition);
-		},
+		},/*
 		setValue : function(newVariable, newValue) {
-		},
+		},*/
 	}, {
 		addAttibute : false
 	});

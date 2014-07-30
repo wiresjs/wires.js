@@ -1,0 +1,44 @@
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>x</th>
+            <th>First Name</th>
+            <th>Duplicate "each" for record</th>
+        </tr>
+    </thead>
+    <tbody >
+        <tr repeat="$user, $index in $users">
+            <td> $user.id</td>
+            <td><i class="glyphicon glyphicon-remove" click="this.parent.remove(this)"></i></td>
+            <td>$user.name</td>
+            <td>
+                 <div repeat="$user in $parent.users">$user.name</div>
+                 
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+
+<div class="btn btn-primary" click="this.test()">Clean up and add new</div>
+
+
+<h4>new tag</h4>
+<form submit="this.addTag()">
+<input type="text" value="$newtag">
+</form>
+
+<h4>New user</h4>
+<form submit="this.addUser()">
+<input type="text" value="$newuser">
+</form>
+
+
+
+<div class="btn" click="this.click1()">click 1</div>
+<div class="btn" click="this.click2()">click 2</div>

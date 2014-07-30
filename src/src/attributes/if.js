@@ -7,13 +7,14 @@ Wires.attrs = Wires.attrs || {};
 			Wires.attrs['if'].__super__.initialize.apply(this, arguments);
 		},
 		onElementReady : function() {
-			this.node.placeholder.nodeValue = 'wires-if: ' + this.condition;
+			this.node.placeholderBefore.nodeValue = 'wires-if: ' + this.condition;
+			this.node.placeholderAfter.nodeValue = '/wires-if: ' + this.condition;
 		},
 		setValue : function(newVariable, newValue) {
 			var result = this.executeStatement(newVariable, newValue, 'return');
 			var el = $(this.element);
 			if (result) {
-				el.insertBefore(this.node.placeholder);
+				el.insertBefore(this.node.placeholderAfter);
 			} else {
 				el.remove();
 			}

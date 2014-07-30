@@ -4,21 +4,15 @@ Wires.attrs = Wires.attrs || {};
 	'use strict';
 	Wires.attrs.submit = Wires.BaseAttribute.extend({
 		initialize : function() {
-			this.__parent__('initialize', arguments);
-			
+			Wires.attrs.submit.__super__.initialize.apply(this,arguments);
 			this.setBindings();
 		},
 		setBindings : function()
 		{
-			var self = this;
 			$(this.element).submit(function(e){
-				
-				self.executeStatement();
+				this.executeStatement();
 				e.originalEvent.preventDefault();
-			});
-		},
-		setValue : function(newVariable, newValue) {
-			
-		},
+			}.bind(this))
+		}
 	});
 })();
