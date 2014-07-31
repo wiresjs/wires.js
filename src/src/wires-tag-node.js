@@ -55,9 +55,13 @@ var Wires = Wires || {};
 			var element = document.createElement(this.dom.name);
 			var self = this;
 			this.shouldAppendElement = true;
+			var ignoreRestAttributes = false;
 			var customAttributes = [];
 			// Adding and processing attributes
 			_.each(this.dom.attribs, function(attrValue, attrKey) {
+				if (ignoreRestAttributes){
+					return false;
+				}
 				var attr = document.createAttribute(attrKey);
 				attr.value = attrValue;
 			
@@ -77,6 +81,9 @@ var Wires = Wires || {};
 					}
 					if ( handler.shouldAppendElement !== undefined ){
 						self.shouldAppendElement = handler.shouldAppendElement
+					}
+					if ( handler.ignoreRestAttributes  !== undefined){
+						ignoreRestAttributes = handler.ignoreRestAttributes
 					}
 					addAttribute = handler.addAttibute;
 				} else {

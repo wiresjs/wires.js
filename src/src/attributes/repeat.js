@@ -156,6 +156,7 @@ Wires.attrs = Wires.attrs || {};
 		},
 	}, {
 		addAttibute : false,
+		ignoreRestAttributes : true,
 		shouldAppendElement : false
 	});
 })();

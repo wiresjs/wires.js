@@ -9,7 +9,7 @@
         </tr>
     </thead>
     <tbody >
-        <tr repeat="$user, $index in $users">
+        <tr repeat="$user, $index in $users" visible="$user.pukka = 1">
             <td> $user.id</td>
             <td><i class="glyphicon glyphicon-remove" click="this.parent.remove(this)"></i></td>
             <td>$user.name</td>
