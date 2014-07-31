@@ -40,6 +40,14 @@ Wires.MVC = Wires.MVC || {};
 				error : error
 			});
 		},
+		put : function(url, success, error) {
+			this._send({
+				type : "PUT",
+				url : url,
+				success : success,
+				error : error
+			});
+		},
 		del : function(url, success, error) {
 			this._send({
 				type : "DELETE",
