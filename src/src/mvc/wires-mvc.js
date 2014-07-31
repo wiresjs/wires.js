@@ -19,12 +19,14 @@ Wires.MVC = Wires.MVC || {};
 				dataType : 'json',
 				success : options.success,
 				error : function(res) {
+					
 					var response = JSON.parse(res.response);
 					options.error(response);
 				}
 			})
 		},
-		"get" : function(url, success, error) {
+		obtain : function(url, success, error) {
+			
 			this._send({
 				type : "GET",
 				url : url,
@@ -321,6 +323,12 @@ Wires.MVC = Wires.MVC || {};
 	Wires.MVC.Controller = Wires.MVC.Layout.extend({
 		// Here we bind events that will modify the ko array
 		initialize : function(models, options) {
+			Wires.MVC.Controller.__super__.initialize.apply(this, arguments);
+			
+		},
+		propertyChanged : function(event, name, value)
+		{
+			console.log(name, value);
 		}
 	});
 })();

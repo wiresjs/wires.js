@@ -5,6 +5,7 @@ Wires.attrs = Wires.attrs || {};
 	Wires.attrs.visible = Wires.BaseAttribute.extend({
 		setValue : function(newVariable, newValue) {
 			var result = this.executeStatement(newVariable, newValue, 'return');
+			
 			// If animation was set
 			var animation = $(this.element).data('animation');
 			var el = $(this.element);

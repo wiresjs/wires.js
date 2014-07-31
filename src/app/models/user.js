@@ -1,7 +1,11 @@
 var Wires = Wires || {};
+var app = app || {};
 (function() {
 	'use strict';
 	app.User = Wires.Model.extend({
-		json : '/app/test.json'
+		_settings : {
+			json : '/app/test.json'
+		}
+	
 	});
 })();

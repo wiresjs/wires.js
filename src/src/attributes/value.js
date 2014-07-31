@@ -71,6 +71,7 @@ Wires.attrs = Wires.attrs || {};
 			}
 			
 			var result = this.executeStatement(variable, newValue, 'return');
+			
 			var elType = this.element.getAttribute('type');
 			if (elType === 'checkbox') {
 				this.element.checked = result;

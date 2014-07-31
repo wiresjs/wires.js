@@ -8,7 +8,7 @@ var app = app || {};
 			}
 		},
 		index : function(params, render) {
-
+			
 			this.showQuote = false;
 			render();
 		}

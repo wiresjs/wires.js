@@ -1,4 +1,6 @@
-
+<form submit="this.search()">
+    <input type="text" value="$searchName"/> $searchName
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -9,12 +11,12 @@
         </tr>
     </thead>
     <tbody >
-        <tr repeat="$user, $index in $users" visible="$user.pukka = 1">
+        <tr repeat="$user, $index in $users">
             <td> $user.id</td>
             <td><i class="glyphicon glyphicon-remove" click="this.parent.remove(this)"></i></td>
             <td>$user.name</td>
             <td>
-                 <div repeat="$user in $parent.users">$user.name</div>
+                 <input type="text" value="$user.name"/>
                  
             </td>
         </tr>

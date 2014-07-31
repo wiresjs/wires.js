@@ -15,6 +15,8 @@ var Wires = Wires || {};
 				instance.watch(property, function(a, b, newvalue) {
 
 					this.valueChanged(newvalue);
+					
+					$(instance).trigger('property:changed', [property, newvalue])
 					return newvalue;
 				}.bind(this));
 			}

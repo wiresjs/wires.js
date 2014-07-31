@@ -6,10 +6,13 @@ var Wires = Wires || {};
 			var self = this;
 			this.variables = Wires.Variable.extract(this.scope, text);
 			this.template = text;
-			if (this.variables) {
+			
+			if (this.variables.length > 0) {
 				_.each(this.variables, function(variable) {
 					Wires.Watcher.spy(self.scope, variable, self);
 				});
+			} else {
+				this.setValue();
 			}
 		},
 		

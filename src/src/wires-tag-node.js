@@ -69,6 +69,7 @@ var Wires = Wires || {};
 				// Custom attributes should be handled differently
 				if (Wires.attrs[attrKey]) {
 					var handler = Wires.attrs[attrKey];
+					
 					customAttributes.push({
 						handler : handler,
 						attr : attr
