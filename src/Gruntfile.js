@@ -19,6 +19,8 @@ module.exports = function(grunt) {
 	    './src/wires-variable.js',
 	    './src/wires-watcher.js',
 	    './src/wires-base-attr.js',
+	    './src/wires-variable-tricks.js',
+	    
 	    
 	    './src/attributes/if.js',
 	    './src/attributes/visible.js',

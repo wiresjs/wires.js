@@ -32,7 +32,7 @@ var Wires = Wires || {};
 				success : opts.success,
 				error : opts.error
 			});
-			return this;
+			return this.collection;
 		}
 	});
 })();

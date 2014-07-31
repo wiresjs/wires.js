@@ -112,6 +112,9 @@ var Wires = Wires || {};
 			var result = '';
 			try {
 				result = func.apply(_this);
+				result = Wires.VariableTricks.changeWatchableTarget(result)
+				// Check for wires collection 
+				
 			} catch (e) {
 				Wires.Exec.failedMessage(e, {
 					message : 'Failed to execute',
@@ -145,7 +148,6 @@ var Wires = Wires || {};
 			if (this.isFunction) {
 				return this._executeFunction();
 			}
-			
 			return '';
 		},
 		setValue : function(value) {
