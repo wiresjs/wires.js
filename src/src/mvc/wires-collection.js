@@ -56,6 +56,7 @@ var Wires = Wires || {};
 			this.conditions.where = condition;
 			this._setViewResult( _.where(this.db, condition) );
 		},
+		
 		sortBy : function(condition)
 		{
 			this.conditions.sortBy = condition;
@@ -70,6 +71,14 @@ var Wires = Wires || {};
 			_.each(this.db, function(item){
 				self.array.push(item);
 			})
+		},
+		removeWhere : function(condition)
+		{
+			var items = [];
+			var items = _.where(this.db, condition);
+			_.each(items, function(item){
+				item.remove();
+			});
 		},
 		remove : function(item)
 		{
