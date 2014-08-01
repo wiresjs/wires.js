@@ -32,6 +32,10 @@ var Wires = Wires || {};
 				parent : scope.instance,
 				param : param
 			};
+			if ( param !== undefined ){
+				newScope.instance = {}
+				newScope.instance[param] = instance;
+			}
 			if (scope.parents) {
 				newScope.parents = _.union(newScope.parents, scope.parents);
 			}

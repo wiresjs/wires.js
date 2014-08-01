@@ -1,3 +1,4 @@
+
 // Polifil for watch
 if (!Object.prototype.watch) {
 	Object.defineProperty(Object.prototype, "watch", {

@@ -16,7 +16,6 @@ var Wires = Wires || {};
 			// If we get the index
 			if ((parentIndex = parseInt(pMatch[2])) > 0) {
 				if (scope.parent && scope.parents.length >= parentIndex) {
-
 					// Attach instance if parent is found in parents array
 					instance = scope.parents[parentIndex];
 				}
@@ -37,6 +36,7 @@ var Wires = Wires || {};
 
 	var getTargetVariable = function(s, p) {
 		var parentsData = extractParents(p, s);
+		
 		var instance = parentsData.instance;
 		var path = parentsData.path;
 		
@@ -49,7 +49,9 @@ var Wires = Wires || {};
 		}
 		var next = instance;
 		var property = null;
+		
 		_.each(p, function(element, index) {
+			
 			if (next[element] !== undefined && index < p.length - 1) {
 				next = next[element];
 			}
@@ -57,6 +59,8 @@ var Wires = Wires || {};
 				property = element;
 			}
 		});
+	
+		
 		return {
 			instance : next,
 			property : property
@@ -182,6 +186,7 @@ var Wires = Wires || {};
 			_.each(variables, function(variable) {
 				completeList.push(variable);
 			});
+			
 			return completeList;
 		}
 	});

@@ -12,10 +12,14 @@ Wires.attrs = Wires.attrs || {};
 			this.node = node;
 			this.dom = dom;
 			this.condition = this.attr.value;
+			
 			// Get the essentials
 			this.essentials = this.getEssentials();
-			this.bindArrayEvents();
+			var arrayWasInitialized = this.essentials.collection.getValue()._WiresEach;
+			
+			this.bindArrayEvents(arrayWasInitialized);
 			this.items = [];
+			
 			// Watch collection
 			Wires.Watcher.spy(this.instance, this.essentials.collection, this);
 		},
@@ -31,9 +35,6 @@ Wires.attrs = Wires.attrs || {};
 		},
 		addItem : function(item, index) {
 
-			if (!index) {
-				index = this.array.length;
-			}
 			// Setting getter for index
 			item[this.essentials.key.param] = function(){ 
 				return this.array.indexOf(this.item);
@@ -48,7 +49,7 @@ Wires.attrs = Wires.attrs || {};
 			delete modifiedDom.attribs.repeat;
 			
 			var modifiedChildren = [ modifiedDom ];
-			var newScope = Wires.World.attachParents(this.scope, item, self.essentials.value.param);
+			var newScope = Wires.World.attachParents(this.scope,item, self.essentials.value.param);
 			
 			var child = Wires.World.parse(newScope, modifiedChildren, this.element, {
 				insertBefore : this.node.placeholderAfter
@@ -57,11 +58,16 @@ Wires.attrs = Wires.attrs || {};
 		},
 		
 
-		bindArrayEvents : function() {
+		bindArrayEvents : function(arrayWasInitialized) {
 			var collection = this.essentials.collection;
 			this.array = collection.getValue();
 			
-			
+			// IF array was initialized, but the class was reloaded, all the 
+			// instances have to be dropped
+			// Because new elements are created
+			if ( arrayWasInitialized ){
+				this.array._WiresEach = null;
+			}
 			if (_.isArray(this.array)) {
 				// Prototype array only once
 				
@@ -80,6 +86,7 @@ Wires.attrs = Wires.attrs || {};
 						return push;
 					};
 					this.array.splice = function(index, untill) {
+						
 						for(var i = index; i< index + untill; i++){
 							$( this._WiresRepeat.items[i].element ).remove();
 						}
@@ -140,17 +147,17 @@ Wires.attrs = Wires.attrs || {};
 		// We need to wait initial value set and store it as delayed function
 		// When the dom is ready it should be triggered
 		setValue : function(variable, newValue, isInitial) {
-			if (isInitial) {
+			
+			if (isInitial ) {
 				
 				this.delayedAddFunction = function() {
-					
 					this._this._setValue.apply(this._this, this.args);
 				}.bind({
 					_this : this,
 					args : arguments
 				});
 			} else {
-
+				
 				this._setValue.apply(this, arguments);
 			}
 		},

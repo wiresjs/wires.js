@@ -3,7 +3,6 @@ var Wires = Wires || {};
 	'use strict';
 	Wires.Model = Wires.Class.extend({
 		_settings : {
-			
 		},
 		initialize : function(args) {
 			var self = this;
@@ -12,12 +11,13 @@ var Wires = Wires || {};
 			})
 			// Setting parent class
 			this._settings.parentClass = this.constructor;
-			$(this).on('property:changed', this.propertyChanged.bind(this));
+		//	$(this).on('property:changed', this.propertyChanged.bind(this));
 		},
-		// Is triggered when property changed
-		propertyChanged : function(event, name, value)
+		remove : function()
 		{
-			
+			if ( this._collection ){
+				this._collection.remove(this)
+			}
 		},
 		fetchAll : function(opt) {
 			var path = this._settings.json || this._settings.resource;

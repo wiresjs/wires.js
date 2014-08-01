@@ -18,7 +18,7 @@ var app = app || {};
 			this.numbers = [1,2,3,4];
 			this.color = 'gray';
 			 
-			this.users = [this.userIvan, this.userJose];
+			this.users = new app.User().fetchAll();
 			window.a = this;
 		},
 		test : function(params, render)
@@ -28,10 +28,11 @@ var app = app || {};
 		},
 		addUser : function()
 		{
-			
-			if ( this.newUserName ) {
+			if ( this.newUserName){
 				this.ids++;
-				this.users.push({id : this.ids, name : this.newUserName});
+				var user = new app.User({id : this.ids, user : this.newUserName});
+				console.log(user)
+				this.users.add(user);
 			}
 			this.newUserName = "";
 		},

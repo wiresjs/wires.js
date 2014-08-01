@@ -323,7 +323,7 @@ Wires.MVC = Wires.MVC || {};
 	Wires.MVC.Controller = Wires.MVC.Layout.extend({
 		// Here we bind events that will modify the ko array
 		initialize : function(models, options) {
-			Wires.MVC.Controller.__super__.initialize.apply(this, arguments);
+			//Wires.MVC.Controller.__super__.initialize.apply(this, arguments);
 			
 		},
 		propertyChanged : function(event, name, value)

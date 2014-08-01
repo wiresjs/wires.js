@@ -13,13 +13,16 @@ Wires.attrs = Wires.attrs || {};
 		setValue : function(newVariable, newValue) {
 			var result = this.executeStatement(newVariable, newValue, 'return');
 			var el = $(this.element);
+			
 			if (result) {
+				
 				el.insertBefore(this.node.placeholderAfter);
 			} else {
 				el.remove();
 			}
 		},
 	}, {
-		shouldAppendElement : false
+		shouldAppendElement : false,
+		claimsChildren : false
 	});
 })();

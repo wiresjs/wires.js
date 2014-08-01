@@ -9,7 +9,9 @@ var Wires = Wires || {};
 		},
 		add : function(model)
 		{
+			model._collection = this;
 			this.db.push(model);
+			
 			
 			// IF we had conditions defined
 			if ( this.conditions.where ){
@@ -69,6 +71,15 @@ var Wires = Wires || {};
 				self.array.push(item);
 			})
 		},
+		remove : function(item)
+		{
+			// Remove from db
+			var dbIndex = this.db.indexOf(item);
+			this.db.splice(dbIndex,1);
+			// Remove from view
+			var viewIndex = this.array.indexOf(item);
+			this.array.splice(viewIndex,1);
+		},
 		fetch : function(opts) {
 			var res;
 			var self = this;
@@ -82,6 +93,7 @@ var Wires = Wires || {};
 					res = [];
 					_.each(result, function(item) {
 						var item = new opts._class(item);
+						item._collection = self;
 						self.array.push(item);
 						// Pushing collection to a db storage
 						self.db.push(item);

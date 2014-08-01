@@ -26,6 +26,7 @@ Wires.attrs = Wires.attrs || {};
 		},
 		bindEvents : function() {
 			var self = this;
+			
 			$(this.element).click(function() {
 				this.executeStatement.bind(this)('', '', false);
 			}.bind(this));

@@ -11,7 +11,7 @@
         </tr>
     </thead>
     <tbody >
-        <tr repeat="$user, $index in $users">
+        <tr repeat="$user in $users">
             <td> $user.id</td>
             <td><i class="glyphicon glyphicon-remove" click="this.parent.remove(this)"></i></td>
             <td>$user.name</td>
@@ -27,7 +27,7 @@
 
 
 
-<div class="btn btn-primary" click="this.test()">Clean up and add new</div>
+
 
 
 <h4>new tag</h4>
@@ -42,5 +42,3 @@
 
 
 
-<div class="btn" click="this.click1()">click 1</div>
-<div class="btn" click="this.click2()">click 2</div>

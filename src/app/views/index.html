@@ -20,7 +20,7 @@ Test ws-class
 <h4>Users</h4>
 
 <a href="/app/#main/test">test</a>
-<h1 if="$color=='pink'">This is really gay...</h1>
+<h1 if="$color=='pink'">This is really gay...<div>111</div></h1>
 <h3 if="$color=='pink'">Like really...</h3>
 
 
@@ -37,8 +37,8 @@ Test ws-class
           <td>$user.id</td>
           <td>$user.name</td>
           <td> 
-	            <div each="$user in $parent.users">
-	                <div>$user.name</div>
+	            <div>
+	                <input type="text" value="$user.name"/>
 	            </div>
           </td>
         </tr>

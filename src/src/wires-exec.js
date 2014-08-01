@@ -81,8 +81,7 @@ var Wires = Wires || {};
 		getThisPointer : function(scope) {
 			var _this = scope.instance;
 			if (scope.parent || scope.parents) {
-				_this = {};
-				_this[scope.param] = scope.instance;
+				_this = scope.instance;
 				_this.parent = scope.parent;
 				_this.parents = scope.parents;
 			}

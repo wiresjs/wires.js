@@ -4,7 +4,7 @@ var app = app || {};
 	app.AnimateController = Wires.MVC.Controller.extend({
 		essentials : {
 			views : {
-				index : 'animate.html'
+				'*' : 'animate.html'
 			}
 		},
 		index : function(params, render) {

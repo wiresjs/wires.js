@@ -7,43 +7,37 @@ var app = app || {};
 				'*' : 'repeat.html'
 			}
 		},
-		test : function()
+	
+		remove : function(scope)
 		{
-			this.users.splice(0,this.users.length );
-			//this.users.push(this.userIvan);
-		},
-		remove : function(item)
-		{
-			var idx = item.user.index();
-			this.users.splice(idx, 1);
+			scope.user.remove();
 		},
 		addUser : function()
 		{
-			
 			if ( this.newuser){
-				this.users.add({id : 0, name : this.newuser});
+				var user = new app.User({id : 27, name : this.newuser});
+				
+				this.users.add(user);
 			}
 			this.newuser = '';
 		},
 		initialize : function()
 		{
-			window.a = this;
+			this.users = new app.User().fetchAll();
+		},
+		onSearchNameChanged : function(value)
+		{
+			this.users.where(function(e){
+				return e.name.toLowerCase().indexOf(value) >= 0;
+			})
 		},
 		index : function(params, render) {
 			var self = this;
-			
+			window.a = this;
 			this.searchName = '';
+		
+			this.users.reset();
 			
-			this.users = new app.User().fetchAll();
-
-			
-			$(this).on('property:changed',function(e, name, value){
-				if ( name == 'searchName'){
-					self.users.where(function(e){
-						return e.name.toLowerCase().indexOf(value) >= 0;
-					})
-				}
-			});
 			render();
 		}
 	});

@@ -35,8 +35,8 @@
 			<label> 
                        Opinion
                     </label>
-				<select class="form-control" each="$item in $list" value="$opinion">
-					<option selected="$parent.opinion === $item">$item </option>
+				<select class="form-control" value="$opinion">
+					<option repeat="$item in $list" selected="$parent.opinion === $item">$item </option>
 				</select>
 			</div>
 			<button type="submit" class="btn btn-default">Submit</button>
