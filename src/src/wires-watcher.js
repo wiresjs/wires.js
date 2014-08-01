@@ -19,12 +19,12 @@ var Wires = Wires || {};
 					
 					// Trigger property change
 					if ( instance.onPropertyChanged ){
-						instance.onPropertyChange(a, newvalue)
+						_.defer(function(){ instance.onPropertyChange(a, newvalue) })
 					}
 					// Trigger exclusively
 					var methodName = 'on' + a.charAt(0).toUpperCase() + a.slice(1) + 'Changed';
 					if ( instance[methodName] ){
-						instance[methodName](newvalue);
+						_.defer(function(){ instance[methodName](newvalue); });
 					}
 						
 					return newvalue;
