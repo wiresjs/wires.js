@@ -44,11 +44,15 @@ var Wires = Wires || {};
 
 		return child;
 	};
-
+	
+	
 	var Class = function(protoProps, staticProps) {
 		this.initialize.apply(this, arguments);
 	};
 	Class.extend = extend;
+	
+	_.extend(Class.prototype, Wires.Events);
+	
 	
 	Wires.Class = Class;
 })();

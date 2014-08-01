@@ -24,6 +24,10 @@ var app = app || {};
 		initialize : function()
 		{
 			this.users = new app.User().fetchAll();
+			
+			this.users.on('nameChanged', function(e, value){
+				console.log("name changed", value);
+			})
 		},
 		onSearchNameChanged : function(value)
 		{
@@ -37,7 +41,7 @@ var app = app || {};
 			this.searchName = '';
 		
 			this.users.reset();
-			
+			this.trigger('test',[1,2])
 			render();
 		}
 	});

@@ -11,7 +11,6 @@ var Wires = Wires || {};
 			})
 			// Setting parent class
 			this._settings.parentClass = this.constructor;
-		//	$(this).on('property:changed', this.propertyChanged.bind(this));
 		},
 		remove : function()
 		{
