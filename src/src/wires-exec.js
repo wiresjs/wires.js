@@ -2,9 +2,9 @@
 // All the functions should come to have their birth here
 var Wires = Wires || {};
 (function() {
-	
+
 	'use strict';
-	
+
 	Wires.Exec = Wires.Class.extend({}, {
 		// Compiling and execuing given expression
 		// All parameters should be given
@@ -14,8 +14,8 @@ var Wires = Wires || {};
 
 			// STRING: The new variable that's coming
 			var incomingVar = options.incomingVar;
-			
-			var resultNeeded = options.resultNeeded  !== undefined ? options.resultNeeded : true;
+
+			var resultNeeded = options.resultNeeded !== undefined ? options.resultNeeded : true;
 
 			// STRING: New value that has to be set
 			var newValue = options.newValue;
@@ -25,7 +25,7 @@ var Wires = Wires || {};
 
 			// Attached variables
 			var variables = options.variables;
-			
+
 			var data = {};
 
 			// Going through given parameters
@@ -33,30 +33,28 @@ var Wires = Wires || {};
 			// However the variables with a nested objects can't be passed as is
 			// It's needed to be in a proper variable format
 			// Replacing . (DOT) sign with underscore solves this problem
-			
+
 			_.each(variables, function(variable) {
-				
+
 				var value = variable.getValue ? variable.getValue() : variable;
 				if (newValue !== undefined && !variable.service) {
 					value = variable.equalsTo(incomingVar) ? newValue : value;
 				}
-				var key = variable.name.replace(/[\[.\]]/ig,'_');
-				
+				var key = variable.name.replace(/[\[.\]]/ig, '_');
+
 				data[key] = value;
 				statement = statement.split(variable.name).join(key);
 			});
-			
-			
-			
+
 			// Creating function
-			var func = '(function(' + _.keys(data) + '){ '+(resultNeeded ? 'return' : '') +' ' + statement + '})';
+			var func = '(function(' + _.keys(data) + '){ ' + (resultNeeded ? 'return' : '') + ' ' + statement + '})';
 			var result = '';
-			
+
 			// Getting "this"
 			var _this = this.getThisPointer(scope);
-			
+
 			try {
-				
+
 				result = eval(func).apply(_this, _.values(data));
 
 			} catch (e) {
@@ -71,11 +69,12 @@ var Wires = Wires || {};
 			return result;
 		},
 		// Compiling regular variable execution (or single function)
-		// The executiong does not happen here, cuz the function needs to be cached somewhere else
+		// The executiong does not happen here, cuz the function needs to be
+		// cached somewhere else
 		variable : function(param) {
 			return eval('(function(){return this.' + param + '})');
 		},
-		
+
 		// this argument
 		// The critical point of any compiled function
 		// Passing parent (current object)
@@ -89,7 +88,7 @@ var Wires = Wires || {};
 			}
 			return _this;
 		},
-		
+
 		// Failed message
 		// Grouped in console for a clear view and understanding an error
 		failedMessage : function(e, options) {

@@ -8,11 +8,9 @@ var app = app || {};
 			}
 		},
 		index : function(params, render) {
-			this.users = [ {
-				name : "ivan"
-			}, {
-				name : "roman"
-			} ];
+			this.ivan = { name : "ivan"};
+			this.roman = {name : "roman"}
+			this.users = [ this.ivan, this.roman ]
 			this.sukka = "kakka";
 			render();
 		}

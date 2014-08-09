@@ -34,8 +34,6 @@ var Wires = Wires || {};
 					self.dom.children = dom;
 					// Setting new scope
 					self.scope = Wires.World.attachParents(self.scope, component);
-					
-					
 					ready();
 				})
 			} else {
@@ -46,7 +44,7 @@ var Wires = Wires || {};
 			var options = this.options;
 			var target = this.target;
 			var dom = this.dom;
-			var scope = this.scope;
+			var self = this;
 			this.element = this.getElement();
 
 			this.prepareNodeStructure(function() {
@@ -56,7 +54,7 @@ var Wires = Wires || {};
 				// Here we ignore options
 				if (options && options.insertBefore) {
 					$(this.element).insertBefore(options.insertBefore);
-					Wires.World.parse(scope, dom.children, this.element);
+					Wires.World.parse(self.scope, dom.children, this.element);
 
 				} else {
 					if (!this.shouldAppendElement)
@@ -64,7 +62,8 @@ var Wires = Wires || {};
 
 					// In any other case, regular routine
 					if (dom.children && !this.attributeClamsChildren) {
-						Wires.World.parse(scope, dom.children, this.element);
+						
+						Wires.World.parse(self.scope, dom.children, this.element);
 					}
 
 					if (this.shouldAppendElement) {
