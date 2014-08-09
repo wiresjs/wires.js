@@ -33,6 +33,8 @@ module.exports = function(grunt) {
 	    './src/attributes/selected.js',
 	    './src/attributes/ws-class.js',
 	    
+	    './src/wires-component.js',
+	    
 	    './src/mvc/wires-mvc.js',
 	    './src/mvc/wires-collection.js',
 	    './src/mvc/wires-model.js'

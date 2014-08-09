@@ -9,6 +9,10 @@
   111
 </div>
 
-<my-component repeat="$user in $users"/>
+<my-component repeat="$user in $users" user="this.user"/>
+
+<hr>
+
+<my-component user="{name : 'hardcoded user'}"/>
 
 

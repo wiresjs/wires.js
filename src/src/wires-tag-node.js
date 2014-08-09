@@ -33,7 +33,9 @@ var Wires = Wires || {};
 					// Re-defined children
 					self.dom.children = dom;
 					// Setting new scope
+					
 					self.scope = Wires.World.attachParents(self.scope, component);
+					
 					ready();
 				})
 			} else {

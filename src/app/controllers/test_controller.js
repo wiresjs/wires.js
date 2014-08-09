@@ -8,6 +8,7 @@ var app = app || {};
 			}
 		},
 		index : function(params, render) {
+			window.a = this;
 			this.ivan = { name : "ivan"};
 			this.roman = {name : "roman"}
 			this.users = [ this.ivan, this.roman ]

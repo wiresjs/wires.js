@@ -6,7 +6,7 @@ var app = app || {};
 		initialize : function()
 		{
 			this.testVar = 'Hello test var from component';
-			console.log(this);
+			
 		},
 	});
 	

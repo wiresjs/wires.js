@@ -55,6 +55,7 @@ Wires.attrs = Wires.attrs || {};
 				insertBefore : this.node.placeholderAfter
 			});
 			this.items.push(child);
+			
 		},
 		
 
