@@ -1,15 +1,20 @@
 var app = app || {};
 (function() {
 	'use strict';
-	app.UserController = Wires.MVC.Controller.extend({
+	app.TestController = Wires.MVC.Controller.extend({
 		essentials : {
 			views : {
 				index : 'test.html'
 			}
 		},
 		index : function(params, render) {
-			this.user = "ivan";
+			this.users = [ {
+				name : "ivan"
+			}, {
+				name : "roman"
+			} ];
+			this.sukka = "kakka";
 			render();
 		}
-	}, {displayName: 'Overview', controllerName: 'main'});
+	});
 })();

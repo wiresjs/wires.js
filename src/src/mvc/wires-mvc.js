@@ -19,14 +19,14 @@ Wires.MVC = Wires.MVC || {};
 				dataType : 'json',
 				success : options.success,
 				error : function(res) {
-					
+
 					var response = JSON.parse(res.response);
 					options.error(response);
 				}
 			})
 		},
 		obtain : function(url, success, error) {
-			
+
 			this._send({
 				type : "GET",
 				url : url,
@@ -210,23 +210,15 @@ Wires.MVC = Wires.MVC || {};
 		}
 	}
 	Wires.MVC.fetchTemplate = function(template, done) {
+		
+		
 		if (!Wires.MVC.controllerTemplates[template]) {
+
 			$.get(Wires.Config.viewsFolder + template, function(e) {
-				var fns = [];
-				var includes = e.match(/\{\{\s?include (.*?)\}\}/ig);
-				_.each(includes, function(include) {
-					var file = include.match('include (.*?)\}\}')[1];
-					fns.push(function(done) {
-						Wires.MVC.fetchTemplate(file, function(tpl) {
-							e = e.split(include).join(tpl);
-							done();
-						});
-					});
-				});
-				async.waterfall(fns, function() {
-					Wires.MVC.controllerTemplates[template] = e;
-					done(e);
-				});
+				
+				Wires.MVC.controllerTemplates[template] = e;
+	
+				done(e);
 			});
 		} else {
 			done(Wires.MVC.controllerTemplates[template]);
@@ -323,11 +315,10 @@ Wires.MVC = Wires.MVC || {};
 	Wires.MVC.Controller = Wires.MVC.Layout.extend({
 		// Here we bind events that will modify the ko array
 		initialize : function(models, options) {
-			//Wires.MVC.Controller.__super__.initialize.apply(this, arguments);
-			
+			// Wires.MVC.Controller.__super__.initialize.apply(this, arguments);
+
 		},
-		propertyChanged : function(event, name, value)
-		{
+		propertyChanged : function(event, name, value) {
 			console.log(name, value);
 		}
 	});

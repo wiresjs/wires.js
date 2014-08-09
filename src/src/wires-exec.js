@@ -56,7 +56,9 @@ var Wires = Wires || {};
 			var _this = this.getThisPointer(scope);
 			
 			try {
+				
 				result = eval(func).apply(_this, _.values(data));
+
 			} catch (e) {
 				// Fallback - nice print to console
 				this.failedMessage(e, {

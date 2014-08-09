@@ -32,7 +32,7 @@ var Wires = Wires || {};
 				parent : scope.instance,
 				param : param
 			};
-			if ( param !== undefined ){
+			if (param !== undefined) {
 				newScope.instance = {}
 				newScope.instance[param] = instance;
 			}
@@ -42,21 +42,33 @@ var Wires = Wires || {};
 			return newScope;
 		},
 		parse : function(scope, dom, target, options) {
-			
-			var firstChild;
-			_.each(dom, function(item) {
+
+			var node;
+			var iterateAsync = function(index) {
+				if (index === undefined && dom.length > 0) {
+					index = 0;
+				}
+				var item = dom[index];
 				if (item.type === 'text') {
-					
-					firstChild = new Wires.TextNode(scope, item, target,options);
+					node = new Wires.TextNode(scope, item, target, options);
+					if (index < dom.length - 1) {
+						index++;
+						iterateAsync(index);
+					}
 				}
 				if (item.type === 'tag') {
-					
-					firstChild = new Wires.TagNode(scope, item, target,options);
+					node = new Wires.TagNode(scope, item, target, options);
+					node.create(function(){
+						if (index < dom.length - 1) {
+							index++;
+							iterateAsync(index);
+						}
+					})
 				}
-			});
-			return firstChild;
-		},
-		registerAttribute : function(name, attributeHandler) {
+			}
+
+			iterateAsync();
+			return node;
 		}
 	});
 })();
