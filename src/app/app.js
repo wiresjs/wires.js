@@ -7,7 +7,7 @@ $(function() {
 	var history = new Wires.MVC.Router();
 	
 	//history.register(new RegExp('.*?'), app.BaseController);
-	history.register('', app.MainController);
+	/*history.register('', app.MainController);
 	
 	history.register('animate', app.AnimateController);
 	history.register('form', app.FormController);
@@ -16,5 +16,7 @@ $(function() {
 	
 	history.register('test', app.TestController);
 	
-	history.start();
+	history.start();*/
+	
+	Wires.Connect.wireControllers();
 });

@@ -37,7 +37,7 @@ var Wires = Wires || {};
 					self.scope = Wires.World.attachParents(self.scope, component);
 					
 					ready();
-				})
+				});
 			} else {
 				ready();
 			}
@@ -123,10 +123,10 @@ var Wires = Wires || {};
 						self.placeholders = true;
 					}
 					if (handler.shouldAppendElement !== undefined) {
-						self.shouldAppendElement = handler.shouldAppendElement
+						self.shouldAppendElement = handler.shouldAppendElement;
 					}
 					if (handler.ignoreRestAttributes !== undefined) {
-						ignoreRestAttributes = handler.ignoreRestAttributes
+						ignoreRestAttributes = handler.ignoreRestAttributes;
 					}
 					addAttribute = handler.addAttibute;
 				} else {

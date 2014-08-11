@@ -58,6 +58,10 @@
 <script src="../src/mvc/wires-collection.js"></script>
 <script src="../src/mvc/wires-model.js"></script>
 
+<script src="../src/wires-dom.js"></script>
+<script src="../src/wires-controller.js"></script>
+<script src="../src/wires-connect.js"></script>
+
   
   <!-- <script src="/build/wires.js"></script>  -->
 <script src="./models/user.js"></script>
@@ -80,6 +84,11 @@ padding:10px; border:1px solid gray;margin:5px;
 }
 </style>
 <body>
+    
+    <div ws-controller="main">
+        <h1>Hello $name</h1>
+        <input type="text" value="$name">
+    </div>
     <div id="modal-box" class='modal-box'></div>
     <a href="/app/#animate">Animations</a>
     <div id="content"></div>

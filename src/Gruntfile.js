@@ -37,8 +37,11 @@ module.exports = function(grunt) {
 	    
 	    './src/mvc/wires-mvc.js',
 	    './src/mvc/wires-collection.js',
-	    './src/mvc/wires-model.js'
+	    './src/mvc/wires-model.js',
 	    
+	    './src/mvc/wires-dom.js',
+	    './src/mvc/wires-controller.js',
+	    './src/mvc/wires-connect.js'
 	];
 
 	grunt.initConfig({

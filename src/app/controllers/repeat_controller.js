@@ -27,13 +27,13 @@ var app = app || {};
 			
 			this.users.on('nameChanged', function(e, value){
 				console.log("name changed", value);
-			})
+			});
 		},
 		onSearchNameChanged : function(value)
 		{
 			this.users.where(function(e){
 				return e.name.toLowerCase().indexOf(value) >= 0;
-			})
+			});
 		},
 		index : function(params, render) {
 			var self = this;
@@ -41,7 +41,7 @@ var app = app || {};
 			this.searchName = '';
 		
 			this.users.reset();
-			this.trigger('test',[1,2])
+			this.trigger('test',[1,2]);
 			render();
 		}
 	});

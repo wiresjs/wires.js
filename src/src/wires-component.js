@@ -3,7 +3,6 @@ var Wires = Wires || {};
 	'use strict';
 	Wires.Component = Wires.Class.extend({
 		initialize : function() {
-
 		},
 		getDomStructure : function(done) {
 			var handler = new Tautologistics.NodeHtmlParser.DefaultHandler(function(error, dom) {
@@ -14,11 +13,9 @@ var Wires = Wires || {};
 				}
 			});
 			var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
-			Wires.MVC.fetchTemplate(this.view, function(html) {
-				
+			WiresMVC.fetchTemplate(this.view, function(html) {
 				parser.parseComplete(html);
 			});
-
 		}
 	}, {
 		components : {},
