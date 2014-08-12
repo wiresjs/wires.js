@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+<link href="/bower_components/bootstrap/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+
+<title>Administration - Themed issue</title>
+
+<!-- Bootstrap core CSS -->
+  
+<script src="../lib/jquery.min.js"></script>
+<script src="../lib/lodash.js"></script>
+<script src="../lib/async.js"></script>
+<script src="wires.min.js"></script>
+
+
+    
+</head>
+<style>
+.item {
+padding:10px; border:1px solid gray;margin:5px;
+}
+</style>
+<body>
+
+<script type="text/tpl" id="test">
+    <div><b>$testVar</b></div>
+</script>   
+
+
+<div ws-controller="main">
+    <h1>Hello $name</h1>
+    <input type="text" value="$name">
+    asfdsdf
+    <my-component thename="$name">sd</my-component>
+</div>
+
+<script>
+
+$(function() {
+
+    var MyComponent = Wires.Component.extend({
+        //template : '<div><b>$testVar</b></div>',
+        sourceElement : '#test',
+        //view : 'test-component.html',
+        initialize : function()
+        {
+            this.testVar = 'Hello test var from component';
+        },
+    });
+
+    Wires.Component.register("my-component", MyComponent);
+
+    Wires.Controller.register("main", function(){
+      this.index = function(params, render)
+      {
+          this.name = "ok";
+          render();
+      }
+    });
+    Wires.Connect.wireControllers();
+
+});
+</script>
+</body>
+
+</html>
+
+
