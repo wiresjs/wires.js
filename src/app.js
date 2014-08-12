@@ -7,16 +7,20 @@ var router = express.Router();
 app.use(router);
 app.use('/', express.static(path.join(__dirname, './')));
 
+var domain = require('wires-domain');
 
-var items = [ {id : 1, name : 'Book'}, {id : 2, name : 'Pen'} ]
+var Item = domain.models.BaseModel.extend({
+ name : 'items'
+});
 
+domain.setAdapter( domain.adapters.File );
 
-router.get('/events', function(req, res, next) {
-	res.send(1)
-	  //next();
-	});
-//router.get('/items', function(req, res){
-//	res.send(items)
-//})
+domain.rest.Collection.register('/items', {
+    handler : domain.resources.ModelResource,
+    model   : Item
+});
+
+app.use(domain.rest.Service);
+
 app.listen(app.get('port'));
 console.log('listening on port:' + app.get('port'));

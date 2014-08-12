@@ -8,14 +8,14 @@ var Wires = Wires || {};
 			var self = this;
 			_.each(args, function(value, key){
 				self[key] = value;
-			})
+			});
 			// Setting parent class
 			this._settings.parentClass = this.constructor;
 		},
 		remove : function()
 		{
 			if ( this._collection ){
-				this._collection.remove(this)
+				this._collection.remove(this);
 			}
 		},
 		fetchAll : function(opt) {
