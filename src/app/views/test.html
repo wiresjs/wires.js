@@ -1,17 +1,7 @@
-<a href="/app/#">main</a>
-<h1>user $user</h1>
-<hr>
-
-<input type="text" value="$ivan.name"/>  
-
-<div if="$user=='ivan'">
-  <div style="color: {# $user === 'ivan' ? 'red' : 'blue' #}">Hello</div>
-  111
-</div>
 
 <my-component repeat="$user in $users" user="this.user"></my-component>
 
-<hr>
+
 
 <my-component user="{name : 'hardcoded user'}"/>
 

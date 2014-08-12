@@ -19,7 +19,7 @@ var Wires = Wires || {};
 				// Need to build up children, based on components settings
 				// (Could be raw template or remote view )
 				var component = new CustomComponentClass();
-				component.getDomStructure(function(dom) {
+				component.getDomStructure(this.dom.name,function(dom) {
 					// Collecting attributes 
 					_.each(self.dom.attribs, function(attr, attrName){
 						var result = Wires.Exec.expression({
