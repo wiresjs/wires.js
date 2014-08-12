@@ -5,20 +5,36 @@ var Wires = Wires || {};
 		initialize : function() {
 		},
 		getDomStructure : function(done) {
-			var handler = new Tautologistics.NodeHtmlParser.DefaultHandler(function(error, dom) {
-				if (error) {
-					console.log(error);
+			var view = this.view;
+			var self = this;
+			// In case of view is set
+			if (view) {
+				if (Wires.Component[view]) {
+					done(Wires.Component[view]);
 				} else {
-					done(dom);
+					Wires.MVC.fetchTemplate(this.view, function(html) {
+						Wires.DOM.getFromString(html, function(dom) {
+							Wires.Component[view] = dom;
+							done(dom);
+						});
+					});
 				}
-			});
-			var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
-			WiresMVC.fetchTemplate(this.view, function(html) {
-				parser.parseComplete(html);
-			});
+			}
+			var template = this.template;
+			if (template) {
+				if (!self.__dom) {
+					Wires.DOM.getFromString(template, function(dom) {
+						self.__dom = dom;
+						done(dom);
+					});
+				} else {
+					done(self.__dom);
+				}
+			}
 		}
 	}, {
 		components : {},
+		componentDom : {},
 		register : function(name, _class) {
 			this.components[name] = _class;
 			document.registerElement(name, {

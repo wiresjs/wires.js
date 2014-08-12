@@ -2,7 +2,7 @@ var app = app || {};
 (function() {
 	'use strict';
 	var MyComponent = Wires.Component.extend({
-		view : 'test-component.html',
+		template : '<div><b>$user.name</b></div>',
 		initialize : function()
 		{
 			this.testVar = 'Hello test var from component';
