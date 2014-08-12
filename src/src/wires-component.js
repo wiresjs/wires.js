@@ -48,9 +48,9 @@ var Wires = Wires || {};
 		componentDom : {},
 		register : function(name, _class) {
 			this.components[name] = _class;
-			document.registerElement(name, {
+			/*document.registerElement(name, {
 				prototype : Object.create(HTMLElement.prototype)
-			});
+			});*/
 		},
 		getCustomComponent : function(name) {
 			return this.components[name];
