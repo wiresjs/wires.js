@@ -4,17 +4,11 @@ var app = app || {};
 	'use strict';
 	app.User = Wires.Model.extend({
 		_settings : {
-			json : '/app/test.json'
-		},
-		initialize : function()
-		{
-			
-			app.User.__super__.initialize.apply(this, arguments);
-		},
-		onNameChanged : function(value)
-		{
-			this._collection.trigger('nameChanged', value)
+			resource : '/app/test.json',
+			schema : {
+				id : {},
+				name : {}
+			}
 		}
-	
 	});
-})();
+})(); 

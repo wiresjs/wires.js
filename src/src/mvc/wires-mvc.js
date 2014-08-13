@@ -66,9 +66,11 @@ Wires.MVC = Wires.MVC || {};
 	Wires.MVC.ControllerInterceptor = function(controller, ready) {
 		var loaders = controller.interceptors || {};
 		var fns = [];
-		_.each(loaders, function(loader, name) {
+		
+		_.each(loaders, function(Loader, name) {
+			
 			if (!Wires.MVC.interceptors[name]) {
-				Wires.MVC.interceptors[name] = new loader();
+				Wires.MVC.interceptors[name] = new Loader();
 			}
 			if (Wires.MVC.interceptors[name].call) {
 				fns.push(function(done) {

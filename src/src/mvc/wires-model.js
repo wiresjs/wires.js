@@ -8,12 +8,14 @@ var Wires = Wires || {};
 			}]
 		},
 		initialize : function(args) {
+			this.assign(args);
+			this._settings.parentClass = this.constructor;
+		},
+		assign : function(args) {
 			var self = this;
 			_.each(args, function(value, key) {
 				self[key] = value;
 			});
-			// Setting parent class
-			this._settings.parentClass = this.constructor;
 		},
 		remove : function(done, fail) {
 			var attrs = this._getAttributes();
@@ -81,6 +83,20 @@ var Wires = Wires || {};
 				error : opts.error
 			});
 			return this.collection;
+		},
+		fetch : function(done) {
+			if (!this._settings.resource)
+				return;
+			var self = this;
+			
+			var destinationModel = new this._settings.parentClass();
+			
+			Wires.MVC.rest.obtain(this._settings.resource, function(result) {
+				destinationModel.assign(result);
+				destinationModel.trigger("model:fetched", destinationModel);
+				done ? done(destinationModel) : '';
+			});
+			return destinationModel;
 		}
 	});
 })();
