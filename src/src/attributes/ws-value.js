@@ -2,9 +2,9 @@ var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
 	'use strict';
-	Wires.attrs.value = Wires.Attr.extend({
+	var WsValue = Wires.Attr.extend({
 		initialize : function(scope, dom, element, attr) {
-			Wires.attrs.value.__super__.initialize.apply(this, arguments);
+			WsValue.__super__.initialize.apply(this, arguments);
 			this.element = element;
 			this.scope = scope;
 			this.instance = scope.instance;
@@ -80,4 +80,5 @@ Wires.attrs = Wires.attrs || {};
 			}
 		},
 	},{addAttibute : false});
+	Wires.attrs['ws-value'] = WsValue;
 })();

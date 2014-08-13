@@ -2,9 +2,9 @@ var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
 	'use strict';
-	Wires.attrs['if'] = Wires.BaseAttribute.extend({
+	 var WiresIF = Wires.BaseAttribute.extend({
 		initialize : function() {
-			Wires.attrs['if'].__super__.initialize.apply(this, arguments);
+			WiresIF.__super__.initialize.apply(this, arguments);
 		},
 		onElementReady : function() {
 			this.node.placeholderBefore.nodeValue = 'wires-if: ' + this.condition;
@@ -25,4 +25,5 @@ Wires.attrs = Wires.attrs || {};
 		shouldAppendElement : false,
 		claimsChildren : false
 	});
+	Wires.attrs['ws-if'] = WiresIF;
 })();

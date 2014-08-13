@@ -1,26 +1,48 @@
+<input type="checkbox" value="$selectAll">
+<input type="button" value="'order'" click="this.sortIt()">
 <table class="table">
     <thead>
         <tr>
             <th>#</th>
             <th>x</th>
+            <th>priority</th>
             <th>First Name</th>
             <th>Duplicate "each" for record</th>
         </tr>
     </thead>
-    <tbody >
-        <tr repeat="$item in $items">
-            <td> $item.id</td>
-            <td><i class="glyphicon glyphicon-remove" click="this.item.remove()"></i></td>
+    <tbody ws-sortable="{ property :  'item.priority', autoSave : true }">
+        <tr ws-repeat="$item in $items">
+            <th><input type="checkbox" ws-value="$item.selected"></th>
+            <td>$item.id</td>
+            <td>$item.priority</td>
+            <td><i class="glyphicon glyphicon-remove" ws-click="this.item.remove()"></i></td>
             <td>$item.name</td>
             <td>
-                 <input type="text" value="$item.name"/>
-                 <input type="button" value="'save'" click="this.item.save()">
+                 <input type="text" ws-value="$item.name"/>
+                 <input type="button" value="save" ws-click="this.item.save()">
             </td>
         </tr>
     </tbody>
 </table>
 
-<form submit="this.addUser()">
-    <input type="text" value="$newUser">
-    <input type="submit" value="'submit'">
+<form ws-submit="this.addUser()">
+    <input type="text" ws-value="$newUser">
+    <input type="submit" ws-value="'submit'">
 </form>
+
+<!--
+    
+1 ivan 1
+2 jose 2
+3 mike 3
+4 ville 4
+-->
+
+
+<!--
+    
+1 ville 1
+2 ivan 2
+3 jose 3
+4 mike 4
+-->

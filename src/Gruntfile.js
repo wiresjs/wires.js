@@ -23,15 +23,16 @@ module.exports = function(grunt) {
 	    './src/wires-variable-tricks.js',
 	    
 	    
-	    './src/attributes/if.js',
-	    './src/attributes/visible.js',
-	    './src/attributes/repeat.js',
-	    './src/attributes/value.js',
-	    './src/attributes/click.js',
-	    './src/attributes/animation.js',
-	    './src/attributes/submit.js',
-	    './src/attributes/selected.js',
+	    './src/attributes/ws-if.js',
+	    './src/attributes/ws-visible.js',
+	    './src/attributes/ws-repeat.js',
+	    './src/attributes/ws-value.js',
+	    './src/attributes/ws-click.js',
+	    './src/attributes/ws-animation.js',
+	    './src/attributes/ws-submit.js',
+	    './src/attributes/ws-selected.js',
 	    './src/attributes/ws-class.js',
+	    './src/attributes/ws-sortable.js',
 	    
 	    './src/wires-component.js',
 	    

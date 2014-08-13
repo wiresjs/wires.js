@@ -70,7 +70,11 @@ var Wires = Wires || {};
 			this.conditions = {};
 			_.each(this.db, function(item){
 				self.array.push(item);
-			})
+			});
+		},
+		each : function(cb)
+		{
+			_.each(this.db, cb);
 		},
 		removeWhere : function(condition)
 		{

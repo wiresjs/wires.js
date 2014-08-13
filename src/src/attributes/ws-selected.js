@@ -2,9 +2,9 @@ var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
 	'use strict';
-	Wires.attrs['selected'] = Wires.BaseAttribute.extend({
+	 var WsSelected = Wires.BaseAttribute.extend({
 		initialize : function() {
-			Wires.attrs.selected.__super__.initialize.apply(this, arguments);
+			WsSelected.__super__.initialize.apply(this, arguments);
 		},
 		
 		setValue : function(newVariable, newValue) {
@@ -17,4 +17,5 @@ Wires.attrs = Wires.attrs || {};
 			}
 		},
 	}, {addAttibute : false});
+	Wires.attrs['ws-selected'] = WsSelected;
 })();

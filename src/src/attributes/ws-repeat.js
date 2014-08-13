@@ -1,8 +1,7 @@
 var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
-
-	Wires.attrs.repeat = Wires.Attr.extend({
+	var WsRepeat = Wires.Attr.extend({
 		initialize : function(scope, dom, element, attr, node) {
 			
 			this.instance = scope.instance;
@@ -25,8 +24,8 @@ Wires.attrs = Wires.attrs || {};
 		},
 
 		onElementReady : function() {
-			this.node.placeholderBefore.nodeValue = 'wires-repeat: ' + this.condition;
-			this.node.placeholderAfter.nodeValue = '/wires-repeat: ' + this.condition;
+			this.node.placeholderBefore.nodeValue = 'ws-repeat: ' + this.condition;
+			this.node.placeholderAfter.nodeValue = '/ws-repeat: ' + this.condition;
 			
 			if (this.delayedAddFunction) {
 				this.delayedAddFunction();
@@ -46,7 +45,7 @@ Wires.attrs = Wires.attrs || {};
 			// Including the current element, we need to mock children
 			var modifiedDom = _.cloneDeep(this.dom);
 			// Removing the repeat attribute, otherwise it'll go recursively
-			delete modifiedDom.attribs.repeat;
+			delete modifiedDom.attribs['ws-repeat'];
 			
 			var modifiedChildren = [ modifiedDom ];
 			var newScope = Wires.World.attachParents(this.scope,item, self.essentials.value.param);
@@ -167,4 +166,5 @@ Wires.attrs = Wires.attrs || {};
 		ignoreRestAttributes : true,
 		shouldAppendElement : false
 	});
+	Wires.attrs['ws-repeat'] = WsRepeat;
 })();

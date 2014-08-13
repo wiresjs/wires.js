@@ -2,7 +2,7 @@ var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
 	'use strict';
-	Wires.attrs.visible = Wires.BaseAttribute.extend({
+	var WsVisible = Wires.BaseAttribute.extend({
 		setValue : function(newVariable, newValue) {
 			var result = this.executeStatement(newVariable, newValue, 'return');
 			
@@ -28,4 +28,5 @@ Wires.attrs = Wires.attrs || {};
 			}
 		},
 	});
+	Wires.attrs['ws-visible'] = WsVisible;
 })();

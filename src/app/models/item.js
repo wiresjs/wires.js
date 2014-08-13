@@ -11,8 +11,13 @@ var app = app || {};
 					validate : function(value) {
 						return value !== '';
 					}
-				}
+				},
+				priority : {}
 			}
+		},
+		onSelectedChanged : function(value)
+		{
+		
 		}
 	});
 })();

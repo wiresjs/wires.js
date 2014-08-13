@@ -10,6 +10,17 @@ var app = app || {};
 
 		initialize : function() {
 			this.items = new app.Item().fetchAll();
+			
+		},
+		onSelectAllChanged : function(value)
+		{
+			this.items.each(function(item){
+				item.selected = value;
+			});
+		},
+		sortIt : function()
+		{
+			this.items.sortBy('priority');
 		},
 		addUser : function()
 		{
@@ -24,6 +35,9 @@ var app = app || {};
 			}
 		},
 		index : function(params,render) {
+			setTimeout(function(){
+				this.items.sortBy('priority');
+			}.bind(this),200);
 			render();
 		}
 

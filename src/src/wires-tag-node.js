@@ -10,6 +10,7 @@ var Wires = Wires || {};
 			this.attributes = [];
 			this.target = target;
 			this.options = options;
+			
 		},
 		prepareNodeStructure : function(ready) {
 			var self = this;
@@ -48,7 +49,7 @@ var Wires = Wires || {};
 			var dom = this.dom;
 			var self = this;
 			this.element = this.getElement();
-
+			$(this.element).data("wires-node", this);
 			this.prepareNodeStructure(function() {
 				
 				// We continue parsing in case of attibute does not do it manualluy
@@ -100,10 +101,12 @@ var Wires = Wires || {};
 			var ignoreRestAttributes = false;
 			var customAttributes = [];
 			// Adding and processing attributes
+			
 			_.each(this.dom.attribs, function(attrValue, attrKey) {
 				if (ignoreRestAttributes) {
 					return false;
 				}
+				
 				var attr = document.createAttribute(attrKey);
 				attr.value = attrValue;
 

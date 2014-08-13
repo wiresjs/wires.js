@@ -158,6 +158,7 @@ var Wires = Wires || {};
 			this.target.instance[this.target.property] = value;
 		}
 	}, {
+		getTargetVariable : getTargetVariable,
 		extract : function(scope, text) {
 			var matches = text.match(/(\$[a-zA-Z0-9_.\[\]]+(\([$\w,\s'".]*\))?)/g);
 			var self = this;

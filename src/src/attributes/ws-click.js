@@ -2,7 +2,7 @@ var Wires = Wires || {};
 Wires.attrs = Wires.attrs || {};
 (function() {
 	'use strict';
-	Wires.attrs.click = Wires.Attr.extend({
+	 var WsClick = Wires.Attr.extend({
 		initialize : function(scope, dom, element, attr) {
 			this.scope = scope;
 			this.element = element;
@@ -36,4 +36,5 @@ Wires.attrs = Wires.attrs || {};
 	}, {
 		addAttibute : false
 	});
+	Wires.attrs['ws-click'] = WsClick;
 })();

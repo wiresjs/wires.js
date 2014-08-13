@@ -1,31 +1,35 @@
+<select class="form-control" ws-value="$opinion">
+                    <option ws-repeat="$item in $list" ws-selected="$parent.opinion === $item">$item </option>
+                </select>
+                
 <h1>Forms</h1>
 
 <div class="row">
 	<div class="col-md-6">
-		<form role="form" submit="this.addUser()">
+		<form role="form" ws-submit="this.addUser()">
 			<div class="form-group">
 				<label for="exampleInputEmail1">Email address</label> <input
-					type="text" class="form-control" value="$email"
+					type="text" class="form-control" ws-value="$email"
 					id="exampleInputEmail1" placeholder="Enter email">
 			</div>
 			<div class="form-group">
 				<label for="exampleInputPassword1">Password</label> <input
-					type="password" class="form-control" value="$password"
+					type="password" class="form-control" ws-value="$password"
 					id="exampleInputPassword1" placeholder="Password">
 			</div>
 
 			<div class="form-group">
 				<label>Textarea</label>
-				<textarea class="form-control" value="$textarea"></textarea>
+				<textarea class="form-control" ws-value="$textarea"></textarea>
 			</div>
 			<div class="form-group">
 				<div class="checkbox">
-					<label> <input type="checkbox" value="$checkme">
+					<label> <input type="checkbox" ws-value="$checkme">
 						Check me out
 					</label>
 				</div>
 				<div class="checkbox">
-                    <label> <input type="checkbox" value="$checkme">
+                    <label> <input type="checkbox" ws-value="$checkme">
                         Check me out (same var)
                     </label>
                 </div>
@@ -35,8 +39,8 @@
 			<label> 
                        Opinion
                     </label>
-				<select class="form-control" value="$opinion">
-					<option repeat="$item in $list" selected="$parent.opinion === $item">$item </option>
+				<select class="form-control" ws-value="$opinion">
+					<option ws-repeat="$item in $list" ws-selected="$parent.opinion === $item">$item </option>
 				</select>
 			</div>
 			<button type="submit" class="btn btn-default">Submit</button>
@@ -50,7 +54,7 @@
 	<div class="col-md-6">
 
 		<div>
-			<div class="lead" visible="$submitPressed" animation="fade">Form
+			<div class="lead" ws-visible="$submitPressed" ws-animation="fade">Form
 				submitted</div>
 			<div>Email: $email</div>
 			<div>Password: $password</div>
