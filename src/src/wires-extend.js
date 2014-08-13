@@ -47,7 +47,8 @@ var Wires = Wires || {};
 	
 	
 	var Class = function(protoProps, staticProps) {
-		this.initialize.apply(this, arguments);
+		if ( this.initialize )
+			this.initialize.apply(this, arguments);
 	};
 	Class.extend = extend;
 	

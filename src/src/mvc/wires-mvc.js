@@ -2,7 +2,7 @@ Wires.MVC = Wires.MVC || {};
 (function() {
 	'use strict';
 	Wires.MVC.templateCollection = {};
-	Wires.MVC.openedTemplate;
+	Wires.MVC.openedTemplate
 	Wires.MVC.createdViews = {};
 	Wires.MVC.createdControllers = {};
 	Wires.MVC.controllerTemplates = {};
@@ -12,13 +12,12 @@ Wires.MVC = Wires.MVC || {};
 	// REST Helpers
 	Wires.MVC.rest = {
 		_send : function(options, data) {
-			
 			$.ajax({
 				type : options.type,
 				url : options.url,
 				data : JSON.stringify(data),
 				dataType : 'json',
-				contentType: 'application/json; charset=utf-8',
+				contentType : 'application/json; charset=utf-8',
 				success : options.success,
 				error : function(res) {
 					options.error(res);
@@ -26,7 +25,6 @@ Wires.MVC = Wires.MVC || {};
 			});
 		},
 		obtain : function(url, success, error) {
-
 			this._send({
 				type : "GET",
 				url : url,
@@ -40,7 +38,7 @@ Wires.MVC = Wires.MVC || {};
 				url : opts.url,
 				success : success,
 				error : error
-			},opts.data);
+			}, opts.data);
 		},
 		put : function(opts, success, error) {
 			this._send({
@@ -59,19 +57,16 @@ Wires.MVC = Wires.MVC || {};
 			}, opts.data);
 		},
 	};
-
 	// Knockout interceptor
 	Wires.MVC.ControllerInterceptor = function(controller, ready) {
 		var loaders = controller.interceptors || {};
 		var fns = [];
-		
 		_.each(loaders, function(Loader, name) {
-			
 			if (!Wires.MVC.interceptors[name]) {
 				Wires.MVC.interceptors[name] = new Loader();
 			}
 			if (Wires.MVC.interceptors[name].call) {
-				fns.push(function(done) {
+				fns.push( function(done) {
 					Wires.MVC.interceptors[this.name].call(done);
 				}.bind({
 					name : name
@@ -99,6 +94,7 @@ Wires.MVC = Wires.MVC || {};
 	}
 	Wires.MVC.LastOpenedView = null;
 	Wires.MVC.Essentials = function(controller, action, ready) {
+		
 		var action = action || "index";
 		var essentials = controller.essentials || {};
 		var views = essentials.views || {};
@@ -113,22 +109,17 @@ Wires.MVC = Wires.MVC || {};
 					viewTemplate = tpl;
 					done();
 				});
-			})
+			});
 		}
-		controller.collections = controller.collections || {};
-		_.each(collections, function(collectionClass, name) {
-			fns.push(function(done) {
-				var name = this.name;
-				Wires.MVC.collections(name, collectionClass, function(collection) {
-					controller.collections[name] = collection;
-					done();
-				});
-			}.bind({
-				name : name
-			}))
-		})
+		_.each(collections, function(collectionClass, collectionName) {
+			if (!Wires.MVC.collectionsInstances[collectionName]) {
+				Wires.MVC.collectionsInstances[collectionName] = new collectionClass().fetchAll();
+			}
+			controller[collectionName] = Wires.MVC.collectionsInstances[collectionName];
+		});
+		controller.trigger('collections:ready');
+		
 		async.waterfall(fns, function() {
-
 			ready({
 				tpl : viewTemplate,
 				container : container,
@@ -139,17 +130,17 @@ Wires.MVC = Wires.MVC || {};
 	};
 	Wires.MVC.ExecuteTarget = function(controller, method) {
 		controller._currentMethod = method;
-
 		Wires.MVC.Essentials(controller, method, function(options) {
 			if (!options.sameView) {
 				$(options.container).hide();
 				Wires.World.cleanUp($(options.container)[0]);
 			}
+			
 			controller[method](Wires.MVC.getURLParameters(), function() {
 				controller.attach.bind(controller)(options);
 			});
 		});
-	}
+	};
 	Wires.MVC.Router = function(routes) {
 		this.routes = [];
 		this.controllers = {};
@@ -164,31 +155,41 @@ Wires.MVC = Wires.MVC || {};
 			this.routes.push({
 				path : path ? path : 'main',
 				controller : controller
-			})
-		}
+			});
+		};
+		this.on404 = function(controller)
+		{
+			this.notFoundController = controller;
+		},
 		this._start = function(params) {
 			var self = this;
 			this.params = params;
 			try {
+				var controllerExecuted = false;
 				_.each(this.routes, function(info) {
 					if (_.isString(info.path)) {
 						if (info.path === params.controller) {
-							self.executeController.bind(self)(info)
+							self.executeController.bind(self)(info);
+							controllerExecuted = true;
 						}
 					} else {
 						if (self.url.match(info.path)) {
 							self.executeController.bind(self)(info);
+							controllerExecuted = true;
 						}
 					}
-				})
+				});
+				if ( controllerExecuted === false && this.notFoundController ){
+					self.executeController.bind(self)({ path : '404', controller : this.notFoundController});
+				}
 			} catch (e) {
 				console.log('error', e.stack ? e.stack : e);
 			}
-		}
+		};
 		this.start = function() {
 			this._start(Wires.MVC.getURLParameters());
 			Wires.MVC.onHistory(this._start.bind(this));
-		}
+		};
 		// Create controller, and before we start calling method
 		// We need to run a chain of events if neccesery
 		this.createController = function(info, ready) {
@@ -201,25 +202,20 @@ Wires.MVC = Wires.MVC || {};
 			Wires.MVC.ControllerInterceptor(controller, function() {
 				ready(controller);
 			});
-		}
+		};
 		// Executing controller
 		this.executeController = function(info) {
 			this.createController(info, function(controller) {
 				if (controller[this.params.action]) {
 					Wires.MVC.ExecuteTarget(controller, this.params.action);
 				}
-			}.bind(this))
-		}
-	}
+			}.bind(this));
+		};
+	};
 	Wires.MVC.fetchTemplate = function(template, done) {
-		
-		
 		if (!Wires.MVC.controllerTemplates[template]) {
-
 			$.get(Wires.Config.viewsFolder + template, function(e) {
-				
 				Wires.MVC.controllerTemplates[template] = e;
-	
 				done(e);
 			});
 		} else {
@@ -245,16 +241,15 @@ Wires.MVC = Wires.MVC || {};
 			if (this['beforeRender']) {
 				this['beforeRender'](Wires.MVC.getURLParameters());
 			}
-			var afterDone = options.afterDone || function() {
+			var afterDone = options.afterDone ||
+			function() {
 			};
 			if (!options.sameView) {
-
 				var container = $(options.container);
 				if (!container[0]) {
 					console.error(options.container, 'was not found in DOM');
 					console.error('Cannot render instance ', this)
 				} else {
-
 					container.show();
 					var self = this;
 					var wires = new Wires.World({
@@ -264,7 +259,6 @@ Wires.MVC = Wires.MVC || {};
 						},
 						target : container[0]
 					});
-
 					// ko.cleanNode(container[0])
 					// ko.applyBindings(self, container[0]);
 					afterDone();
@@ -292,14 +286,12 @@ Wires.MVC = Wires.MVC || {};
 	});
 	Wires.MVC.Component = Wires.MVC.Layout.extend({
 		initialize : function(options) {
-
 			this.essentials = this.essentials || {};
 			this.options = options || {};
 			if (options && options.container) {
 				this.essentials.containers = {
 					index : options.container
 				}
-
 			}
 			var self = this;
 			_.each(options, function(value, key) {
@@ -318,10 +310,9 @@ Wires.MVC = Wires.MVC || {};
 		// Here we bind events that will modify the ko array
 		initialize : function(models, options) {
 			// Wires.MVC.Controller.__super__.initialize.apply(this, arguments);
-
 		},
 		propertyChanged : function(event, name, value) {
 			console.log(name, value);
 		}
 	});
-})();
+})(); 

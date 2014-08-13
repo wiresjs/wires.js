@@ -45,6 +45,8 @@ var Wires = Wires || {};
 			return attrs;
 		},
 		save : function(done, fail) {
+			if (!this._settings.resource)
+				return;
 			var attrs = this._getAttributes();
 			if (attrs.id === undefined) {
 				var self = this;
@@ -88,9 +90,7 @@ var Wires = Wires || {};
 			if (!this._settings.resource)
 				return;
 			var self = this;
-			
 			var destinationModel = new this._settings.parentClass();
-			
 			Wires.MVC.rest.obtain(this._settings.resource, function(result) {
 				destinationModel.assign(result);
 				destinationModel.trigger("model:fetched", destinationModel);

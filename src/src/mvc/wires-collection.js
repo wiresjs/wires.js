@@ -9,10 +9,10 @@ var Wires = Wires || {};
 		},
 		add : function(model)
 		{
+			model = model instanceof Wires.Model ? model : new Wires.Model(model);
+			
 			model._collection = this;
 			this.db.push(model);
-			
-			
 			// IF we had conditions defined
 			if ( this.conditions.where ){
 				// Need to check if the model has to be displayed right away

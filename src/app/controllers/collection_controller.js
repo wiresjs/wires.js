@@ -5,6 +5,9 @@ var app = app || {};
 		essentials : {
 			views : {
 				'*' : 'collection.html'
+			},
+			collections : {
+				items : app.Item
 			}
 		},
 		interceptors : {
@@ -12,22 +15,18 @@ var app = app || {};
 		},
 		initialize : function() {
 			
-			var user = new app.User().fetch();
-			user.on("model:fetched", function(e, m){
-				
-			});
+			this.on('collections:ready', function() {
 			
-			
-			this.items = new app.Item().fetchAll();
-			this.items.on('fetch:success', function(e, collection) {
-				collection.sortBy('priority');
-			});
-			this.items.on('model:removed', function(e, model) {
-				console.log('removed', model);
-			});
-			this.items.on('model:added', function(e, model) {
-				console.log('added', model);
-			});
+				this.items.on('fetch:success', function(e, collection) {
+					collection.sortBy('priority');
+				});
+				this.items.on('model:removed', function(e, model) {
+					console.log('removed', model);
+				});
+				this.items.on('model:added', function(e, model) {
+					console.log('added', model);
+				});
+			}.bind(this));
 		},
 		onSelectAllChanged : function(value) {
 			this.items.each(function(item) {
@@ -49,7 +48,8 @@ var app = app || {};
 			}
 		},
 		index : function(params, render) {
+			console.log(this.items);
 			render();
 		}
 	});
-})(); 
+})();

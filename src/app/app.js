@@ -16,6 +16,8 @@ $(function() {
 	
 	history.register('test', app.TestController);
 	
+	history.on404(app.NotFoundController);
+	
 	history.start();
 	
 
