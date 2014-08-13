@@ -21,9 +21,7 @@ Wires.MVC = Wires.MVC || {};
 				contentType: 'application/json; charset=utf-8',
 				success : options.success,
 				error : function(res) {
-
-					var response = JSON.parse(res.response);
-					options.error(response);
+					options.error(res);
 				}
 			});
 		},
