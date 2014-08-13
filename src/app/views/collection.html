@@ -1,1 +1,26 @@
-hello
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>x</th>
+            <th>First Name</th>
+            <th>Duplicate "each" for record</th>
+        </tr>
+    </thead>
+    <tbody >
+        <tr repeat="$item in $items">
+            <td> $item.id</td>
+            <td><i class="glyphicon glyphicon-remove" click="this.item.remove()"></i></td>
+            <td>$item.name</td>
+            <td>
+                 <input type="text" value="$item.name"/>
+                 <input type="button" value="'save'" click="this.item.save()">
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<form submit="this.addUser()">
+    <input type="text" value="$newUser">
+    <input type="submit" value="'submit'">
+</form>

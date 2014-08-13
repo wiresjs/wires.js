@@ -12,18 +12,20 @@ Wires.MVC = Wires.MVC || {};
 	// REST Helpers
 	Wires.MVC.rest = {
 		_send : function(options, data) {
+			
 			$.ajax({
 				type : options.type,
 				url : options.url,
-				data : data,
+				data : JSON.stringify(data),
 				dataType : 'json',
+				contentType: 'application/json; charset=utf-8',
 				success : options.success,
 				error : function(res) {
 
 					var response = JSON.parse(res.response);
 					options.error(response);
 				}
-			})
+			});
 		},
 		obtain : function(url, success, error) {
 
@@ -34,31 +36,31 @@ Wires.MVC = Wires.MVC || {};
 				error : error
 			});
 		},
-		post : function(url, success, error) {
+		post : function(opts, success, error) {
 			this._send({
 				type : "POST",
-				url : url,
+				url : opts.url,
 				success : success,
 				error : error
-			});
+			},opts.data);
 		},
-		put : function(url, success, error) {
+		put : function(opts, success, error) {
 			this._send({
 				type : "PUT",
-				url : url,
+				url : opts.url,
 				success : success,
 				error : error
-			});
+			}, opts.data);
 		},
-		del : function(url, success, error) {
+		del : function(opts, success, error) {
 			this._send({
 				type : "DELETE",
-				url : url,
+				url : opts.url,
 				success : success,
 				error : error
-			});
-		}
-	}
+			}, opts.data);
+		},
+	};
 
 	// Knockout interceptor
 	Wires.MVC.ControllerInterceptor = function(controller, ready) {

@@ -4,7 +4,15 @@ var app = app || {};
 	'use strict';
 	app.Item = Wires.Model.extend({
 		_settings : {
-			resource : '/items'
+			resource : '/items',
+			schema : {
+				id : {},
+				name : {
+					validate : function(value) {
+						return value !== '';
+					}
+				}
+			}
 		}
 	});
 })();
