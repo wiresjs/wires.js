@@ -5,7 +5,7 @@ var Wires = Wires || {};
 		initialize : function() {
 			this.array = [];
 			this.db = [];
-			this.conditions = {}
+			this.conditions = {};
 		},
 		add : function(model)
 		{
@@ -21,7 +21,8 @@ var Wires = Wires || {};
 				}
 			} else {
 				this.array.push(model);
-			}	
+			}
+			this.trigger("model:added", model);	
 		},
 		refresh : function()
 		{
@@ -92,14 +93,15 @@ var Wires = Wires || {};
 			// Remove from view
 			var viewIndex = this.array.indexOf(item);
 			this.array.splice(viewIndex,1);
+			this.trigger("model:removed", item);
 		},
 		fetch : function(opts) {
 			var res;
 			var self = this;
 			if ( opts.force ){
 				// Reset the array and db storage
-				this.array.splice(0, this.array.length )
-				this.dn.splice(0, this.array.length )
+				this.array.splice(0, this.array.length );
+				this.dn.splice(0, this.array.length );
 			}
 			Wires.MVC.rest.obtain(opts.resource, function(result) {
 				if (_.isArray(result)) {
@@ -117,9 +119,13 @@ var Wires = Wires || {};
 				if (opts.success) {
 					opts.success(res);
 				}
+				self.trigger("fetch:success", self);
 			}, function(err) {
-				if (opts.error)
+				self.trigger("fetch:error", error);
+				if (opts.error){
+					
 					opts.error(error);
+				}
 			});
 		}
 

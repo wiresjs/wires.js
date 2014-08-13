@@ -10,6 +10,17 @@ var app = app || {};
 
 		initialize : function() {
 			this.items = new app.Item().fetchAll();
+			this.items.on('fetch:success', function(e, collection){
+				collection.sortBy('priority');
+			});
+			
+			this.items.on('model:removed', function(e, model){
+				console.log('removed',model);
+			});
+			
+			this.items.on('model:added', function(e, model){
+				console.log('added',model);
+			});
 			
 		},
 		onSelectAllChanged : function(value)
@@ -35,9 +46,7 @@ var app = app || {};
 			}
 		},
 		index : function(params,render) {
-			setTimeout(function(){
-				this.items.sortBy('priority');
-			}.bind(this),200);
+			
 			render();
 		}
 
