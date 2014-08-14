@@ -61,7 +61,7 @@ var Wires = Wires || {};
 			});
 		},
 		// where
-		where : function(condition)
+		viewWhere : function(condition)
 		{
 			if ( !condition){
 				if ( this.conditions.where ) 
@@ -73,8 +73,11 @@ var Wires = Wires || {};
 			this.conditions.where = condition;
 			this._setViewResult( _.where(this.db, condition) );
 		},
-		
-		sortBy : function(condition)
+		where : function(condition)
+		{
+			return _.where(this.db, condition);
+		},
+		viewSortBy : function(condition)
 		{
 			this.conditions.sortBy = condition;
 			this._setViewResult( _.sortBy(this.array, condition) );

@@ -14,6 +14,7 @@ var app = app || {};
 			auth : app.AuthInterceptor
 		},
 		initialize : function() {
+			window.a = this;
 			this.errors = new Wires.Collection();
 			this.on('collections:ready', function() {
 			
