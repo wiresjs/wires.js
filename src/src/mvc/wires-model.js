@@ -9,6 +9,7 @@ var Wires = Wires || {};
 		},
 		initialize : function(args) {
 			this.assign(args);
+			this._fetched = false;
 			this._settings.parentClass = this.constructor;
 			// Setting default values
 			var attributes = this._getAttributes();
@@ -98,19 +99,25 @@ var Wires = Wires || {};
 				});
 			}
 		},
+		getCollection : function()
+		{
+			this._collection = this._collection || new Wires.Collection();
+			return this._collection;
+		},
 		fetchAll : function(opt) {
 			var path = this._settings.json || this._settings.resource;
 			var opts = opt || {};
 			// Create new collection
-			this.collection = new Wires.Collection();
+			var collection = this.getCollection();	
+			
 			var self = this;
-			this.collection.fetch({
+			collection.fetch({
 				resource : path,
 				_class : this._settings.parentClass,
 				success : opts.success,
 				error : opts.error
 			});
-			return this.collection;
+			return collection;
 		},
 		fetch : function(done) {
 			if (!this._settings.resource)

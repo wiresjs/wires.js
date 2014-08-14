@@ -94,7 +94,6 @@ Wires.MVC = Wires.MVC || {};
 	}
 	Wires.MVC.LastOpenedView = null;
 	Wires.MVC.Essentials = function(controller, action, ready) {
-		
 		var action = action || "index";
 		var essentials = controller.essentials || {};
 		var views = essentials.views || {};
@@ -111,15 +110,26 @@ Wires.MVC = Wires.MVC || {};
 				});
 			});
 		}
-		_.each(collections, function(collectionClass, collectionName) {
+		_.each(collections, function(modelClass, collectionName) {
 			if (!Wires.MVC.collectionsInstances[collectionName]) {
-				Wires.MVC.collectionsInstances[collectionName] = new collectionClass().fetchAll();
+				var model = new modelClass();
+				Wires.MVC.collectionsInstances[collectionName] = model.getCollection();
+				fns.push( function(done) {
+					this.model.fetchAll({
+						success : done
+					});
+				}.bind({
+					model : model
+				}));
 			}
 			controller[collectionName] = Wires.MVC.collectionsInstances[collectionName];
 		});
-		controller.trigger('collections:ready');
 		
 		async.waterfall(fns, function() {
+			if ( !controller.__initializationResolved){
+				controller.__resolveInitialization();
+				controller.__initializationResolved = true;
+			}
 			ready({
 				tpl : viewTemplate,
 				container : container,
@@ -135,7 +145,6 @@ Wires.MVC = Wires.MVC || {};
 				$(options.container).hide();
 				Wires.World.cleanUp($(options.container)[0]);
 			}
-			
 			controller[method](Wires.MVC.getURLParameters(), function() {
 				controller.attach.bind(controller)(options);
 			});
@@ -157,11 +166,9 @@ Wires.MVC = Wires.MVC || {};
 				controller : controller
 			});
 		};
-		this.on404 = function(controller)
-		{
+		this.on404 = function(controller) {
 			this.notFoundController = controller;
-		},
-		this._start = function(params) {
+		}, this._start = function(params) {
 			var self = this;
 			this.params = params;
 			try {
@@ -179,8 +186,11 @@ Wires.MVC = Wires.MVC || {};
 						}
 					}
 				});
-				if ( controllerExecuted === false && this.notFoundController ){
-					self.executeController.bind(self)({ path : '404', controller : this.notFoundController});
+				if (controllerExecuted === false && this.notFoundController) {
+					self.executeController.bind(self)({
+						path : '404',
+						controller : this.notFoundController
+					});
 				}
 			} catch (e) {
 				console.log('error', e.stack ? e.stack : e);
@@ -270,16 +280,16 @@ Wires.MVC = Wires.MVC || {};
 			}
 		},
 		afterRender : function() {
-			var essentials = this.essentials || {}
+			var essentials = this.essentials || {};
 			var components = essentials.components || [];
-			var targetComponents = components[this._currentMethod] || {}
+			var targetComponents = components[this._currentMethod] || {};
 			var self = this;
 			_.each(targetComponents, function(component, name) {
 				var Component = _.isString(component) ? app[component] : component;
 				var cmp = new Component();
 				cmp.render();
 				self[name] = cmp;
-			})
+			});
 		}
 	}, {
 		displayName : ""
@@ -307,6 +317,10 @@ Wires.MVC = Wires.MVC || {};
 	// Minimalistic set
 	// ----------
 	Wires.MVC.Controller = Wires.MVC.Layout.extend({
+		_delayedInitialization : function(resolveInit)
+		{
+			this.__resolveInitialization = resolveInit; 
+		},
 		// Here we bind events that will modify the ko array
 		initialize : function(models, options) {
 			// Wires.MVC.Controller.__super__.initialize.apply(this, arguments);
@@ -315,4 +329,4 @@ Wires.MVC = Wires.MVC || {};
 			console.log(name, value);
 		}
 	});
-})(); 
+})();
