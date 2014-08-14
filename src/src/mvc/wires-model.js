@@ -17,6 +17,10 @@ var Wires = Wires || {};
 				self[key] = value;
 			});
 		},
+		validate : function()
+		{
+			
+		},
 		remove : function(done, fail) {
 			var attrs = this._getAttributes();
 			if (this._collection) {
@@ -45,8 +49,16 @@ var Wires = Wires || {};
 			return attrs;
 		},
 		save : function(done, fail) {
+			var self = this;
+			
 			if (!this._settings.resource)
 				return;
+				
+			var validation;
+			if ( ( validation = this.validate() ) )
+				this.trigger('save:blocker', validation);
+				return;
+				
 			var attrs = this._getAttributes();
 			if (attrs.id === undefined) {
 				var self = this;
@@ -57,8 +69,10 @@ var Wires = Wires || {};
 					if (e.id) {
 						self.id = e.id;
 					}
+					self.trigger('save:success', self);
 					done ? done(self) : '';
 				}, function(e) {
+					self.trigger('save:failed', e);
 					fail ? fail(self) : '';
 				});
 			} else {
@@ -66,8 +80,10 @@ var Wires = Wires || {};
 					url : this._settings.resource + "/" + attrs.id,
 					data : attrs
 				}, function(e) {
+					self.trigger('save:success', self);
 					done ? done(self) : '';
 				}, function(e) {
+					self.trigger('save:failed', e);
 					fail ? fail(self) : '';
 				});
 			}

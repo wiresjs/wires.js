@@ -8,6 +8,12 @@ Wires.attrs = Wires.attrs || {};
 			
 			// If animation was set
 			var animation = $(this.element).data('animation');
+			
+			//animation="slide:200|fade:300"
+			//var anms = animation.split('\|');
+			//_.each(anms, function(v){
+			//})
+			
 			var el = $(this.element);
 			switch (animation) {
 			case 'slide':

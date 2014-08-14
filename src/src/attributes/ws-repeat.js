@@ -92,7 +92,7 @@ Wires.attrs = Wires.attrs || {};
 						}
 						this._WiresRepeat.items.splice(index, untill);
 						return Array.prototype.splice.apply(this, arguments);;
-					}
+					};
 				}
 				
 				this.array._WiresEach.push(this);
@@ -141,7 +141,7 @@ Wires.attrs = Wires.attrs || {};
 			}
 			_.each(elements, function(el) {
 				el.remove();
-			})
+			});
 		},
 		// In order to avoid nasty blink and defered function
 		// We need to wait initial value set and store it as delayed function

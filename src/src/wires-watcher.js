@@ -47,16 +47,16 @@ var Wires = Wires || {};
 			var el = node.element;
 
 			// TODO: Weired stuff going on here */
-			/*
+			
 			var watchedElement = (this.node instanceof Wires.TextNode) ? node.element.parentNode || node.element
 					: node.element;
-			watchedElement.addEventListener("DOMNodeRemoved", function() {
-				console.log('removed', this.node.element);
+			
+			watchedElement.addEventListener("DOMNodeRemovedFromDocument", function() {
 				delete self.nodeCollection[this.index];
 			}.bind({
 				index : index,
 				node : node
-			}), false);*/
+			}), false);
 			
 			this.nodeCollection[index] = node;
 		}

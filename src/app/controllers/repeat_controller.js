@@ -1,14 +1,47 @@
 var app = app || {};
 (function() {
 	'use strict';
-	app.NotFoundController = Wires.MVC.Controller.extend({
+	app.RepeatController = Wires.MVC.Controller.extend({
 		essentials : {
 			views : {
-				index : 'not_found.html'
+				'*' : 'repeat.html'
 			}
 		},
-		index : function(params, render) {
+	
+		remove : function(scope)
+		{
+			scope.user.remove();
+		},
+		addUser : function()
+		{
+			if ( this.newuser){
+				var user = new app.User({id : 27, name : this.newuser});
+				
+				this.users.add(user);
+			}
+			this.newuser = '';
+		},
+		initialize : function()
+		{
+			this.users = new app.User().fetchAll();
 			
+			this.users.on('nameChanged', function(e, value){
+				console.log("name changed", value);
+			});
+		},
+		onSearchNameChanged : function(value)
+		{
+			this.users.where(function(e){
+				return e.name.toLowerCase().indexOf(value) >= 0;
+			});
+		},
+		index : function(params, render) {
+			var self = this;
+			window.a = this;
+			this.searchName = '';
+		
+			this.users.reset();
+			this.trigger('test',[1,2]);
 			render();
 		}
 	});
