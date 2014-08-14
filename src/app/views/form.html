@@ -40,7 +40,7 @@
                        Opinion
                     </label>
 				<select class="form-control" ws-value="$opinion">
-					<option ws-repeat="$item in $list" value="$item.id">$item.name</option>
+					<option ws-repeat="$item in $list" ws-selected="$parent.opinion == $item.id" ws-value="$item.id">$item.name</option>
 				</select>
 			</div>
 			<button type="submit" class="btn btn-default">Submit</button>

@@ -14,9 +14,9 @@
         <tr ws-repeat="$item in $items">
             <th><input type="checkbox" ws-value="$item.selected"></th>
             <td>$item.id</td>
-            <td>$item.priority</td>
+            <td>$item.priority </td>
             <td><i class="glyphicon glyphicon-remove" ws-click="this.item.remove()"></i></td>
-            <td>$item.name</td>
+            <td>$item.name </td>
             <td>
                  <input type="text" ws-value="$item.name"/>
                  <input type="button" value="save" ws-click="this.item.save()">
@@ -24,6 +24,9 @@
         </tr>
     </tbody>
 </table>
+
+
+<div ws-repeat="$item in $items">$item.name</div>
 
 <div ws-visible="$errors" style="border:1px solid red; height:30px">
     <div ws-repeat="$error in $errors">$error.message</div>

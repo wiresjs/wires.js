@@ -12,14 +12,12 @@ Wires.attrs = Wires.attrs || {};
 		},
 		bindChanges : function() {
 			var self = this;
-
 			var nodeName = this.element.nodeName.toLowerCase();
 			var elType = $(this.element).attr('type');
 			if (nodeName === 'textarea')
 				elType = nodeName;
 			if (nodeName === 'select')
 				elType = nodeName;
-
 			switch (elType) {
 			case 'text':
 			case 'email':
@@ -27,8 +25,7 @@ Wires.attrs = Wires.attrs || {};
 			case 'textarea':
 				this.element.addEventListener("keydown", function(evt) {
 					clearInterval(self.interval);
-					self.interval = setTimeout(function() {
-
+					self.interval = setTimeout( function() {
 						if (self.variables.length > 0) {
 							self.ignoreNodeSetValue = true;
 							self.variables[0].setValue(this.value, {
@@ -36,10 +33,8 @@ Wires.attrs = Wires.attrs || {};
 							});
 						}
 					}.bind(this), 50);
-
 				}, false);
 				break;
-
 			case 'checkbox':
 				this.element.addEventListener("click", function(evt) {
 					var checked = this.checked;
@@ -48,30 +43,29 @@ Wires.attrs = Wires.attrs || {};
 				});
 				break;
 			case 'select':
-				$(this.element).bind('change', function(){
+				$(this.element).bind('change', function() {
 					var value = $(this).val();
+					var cel = $(this).find("option:selected");
+					if (cel.length) {
+						var currentElement = $(cel).data("wires-node");
+						// Setting value
+						var WsValue = currentElement.attributes['ws-value'];
+						if (WsValue && WsValue.variables.length > 0) {
+							value = WsValue.variables[0].getValue();
+						}
+					}
 					self.ignoreNodeSetValue = true;
 					self.variables[0].setValue(value);
-					console.log('changed');
-					/*
-					$(this).parent().children().each(function(){
-						this.setAttribute('selected', false);
-					});
-					this.setAttribute('selected', true);
-					*/
 				});
 				break;
 			}
-
 		},
 		setValue : function(variable, newValue) {
 			if (this.ignoreNodeSetValue) {
 				this.ignoreNodeSetValue = false;
 				return;
 			}
-			
 			var result = this.executeStatement(variable, newValue, 'return');
-			
 			var elType = this.element.getAttribute('type');
 			if (elType === 'checkbox') {
 				this.element.checked = result;
@@ -79,6 +73,8 @@ Wires.attrs = Wires.attrs || {};
 				this.element.value = result;
 			}
 		},
-	},{addAttibute : false});
+	}, {
+		addAttibute : false
+	});
 	Wires.attrs['ws-value'] = WsValue;
-})();
+})(); 

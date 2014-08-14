@@ -16,9 +16,9 @@ var app = app || {};
 		},
 		index : function(params, render) {
 			window.a = this;
-			
+			//this.opinion = 2;
 			//this.opinion = 'It is really cool';
-			this.list = [ {id : 1, name : "sukka"}, {id : 2, name : "pukka"} ];
+			this.list = [ {id : 2, name : "pukka"}, {id : 1, name : "sukka"}, {id : 3, name : "runka"} ];
 			render();
 		}
 	});

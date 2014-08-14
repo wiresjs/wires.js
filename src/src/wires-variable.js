@@ -116,7 +116,7 @@ var Wires = Wires || {};
 			var result = '';
 			try {
 				result = func.apply(_this);
-				
+				//result = Wires.VariableTricks.changeWatchableTarget(result)
 				
 			} catch (e) {
 				Wires.Exec.failedMessage(e, {

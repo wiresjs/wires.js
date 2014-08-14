@@ -7,7 +7,7 @@ var Wires = Wires || {};
 			this.dom = dom;
 			this.scope = scope;
 			this.instance = scope.instance;
-			this.attributes = [];
+			this.attributes = {};
 			this.target = target;
 			this.options = options;
 			
@@ -147,7 +147,7 @@ var Wires = Wires || {};
 			});
 
 			_.each(customAttributes, function(data) {
-				self.attributes.push(new data.handler(self.scope, self.dom, element, data.attr, self));
+				self.attributes[data.attr.nodeName] = new data.handler(self.scope, self.dom, element, data.attr, self);
 			});
 			return element;
 		}

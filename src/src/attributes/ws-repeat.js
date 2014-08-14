@@ -3,7 +3,6 @@ Wires.attrs = Wires.attrs || {};
 (function() {
 	var WsRepeat = Wires.Attr.extend({
 		initialize : function(scope, dom, element, attr, node) {
-			
 			this.instance = scope.instance;
 			this.scope = scope;
 			this.element = element;
@@ -11,34 +10,30 @@ Wires.attrs = Wires.attrs || {};
 			this.node = node;
 			this.dom = dom;
 			this.condition = this.attr.value;
-			
 			// Get the essentials
 			this.essentials = this.getEssentials();
 			var arrayWasInitialized = this.essentials.collection.getTrickedValue()._WiresEach;
-			
-			this.bindArrayEvents(arrayWasInitialized);
+			this.bindArrayEvents(false);
 			this.items = [];
-			
 			// Watch collection
 			Wires.Watcher.spy(this.instance, this.essentials.collection, this);
 		},
-
 		onElementReady : function() {
 			this.node.placeholderBefore.nodeValue = 'ws-repeat: ' + this.condition;
 			this.node.placeholderAfter.nodeValue = '/ws-repeat: ' + this.condition;
-			
 			if (this.delayedAddFunction) {
 				this.delayedAddFunction();
 				this.delayedAddFunction = undefined;
 			}
 		},
 		addItem : function(item, index) {
-
 			// Setting getter for index
-			item[this.essentials.key.param] = function(){ 
+			item[this.essentials.key.param] = function() {
 				return this.array.indexOf(this.item);
-			}.bind({array : this.array, item :item});
-			
+			}.bind({
+				array : this.array,
+				item : item
+			});
 			item.parent = this.instance;
 			var self = this;
 			// In order for the compiler to get the proper dom,
@@ -46,37 +41,27 @@ Wires.attrs = Wires.attrs || {};
 			var modifiedDom = _.cloneDeep(this.dom);
 			// Removing the repeat attribute, otherwise it'll go recursively
 			delete modifiedDom.attribs['ws-repeat'];
-			
-			var modifiedChildren = [ modifiedDom ];
-			var newScope = Wires.World.attachParents(this.scope,item, self.essentials.value.param);
-			
+			var modifiedChildren = [modifiedDom];
+			var newScope = Wires.World.attachParents(this.scope, item, self.essentials.value.param);
 			var child = Wires.World.parse(newScope, modifiedChildren, this.element, {
 				insertBefore : this.node.placeholderAfter
 			});
 			this.items.push(child);
-			
 		},
-		
-
 		bindArrayEvents : function(arrayWasInitialized) {
 			var collection = this.essentials.collection;
-			
 			this.array = collection.getTrickedValue();
-			
-			
-			// IF array was initialized, but the class was reloaded, all the 
+			// IF array was initialized, but the class was reloaded, all the
 			// instances have to be dropped
 			// Because new elements are created
-			if ( arrayWasInitialized ){
+			if (arrayWasInitialized) {
 				this.array._WiresEach = null;
 			}
 			if (_.isArray(this.array)) {
 				// Prototype array only once
-				
 				if (!this.array._WiresEach) {
 					this.array._WiresEach = [];
 					this.array._WiresRepeat = this;
-					
 					this.array.push = function() {
 						var target = arguments.length > 0 ? arguments[0] : null;
 						var push = Array.prototype.push.apply(this, arguments);
@@ -88,15 +73,20 @@ Wires.attrs = Wires.attrs || {};
 						return push;
 					};
 					this.array.splice = function(index, untill) {
+						var self = this;
+						_.each(this._WiresEach, function(eachInstance) {
+							
+							
+							for (var i = index; i < index + untill; i++) {
+								
+								$( eachInstance.items[i].element).remove();
+							}		
+							eachInstance.items.splice(index, untill);		
+						});						
+						return Array.prototype.splice.apply(this, arguments);
 						
-						for(var i = index; i< index + untill; i++){
-							$( this._WiresRepeat.items[i].element ).remove();
-						}
-						this._WiresRepeat.items.splice(index, untill);
-						return Array.prototype.splice.apply(this, arguments);;
 					};
 				}
-				
 				this.array._WiresEach.push(this);
 			}
 		},
@@ -109,7 +99,6 @@ Wires.attrs = Wires.attrs || {};
 				console.error("Can't recognize expression!");
 				return;
 			}
-			
 			return {
 				value : essentials[0],
 				key : (essentials.length === 3 ? essentials[1] : {
@@ -119,20 +108,16 @@ Wires.attrs = Wires.attrs || {};
 				collection : essentials[essentials.length === 3 ? 2 : 1]
 			};
 		},
-		
 		_setValue : function(variable, newValue) {
 			var self = this;
 			var values = newValue ? newValue : variable.getTrickedValue();
-			
 			if (_.isArray(values) && self.dom.children) {
-				
 				_.each(values, function(item, index) {
 					self.addItem(item, index);
 				});
 			}
 		},
-		
-	   // Getting all the elements in the beetween placeholders
+		// Getting all the elements in the beetween placeholders
 		// We don't know parent so the elements need to be collected
 		removeElements : function() {
 			var elements = [];
@@ -149,9 +134,7 @@ Wires.attrs = Wires.attrs || {};
 		// We need to wait initial value set and store it as delayed function
 		// When the dom is ready it should be triggered
 		setValue : function(variable, newValue, isInitial) {
-			
-			if (isInitial ) {
-				
+			if (isInitial) {
 				this.delayedAddFunction = function() {
 					this._this._setValue.apply(this._this, this.args);
 				}.bind({
@@ -159,7 +142,6 @@ Wires.attrs = Wires.attrs || {};
 					args : arguments
 				});
 			} else {
-				
 				this._setValue.apply(this, arguments);
 			}
 		},
@@ -169,4 +151,4 @@ Wires.attrs = Wires.attrs || {};
 		shouldAppendElement : false
 	});
 	Wires.attrs['ws-repeat'] = WsRepeat;
-})();
+})(); 
