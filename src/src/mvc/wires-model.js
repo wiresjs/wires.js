@@ -10,6 +10,8 @@ var Wires = Wires || {};
 		initialize : function(args) {
 			this.assign(args);
 			this._settings.parentClass = this.constructor;
+			// Setting default values
+			var attributes = this._getAttributes();
 		},
 		assign : function(args) {
 			var self = this;
@@ -40,9 +42,15 @@ var Wires = Wires || {};
 			var attrs = {};
 			if (this._settings.schema) {
 				var self = this;
-				_.each(this._settings.schema, function(value, key) {
+				_.each(this._settings.schema, function(options, key) {
 					if (self[key] !== undefined) {
 						attrs[key] = self[key];
+					} else {
+						// Setting default value
+						if ( options.defaultValue !== undefined ){
+							self[key] = options.defaultValue;
+							attrs[key] = self[key];
+						}
 					}
 				});
 			}

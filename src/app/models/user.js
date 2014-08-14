@@ -7,17 +7,18 @@ var app = app || {};
 			resource : '/app/test.json',
 			schema : {
 				id : {},
-				name : {}
+				name : {},
+				test : {
+					defaultValue : "hello"
+				}
 			}
 		},
-		validate : function()
-		{
-			console.log('ddd', this.name)
-			if ( !this.name){
-				
-				return { message : "Name should be there "};
+		validate : function() {
+			if (!this.name) {
+				return {
+					message : "Name should be there "
+				};
 			}
-			
 		}
 	});
-})(); 
+})();

@@ -12,6 +12,9 @@ var app = app || {};
 						return value !== '';
 					}
 				},
+				test : {
+					defaultValue : "hello"
+				},
 				priority : {}
 			}
 		},
