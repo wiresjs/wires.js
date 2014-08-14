@@ -6,6 +6,7 @@ var Wires = Wires || {};
 			this.array = [];
 			this.db = [];
 			this.conditions = {};
+			this.size = 0;
 			if ( data ){
 				this.addAll(data);
 			}
@@ -25,6 +26,7 @@ var Wires = Wires || {};
 			} else {
 				this.array.push(model);
 			}
+			this.updateSize();
 			this.trigger("model:added", model);	
 		},
 		addAll : function(items)
@@ -108,11 +110,20 @@ var Wires = Wires || {};
 			var viewIndex = this.array.indexOf(item);
 			this.array.splice(viewIndex,1);
 			this.trigger("model:removed", item);
+			this.updateSize();
 		},
 		removeAll : function()
 		{
-			this.array.splice(0, this.array.length );
-			this.db.splice(0, this.db.length );
+			var self = this;
+			var cloned = _.clone(this.db);
+			
+			_.each(cloned, function(item){
+				self.remove(item);
+			});
+		},
+		updateSize : function()
+		{
+			this.size = this.array.length;
 		},
 		fetch : function(opts) {
 			var res;
@@ -129,6 +140,7 @@ var Wires = Wires || {};
 						self.array.push(item);
 						// Pushing collection to a db storage
 						self.db.push(item);
+						self.updateSize();
 					});
 				} else {
 					res = new opts.parentClass(result);

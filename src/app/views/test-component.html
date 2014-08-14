@@ -1,9 +1,3 @@
-<div style="padding:20px; border:1px solid gray">
-<h4>Test component:user name: $user.name</h4>
-
-<div><b>Pukka: $pukka</b></div>
-<div>$testVar</div>
-<input type="text" value="$pukka">
+<div ws-visible="$errors.size" style="border:1px solid red; height:30px">
+    <div ws-repeat="$error in $errors">$error.message</div>
 </div>
-
-

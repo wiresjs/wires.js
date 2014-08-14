@@ -7,7 +7,7 @@ var app = app || {};
 		view : 'test-component.html',
 		initialize : function()
 		{
-			this.testVar = 'Hello test var from component';
+			
 		},
 	});
 	

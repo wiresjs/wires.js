@@ -79,7 +79,7 @@ var Wires = Wires || {};
 					if (e.id) {
 						self.id = e.id;
 					}
-					self.trigger('save:success', self);
+					self.trigger('save:success', true);
 					done ? done(self) : '';
 				}, function(e) {
 					self.trigger('save:failed', e);
@@ -90,7 +90,7 @@ var Wires = Wires || {};
 					url : this._settings.resource + "/" + attrs.id,
 					data : attrs
 				}, function(e) {
-					self.trigger('save:success', self);
+					self.trigger('save:success', false);
 					done ? done(self) : '';
 				}, function(e) {
 					self.trigger('save:failed', e);

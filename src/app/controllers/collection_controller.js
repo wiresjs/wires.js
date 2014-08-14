@@ -51,10 +51,12 @@ var app = app || {};
 				
 			});
 			item.save();
-			self.items.add(item);
-			item.on("save:success", function() {
+			
+			item.on("save:success", function(e, isNew) {
 				self.newUser = '';
-				//self.items.add(item);
+				if ( isNew ){
+				 self.items.add(item);
+				}
 			});
 		},
 		index : function(params, render) {

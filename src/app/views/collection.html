@@ -28,9 +28,7 @@
 
 <div ws-repeat="$item in $items">$item.name</div>
 
-<div ws-visible="$errors" style="border:1px solid red; height:30px">
-    <div ws-repeat="$error in $errors">$error.message</div>
-</div>
+<my-component errors="$errors"/>
 
 
 <form ws-submit="this.addUser()">
@@ -38,19 +36,3 @@
     <input type="submit" ws-value="'submit'">
 </form>
 
-<!--
-    
-1 ivan 1
-2 jose 2
-3 mike 3
-4 ville 4
--->
-
-
-<!--
-    
-1 ville 1
-2 ivan 2
-3 jose 3
-4 mike 4
--->
