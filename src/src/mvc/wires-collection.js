@@ -24,6 +24,17 @@ var Wires = Wires || {};
 			}
 			this.trigger("model:added", model);	
 		},
+		addAll : function(items)
+		{
+			var self = this;
+			if (_.isArray(items) ){
+				_.each(items, function(item){
+					self.add(item);
+				});
+			} else {
+				self.add(items);
+			}
+		},
 		refresh : function()
 		{
 			// Refresh conditions
@@ -95,13 +106,16 @@ var Wires = Wires || {};
 			this.array.splice(viewIndex,1);
 			this.trigger("model:removed", item);
 		},
+		removeAll : function()
+		{
+			this.array.splice(0, this.array.length );
+			this.db.splice(0, this.db.length );
+		},
 		fetch : function(opts) {
 			var res;
 			var self = this;
 			if ( opts.force ){
-				// Reset the array and db storage
-				this.array.splice(0, this.array.length );
-				this.dn.splice(0, this.array.length );
+				this.removeAll();
 			}
 			Wires.MVC.rest.obtain(opts.resource, function(result) {
 				if (_.isArray(result)) {
