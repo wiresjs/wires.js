@@ -2,10 +2,13 @@ var Wires = Wires || {};
 (function() {
 	'use strict';
 	Wires.Collection = Wires.Class.extend({
-		initialize : function() {
+		initialize : function(data) {
 			this.array = [];
 			this.db = [];
 			this.conditions = {};
+			if ( data ){
+				this.addAll(data);
+			}
 		},
 		add : function(model)
 		{

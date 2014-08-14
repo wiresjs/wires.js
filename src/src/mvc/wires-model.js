@@ -55,9 +55,11 @@ var Wires = Wires || {};
 				return;
 				
 			var validation;
-			if ( ( validation = this.validate() ) )
+			if ( ( validation = this.validate() ) ){
 				this.trigger('save:blocker', validation);
 				return;
+			}
+			
 				
 			var attrs = this._getAttributes();
 			if (attrs.id === undefined) {

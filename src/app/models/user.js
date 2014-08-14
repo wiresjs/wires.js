@@ -9,6 +9,15 @@ var app = app || {};
 				id : {},
 				name : {}
 			}
+		},
+		validate : function()
+		{
+			console.log('ddd', this.name)
+			if ( !this.name){
+				
+				return { message : "Name should be there "};
+			}
+			
 		}
 	});
 })(); 

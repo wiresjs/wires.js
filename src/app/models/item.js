@@ -15,9 +15,14 @@ var app = app || {};
 				priority : {}
 			}
 		},
-		onSelectedChanged : function(value)
+		validate : function()
 		{
-		
+			
+			if ( !this.name){
+				
+				return { message : "Name should be there "};
+			}
+			
 		}
 	});
 })();

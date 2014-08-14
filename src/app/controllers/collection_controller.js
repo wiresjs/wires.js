@@ -14,7 +14,7 @@ var app = app || {};
 			auth : app.AuthInterceptor
 		},
 		initialize : function() {
-			
+			this.errors = new Wires.Collection();
 			this.on('collections:ready', function() {
 			
 				this.items.on('fetch:success', function(e, collection) {
@@ -37,15 +37,24 @@ var app = app || {};
 			this.items.sortBy('priority');
 		},
 		addUser : function() {
-			if (this.newUser) {
-				var user = new app.Item({
-					name : this.newUser
-				});
-				this.items.add(user);
-				user.save(function() {
-				});
-				this.newUser = '';
-			}
+			
+			this.errors.removeAll();
+			
+			var self = this;
+			var item = new app.Item({
+				name : this.newUser
+			});
+			
+			
+			item.on("save:blocker", function(e, errors) {
+				self.errors.addAll(errors);
+				
+			});
+			item.save();
+			item.on("save:success", function() {
+				self.newUser = '';
+				self.items.add(item);
+			});
 		},
 		index : function(params, render) {
 			console.log(this.items);

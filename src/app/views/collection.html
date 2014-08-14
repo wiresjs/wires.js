@@ -25,6 +25,11 @@
     </tbody>
 </table>
 
+<div visible="$error.array.length">
+    <div ws-repeat="$error in $errors">$error.message</div>
+</div>
+
+
 <form ws-submit="this.addUser()">
     <input type="text" ws-value="$newUser">
     <input type="submit" ws-value="'submit'">
