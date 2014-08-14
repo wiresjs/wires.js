@@ -31,12 +31,12 @@ var Wires = Wires || {};
 						// Setting it to component
 						component[attrName] = result;
 					});
+					component.trigger('attrs:ready', component);
 					// Re-defined children
 					self.dom.children = dom;
 					// Setting new scope
 					
 					self.scope = Wires.World.attachParents(self.scope, component);
-					
 					ready();
 				});
 			} else {
