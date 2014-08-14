@@ -14,7 +14,7 @@ Wires.attrs = Wires.attrs || {};
 			
 			// Get the essentials
 			this.essentials = this.getEssentials();
-			var arrayWasInitialized = this.essentials.collection.getValue()._WiresEach;
+			var arrayWasInitialized = this.essentials.collection.getTrickedValue()._WiresEach;
 			
 			this.bindArrayEvents(arrayWasInitialized);
 			this.items = [];
@@ -60,7 +60,9 @@ Wires.attrs = Wires.attrs || {};
 
 		bindArrayEvents : function(arrayWasInitialized) {
 			var collection = this.essentials.collection;
-			this.array = collection.getValue();
+			
+			this.array = collection.getTrickedValue();
+			
 			
 			// IF array was initialized, but the class was reloaded, all the 
 			// instances have to be dropped
@@ -120,7 +122,7 @@ Wires.attrs = Wires.attrs || {};
 		
 		_setValue : function(variable, newValue) {
 			var self = this;
-			var values = newValue ? newValue : variable.getValue();
+			var values = newValue ? newValue : variable.getTrickedValue();
 			
 			if (_.isArray(values) && self.dom.children) {
 				

@@ -56,6 +56,7 @@ var Wires = Wires || {};
 			try {
 
 				result = eval(func).apply(_this, _.values(data));
+				
 
 			} catch (e) {
 				// Fallback - nice print to console

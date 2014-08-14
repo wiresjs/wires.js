@@ -51,13 +51,14 @@ var app = app || {};
 				
 			});
 			item.save();
+			self.items.add(item);
 			item.on("save:success", function() {
 				self.newUser = '';
-				self.items.add(item);
+				//self.items.add(item);
 			});
 		},
 		index : function(params, render) {
-			console.log(this.items);
+			
 			render();
 		}
 	});

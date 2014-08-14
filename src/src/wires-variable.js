@@ -116,8 +116,7 @@ var Wires = Wires || {};
 			var result = '';
 			try {
 				result = func.apply(_this);
-				result = Wires.VariableTricks.changeWatchableTarget(result)
-				// Check for wires collection 
+				
 				
 			} catch (e) {
 				Wires.Exec.failedMessage(e, {
@@ -128,6 +127,11 @@ var Wires = Wires || {};
 				});
 			}
 			return result;
+		},
+		getTrickedValue : function()
+		{
+			var value = this.getValue();
+			return Wires.VariableTricks.changeWatchableTarget(value);
 		},
 		// Gets the value of variable / expression
 		getValue : function(incomingVar, newValue) {

@@ -5,7 +5,7 @@ Wires.attrs = Wires.attrs || {};
 	var WsVisible = Wires.BaseAttribute.extend({
 		setValue : function(newVariable, newValue) {
 			var result = this.executeStatement(newVariable, newValue, 'return');
-			
+			console.log('result is',result);
 			// If animation was set
 			var animation = $(this.element).data('animation');
 			

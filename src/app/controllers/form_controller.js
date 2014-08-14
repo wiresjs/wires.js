@@ -17,8 +17,8 @@ var app = app || {};
 		index : function(params, render) {
 			window.a = this;
 			
-			this.opinion = 'It is really cool';
-			this.list = ['Wires is awesome', 'It is really cool', 'I want to use it']; 
+			//this.opinion = 'It is really cool';
+			this.list = [ {id : 1, name : "sukka"}, {id : 2, name : "pukka"} ];
 			render();
 		}
 	});
