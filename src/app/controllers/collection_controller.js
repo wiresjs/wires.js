@@ -54,6 +54,7 @@ var app = app || {};
 		},
 		index : function(params, render) {
 			this.singleItem = this.items.findById(params.id);
+			console.log(this.singleItem);
 			render();
 		}
 	});

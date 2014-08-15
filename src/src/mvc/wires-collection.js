@@ -67,7 +67,7 @@ var Wires = Wires || {};
 		},
 		// Finds model my id
 		findById : function(idInput) {
-			var id = id * 1;
+			var id = idInput * 1;
 			if ( _.isNaN(id) ){
 				id = idInput;
 			}
