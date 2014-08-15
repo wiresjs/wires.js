@@ -66,9 +66,12 @@ var Wires = Wires || {};
 			this._setViewResult(_.where(this.db, condition));
 		},
 		// Finds model my id
-		findById : function(id) {
+		findById : function(idInput) {
+			var id = id * 1;
+			if ( _.isNaN(id) ){
+				id = idInput;
+			}
 			if (id) {
-				id = id * 1;
 				var result = this.where({
 					id : id
 				});
