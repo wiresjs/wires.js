@@ -124,12 +124,11 @@ Wires.MVC = Wires.MVC || {};
 			}
 			controller[collectionName] = Wires.MVC.collectionsInstances[collectionName];
 		});
-		
 		async.waterfall(fns, function() {
-			if ( !controller.__initializationResolved){
-				controller.__resolveInitialization();
-				controller.__initializationResolved = true;
-			}
+			
+			controller.__resolveInitialization();
+			
+			
 			ready({
 				tpl : viewTemplate,
 				container : container,
@@ -301,8 +300,8 @@ Wires.MVC = Wires.MVC || {};
 			if (options && options.container) {
 				this.essentials.containers = {
 					index : options.container
-				}
-			}
+				};
+			};
 			var self = this;
 			_.each(options, function(value, key) {
 				self[key] = value;
@@ -317,9 +316,8 @@ Wires.MVC = Wires.MVC || {};
 	// Minimalistic set
 	// ----------
 	Wires.MVC.Controller = Wires.MVC.Layout.extend({
-		_delayedInitialization : function(resolveInit)
-		{
-			this.__resolveInitialization = resolveInit; 
+		_delayedInitialization : function(resolveInit) {
+			this.__resolveInitialization = resolveInit;
 		},
 		// Here we bind events that will modify the ko array
 		initialize : function(models, options) {

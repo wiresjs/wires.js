@@ -39,8 +39,12 @@ var Wires = Wires || {};
 		if (this.initialize) {
 			var self = this;
 			if (this._delayedInitialization) {
+				
 				this._delayedInitialization(function() {
-					self.initialize.apply(self, arguments);
+					if ( !self.__initializationResolved){
+						self.initialize.apply(self, arguments);
+						self.__initializationResolved = true;
+					}
 				});
 			} else {
 				this.initialize.apply(this, arguments);

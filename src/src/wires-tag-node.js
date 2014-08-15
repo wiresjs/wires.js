@@ -31,7 +31,7 @@ var Wires = Wires || {};
 						// Setting it to component
 						component[attrName] = result;
 					});
-					component.trigger('attrs:ready', component);
+					component.__resolveInitialization();
 					// Re-defined children
 					self.dom.children = dom;
 					// Setting new scope

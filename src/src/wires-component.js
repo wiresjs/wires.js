@@ -2,6 +2,9 @@ var Wires = Wires || {};
 (function() {
 	'use strict';
 	Wires.Component = Wires.Class.extend({
+		_delayedInitialization : function(resolveInit) {
+			this.__resolveInitialization = resolveInit;
+		},
 		initialize : function() {
 		},
 		getDomStructure : function(componentName, done) {

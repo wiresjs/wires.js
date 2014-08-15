@@ -7,7 +7,7 @@ var app = app || {};
 		view : 'test-component.html',
 		initialize : function()
 		{
-			
+			console.log(this);
 		},
 	});
 	
