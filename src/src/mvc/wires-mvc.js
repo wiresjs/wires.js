@@ -114,21 +114,19 @@ Wires.MVC = Wires.MVC || {};
 			if (!Wires.MVC.collectionsInstances[collectionName]) {
 				var model = new modelClass();
 				Wires.MVC.collectionsInstances[collectionName] = model.getCollection();
-				fns.push( function(done) {
+				fns.push(function(done) {
 					this.model.fetchAll({
-						success : done
+						success : function() {
+							this.done();
+						}.bind({done : done})
 					});
-				}.bind({
-					model : model
-				}));
+				}.bind({model :model}));
 			}
 			controller[collectionName] = Wires.MVC.collectionsInstances[collectionName];
 		});
 		async.waterfall(fns, function() {
 			
 			controller.__resolveInitialization();
-			
-			
 			ready({
 				tpl : viewTemplate,
 				container : container,

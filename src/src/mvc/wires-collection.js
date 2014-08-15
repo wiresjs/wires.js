@@ -130,7 +130,7 @@ var Wires = Wires || {};
 						self.updateSize();
 					});
 				} else {
-					res = new opts.parentClass(result);
+					res = new opts._class(result);
 				}
 				if (opts.success) {
 					opts.success(res);

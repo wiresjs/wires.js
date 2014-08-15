@@ -105,6 +105,7 @@ var Wires = Wires || {};
 			return this._collection;
 		},
 		fetchAll : function(opt) {
+			
 			var path = this._settings.json || this._settings.resource;
 			var opts = opt || {};
 			// Create new collection
