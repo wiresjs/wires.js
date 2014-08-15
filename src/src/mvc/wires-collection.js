@@ -13,7 +13,6 @@ var Wires = Wires || {};
 			}
 		},
 		add : function(model) {
-			
 			model = model instanceof Wires.Model ? model : new Wires.Model(model);
 			model._collection = this;
 			this.db.push(model);
@@ -65,6 +64,18 @@ var Wires = Wires || {};
 			}
 			this.conditions.where = condition;
 			this._setViewResult(_.where(this.db, condition));
+		},
+		// Finds model my id
+		findById : function(id) {
+			if (id) {
+				id = id * 1;
+				var result = this.where({
+					id : id
+				});
+				if (result.length > 0) {
+					return result[0];
+				}
+			}
 		},
 		where : function(condition) {
 			return _.where(this.db, condition);
@@ -144,4 +155,4 @@ var Wires = Wires || {};
 			});
 		}
 	});
-})(); 
+})();

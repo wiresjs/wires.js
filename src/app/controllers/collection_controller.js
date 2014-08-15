@@ -17,7 +17,6 @@ var app = app || {};
 			this.errors = new Wires.Collection();
 			
 			
-				
 			this.items.sortBy('name');
 			
 			this.items.on('model:removed', function(e, model) {
@@ -54,6 +53,7 @@ var app = app || {};
 			});
 		},
 		index : function(params, render) {
+			this.singleItem = this.items.findById(params.id);
 			render();
 		}
 	});

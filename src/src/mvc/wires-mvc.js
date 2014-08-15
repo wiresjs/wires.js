@@ -2,7 +2,7 @@ Wires.MVC = Wires.MVC || {};
 (function() {
 	'use strict';
 	Wires.MVC.templateCollection = {};
-	Wires.MVC.openedTemplate
+	Wires.MVC.currentParams;
 	Wires.MVC.createdViews = {};
 	Wires.MVC.createdControllers = {};
 	Wires.MVC.controllerTemplates = {};
@@ -91,9 +91,12 @@ Wires.MVC = Wires.MVC || {};
 		$(window).on("hashchange", function(e) {
 			c(Wires.MVC.getURLParameters());
 		});
-	}
+	};
 	Wires.MVC.LastOpenedView = null;
 	Wires.MVC.Essentials = function(controller, action, ready) {
+		// Geting current params
+		var params = Wires.MVC.getURLParameters();
+		
 		var action = action || "index";
 		var essentials = controller.essentials || {};
 		var views = essentials.views || {};
@@ -130,8 +133,10 @@ Wires.MVC = Wires.MVC || {};
 			ready({
 				tpl : viewTemplate,
 				container : container,
-				sameView : templateFor === Wires.MVC.LastOpenedView
+				sameView : templateFor === Wires.MVC.LastOpenedView && _.isEqual(params, Wires.MVC.currentParams),
+				params : params
 			});
+			Wires.MVC.currentParams = params;
 			Wires.MVC.LastOpenedView = templateFor;
 		});
 	};
@@ -142,7 +147,7 @@ Wires.MVC = Wires.MVC || {};
 				$(options.container).hide();
 				Wires.World.cleanUp($(options.container)[0]);
 			}
-			controller[method](Wires.MVC.getURLParameters(), function() {
+			controller[method](options.params, function() {
 				controller.attach.bind(controller)(options);
 			});
 		});
@@ -255,7 +260,7 @@ Wires.MVC = Wires.MVC || {};
 				var container = $(options.container);
 				if (!container[0]) {
 					console.error(options.container, 'was not found in DOM');
-					console.error('Cannot render instance ', this)
+					console.error('Cannot render instance ', this);
 				} else {
 					container.show();
 					var self = this;
