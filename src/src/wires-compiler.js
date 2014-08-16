@@ -42,12 +42,13 @@ var Wires = Wires || {};
 			return newScope;
 		},
 		parse : function(scope, dom, target, options) {
-
+			
 			var node;
 			var iterateAsync = function(index) {
 				if (index === undefined && dom.length > 0) {
 					index = 0;
-				}
+				};
+				
 				var item = dom[index];
 				if (item.type === 'text') {
 					node = new Wires.TextNode(scope, item, target, options);
@@ -63,11 +64,11 @@ var Wires = Wires || {};
 							index++;
 							iterateAsync(index);
 						}
-					})
+					});
 				}
-			}
-
-			iterateAsync();
+			};
+			if ( dom.length > 0)
+				iterateAsync();
 			return node;
 		}
 	});

@@ -132,6 +132,8 @@ var Wires = Wires || {};
 						ignoreRestAttributes = handler.ignoreRestAttributes;
 					}
 					addAttribute = handler.addAttibute;
+					
+					
 				} else {
 					// If there is a need of even trying processing attibute value
 					if (attrValue.indexOf('$') > -1) {
@@ -147,7 +149,12 @@ var Wires = Wires || {};
 			});
 
 			_.each(customAttributes, function(data) {
-				self.attributes[data.attr.nodeName] = new data.handler(self.scope, self.dom, element, data.attr, self);
+				var persistWatch = false;
+				var attributeHandler = new data.handler(self.scope, self.dom, element, data.attr, self);
+				if ( data.handler.persistWatch !== undefined ){
+					attributeHandler.persistWatch = data.handler.persistWatch;
+				}
+				self.attributes[data.attr.nodeName] = attributeHandler;
 			});
 			return element;
 		}

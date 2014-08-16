@@ -15,6 +15,7 @@ var Wires = Wires || {};
 				this.setValue();
 			}
 		},
+	
 		
 		compileValue : function(incomingVar, newValue) {
 			var template = this.template;

@@ -9,6 +9,7 @@ var Wires = Wires || {};
 			this.attr = attr;
 			this.bindEssentials(this.attr.value);
 		},
+		
 		setValue : function(variable, newValue) {
 			var value = this.compileValue(variable, newValue);
 			this.attr.value = value;

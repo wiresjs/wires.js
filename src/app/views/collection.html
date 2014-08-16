@@ -26,10 +26,14 @@
     </tbody>
 </table>
 
+<div class="btn btn-primary" ws-click="act.toggle('show')">test</div>
+<div ws-if="$show" style="width:100px; height:100px; border:1px solid red;">
+    pukka sukka
+</div>
 
 <div ws-repeat="$item in $items">$item.name</div>
 
-<my-component errors="$errors"/>
+<my-component ws-if="$errors.size" errors="$errors"/>
 
 
 <form ws-submit="this.addUser()">

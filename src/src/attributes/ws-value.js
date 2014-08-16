@@ -18,6 +18,11 @@ Wires.attrs = Wires.attrs || {};
 				elType = nodeName;
 			if (nodeName === 'select')
 				elType = nodeName;
+				
+			if ( nodeName === 'input' && !elType){
+			//	elType = 'text';
+			} 
+			
 			switch (elType) {
 			case 'text':
 			case 'email':
