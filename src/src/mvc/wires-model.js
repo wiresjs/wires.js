@@ -107,6 +107,9 @@ var Wires = Wires || {};
 		fetchAll : function(opt) {
 			
 			var path = this._settings.json || this._settings.resource;
+			if ( opts.addPath ){
+				path = path + opts.addPath; 
+			}
 			var opts = opt || {};
 			// Create new collection
 			var collection = this.getCollection();	
