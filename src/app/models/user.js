@@ -11,6 +11,7 @@ var app = app || {};
 				test : {
 					defaultValue : "hello"
 				}
+			
 			}
 		},
 		validate : function() {

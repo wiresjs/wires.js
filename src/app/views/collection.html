@@ -11,13 +11,18 @@
             <th>Duplicate "each" for record</th>
         </tr>
     </thead>
-    <tbody ws-sortable="{ property :  'item.priority', autoSave : true }">
+    <tbody>
         <tr ws-repeat="$item in $items">
             <th><input type="checkbox" ws-value="$item.selected"></th>
             <td>$item.id</td>
             <td>$item.priority </td>
             <td><i class="glyphicon glyphicon-remove" ws-click="this.item.remove()"></i></td>
-            <td>$item.name </td>
+            <td ws-click="this.item.fetchMany('users');setTimeout(function(){console.log(this.item.users) }.bind(this),1000 )">$item.name
+                 
+                   <div ws-repeat="$user in $item.users">$user.name</div>
+                 
+                 
+                 </td>
             <td>
                  <input type="text" ws-value="$item.name"/>
                  <input type="button" value="save" ws-click="this.item.save()">

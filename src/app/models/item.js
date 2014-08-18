@@ -15,17 +15,17 @@ var app = app || {};
 				test : {
 					defaultValue : "hello"
 				},
-				priority : {}
-			}
+				priority : {},
+			},
+			hasMany : { users : function(){ return app.User; } }
+
 		},
-		validate : function()
-		{
-			
-			if ( !this.name){
-				
-				return { message : "Name should be there "};
+		validate : function() {
+			if (!this.name) {
+				return {
+					message : "Name should be there "
+				};
 			}
-			
 		}
 	});
 })();

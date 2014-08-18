@@ -135,12 +135,14 @@ var Wires = Wires || {};
 				self._fetched = true;
 				if (_.isArray(result)) {
 					res = [];
+					
 					_.each(result, function(item) {
 						var item = new opts._class(item);
 						item._collection = self;
 						self.array.push(item);
 						// Pushing collection to a db storage
 						self.db.push(item);
+						
 						self.updateSize();
 					});
 				} else {
