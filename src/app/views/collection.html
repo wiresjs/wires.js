@@ -38,9 +38,15 @@
 </my-component>
 
 
+
 <form ws-submit="this.addUser()">
     <input type="text" ws-value="$newUser">
     <input type="submit" ws-value="'submit'">
 </form>
+<hr>
+
+<input type="text" ws-value="$form.name"> $form.name
+
+<input type="button" value="change" ws-click="this.check()">
 
 

@@ -32,6 +32,7 @@ var Wires = Wires || {};
 		},
 		valueChanged : function(value) {
 			var self = this;
+			
 			_.each(this.nodeCollection, function(node) {
 				node.setValue(self.variable, value);
 			});

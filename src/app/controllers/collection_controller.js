@@ -21,6 +21,9 @@ var app = app || {};
 		initialize : function() {
 			this.errors = new Wires.Collection();
 			
+			this.data = {
+				value : "pukka"
+			};
 			
 			this.items.sortBy('name');
 			
@@ -31,6 +34,12 @@ var app = app || {};
 				console.log('added', model);
 				this.sortBy('name');
 			});
+		},
+		check : function()
+		{
+			
+			this.form.reset();
+			
 		},
 		onSelectAllChanged : function(value) {
 			this.items.each(function(item) {
@@ -59,7 +68,7 @@ var app = app || {};
 		},
 		index : function(params, render) {
 			this.singleItem = this.items.findById(params.id);
-			console.log(this.singleItem);
+			this.form = new Wires.Form();
 			render();
 		}
 	});

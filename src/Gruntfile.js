@@ -6,6 +6,7 @@ module.exports = function(grunt) {
 	    './src/wires-config.js',
 	    './src/wires-events.js',
 	    './src/wires-extend.js',
+	    './src/wires-form.js',
 	    './src/wires-object-utils.js',
 	    
 	    './src/acts/main.js',
