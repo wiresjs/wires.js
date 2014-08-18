@@ -7,6 +7,12 @@ var Wires = Wires || {};
 		},
 		initialize : function() {
 		},
+		getDom : function(node, done) {
+			this.getDomStructure(node.name, function(data) {
+				Wires.Component.searchForComponentDataAttribute(data, node.children);
+				done(data);
+			});
+		},
 		getDomStructure : function(componentName, done) {
 			var view = this.view;
 			var self = this;
@@ -52,8 +58,25 @@ var Wires = Wires || {};
 		register : function(name, _class) {
 			this.components[name] = _class;
 			/*document.registerElement(name, {
-				prototype : Object.create(HTMLElement.prototype)
-			});*/
+			 prototype : Object.create(HTMLElement.prototype)
+			 });*/
+		},
+		// Searching for components special attributes
+		// If attribute found component-data, all the top children go inside this element
+		searchForComponentDataAttribute : function(data, children) {
+			var each = function(nodes) {
+				_.each(nodes, function(node) {
+					_.each(node.attribs, function(attrValue, attrName) {
+						if (attrName === 'component-data') {
+							node.children = children;
+						};
+					});
+					if (node.children) {
+						each(node.children);
+					}
+				});
+			};
+			each(data);
 		},
 		getCustomComponent : function(name) {
 			return this.components[name];

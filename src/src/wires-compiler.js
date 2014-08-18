@@ -17,7 +17,7 @@ var Wires = Wires || {};
 			var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
 			parser.parseComplete(this.template);
 		},
-	// At this point we are having our DOM in json
+		// At this point we are having our DOM in json
 	}, {
 		cleanUp : function(element) {
 			while (element.firstChild) {
@@ -28,7 +28,7 @@ var Wires = Wires || {};
 			var parent = scope.instance;
 			var newScope = {
 				instance : instance,
-				parents : [ parent ],
+				parents : [parent],
 				parent : scope.instance,
 				param : param
 			};
@@ -42,13 +42,11 @@ var Wires = Wires || {};
 			return newScope;
 		},
 		parse : function(scope, dom, target, options) {
-			
 			var node;
 			var iterateAsync = function(index) {
 				if (index === undefined && dom.length > 0) {
 					index = 0;
 				};
-				
 				var item = dom[index];
 				if (item.type === 'text') {
 					node = new Wires.TextNode(scope, item, target, options);
@@ -59,7 +57,7 @@ var Wires = Wires || {};
 				}
 				if (item.type === 'tag') {
 					node = new Wires.TagNode(scope, item, target, options);
-					node.create(function(){
+					node.create(function() {
 						if (index < dom.length - 1) {
 							index++;
 							iterateAsync(index);
@@ -67,9 +65,9 @@ var Wires = Wires || {};
 					});
 				}
 			};
-			if ( dom.length > 0)
+			if (dom.length > 0)
 				iterateAsync();
 			return node;
 		}
 	});
-})();
+})(); 

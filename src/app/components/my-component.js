@@ -9,6 +9,10 @@ var app = app || {};
 		{
 			console.log(this);
 		},
+		test : function()
+		{
+			alert('test');
+		}
 	});
 	
 	Wires.Component.register("my-component", MyComponent);

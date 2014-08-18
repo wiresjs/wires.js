@@ -13,6 +13,11 @@ var app = app || {};
 		interceptors : {
 			auth : app.AuthInterceptor
 		},
+		pukka : function()
+		{
+			alert("OLOLO");
+		},
+		
 		initialize : function() {
 			this.errors = new Wires.Collection();
 			

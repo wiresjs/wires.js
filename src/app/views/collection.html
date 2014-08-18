@@ -33,7 +33,9 @@
 
 <div ws-repeat="$item in $items">$item.name</div>
 
-<my-component ws-if="$errors.size" errors="$errors"/>
+<my-component errors="$errors" kakka="this.pukka">
+    <div>Hello shit $errors.size</div>    
+</my-component>
 
 
 <form ws-submit="this.addUser()">
