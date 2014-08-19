@@ -13,20 +13,17 @@ var app = app || {};
 		interceptors : {
 			auth : app.AuthInterceptor
 		},
-		pukka : function()
-		{
+		pukka : function() {
 			alert("OLOLO");
 		},
-		
 		initialize : function() {
+			this.newitem = new app.Item();
+			this.newitem.setCollection(this.items);
 			this.errors = new Wires.Collection();
-			
 			this.data = {
 				value : "pukka"
 			};
-			
 			this.items.sortBy('name');
-			
 			this.items.on('model:removed', function(e, model) {
 				console.log('removed', model);
 			});
@@ -35,11 +32,9 @@ var app = app || {};
 				this.sortBy('name');
 			});
 		},
-		check : function()
-		{
+		check : function() {
 			i++;
 			this.form.reset();
-			
 		},
 		onSelectAllChanged : function(value) {
 			this.items.each(function(item) {
@@ -67,7 +62,6 @@ var app = app || {};
 			});
 		},
 		index : function(params, render) {
-			
 			this.singleItem = this.items.findById(params.id);
 			this.form = new Wires.Form();
 			render();

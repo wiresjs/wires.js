@@ -11,16 +11,20 @@ var Wires = Wires || {};
 			this.setHasManyMethods();
 			this.assign(args);
 			this._fetched = false;
+			this._form = new Wires.Collection();
+			this._errors = new Wires.Collection();
 			this._settings.parentClass = this.constructor;
 			// Setting default values
 			var attributes = this._getAttributes();
+		},
+		setCollection : function(collection) {
+			this._collection = collection;
 		},
 		setHasManyMethods : function() {
 			var self = this;
 			this.__hasMany = {};
 			_.each(this._settings.hasMany, function(data, key) {
 				var modelClass = data();
-				
 				var modelInstance = new modelClass();
 				self.__hasMany[key] = modelInstance;
 				self[key] = modelInstance.getCollection();
@@ -58,6 +62,13 @@ var Wires = Wires || {};
 				});
 			}
 		},
+		_resetAttributes : function() {
+			var attrs = this._getAttributes();
+			var self = this;
+			_.each(attrs, function(v, k) {
+				self[k] = null;
+			});
+		},
 		_getAttributes : function() {
 			var attrs = {};
 			if (this._settings.schema) {
@@ -76,12 +87,30 @@ var Wires = Wires || {};
 			}
 			return attrs;
 		},
+		create : function() {
+			this._errors.removeAll();
+			var validation;
+			if (( validation = this.validate() )) {
+				this.trigger('save:blocker', validation);
+				this._errors.addAll(validation);
+				return;
+			}
+			var model = new this._settings.parentClass(this._getAttributes());
+			var self = this;
+			model.save(function(model) {
+				if (self._collection) {
+					self._collection.add(model);
+				}
+				self._resetAttributes();
+			});
+		},
 		save : function(done, fail) {
 			var self = this;
 			if (!this._settings.resource)
 				return;
 			var validation;
 			if (( validation = this.validate() )) {
+				this._errors.addAll(validation);
 				this.trigger('save:blocker', validation);
 				return;
 			}
@@ -119,7 +148,6 @@ var Wires = Wires || {};
 			return this._collection;
 		},
 		fetchAll : function(opt) {
-			
 			if (!opt.force && this._fetched)
 				return;
 			var path = this._settings.json || this._settings.resource;
@@ -134,7 +162,7 @@ var Wires = Wires || {};
 			collection.fetch({
 				resource : path,
 				_class : this._settings.parentClass,
-				success : function(){
+				success : function() {
 					opts.success ? opts.success() : null;
 				},
 				error : opts.error

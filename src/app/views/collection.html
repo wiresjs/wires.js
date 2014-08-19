@@ -31,27 +31,17 @@
     </tbody>
 </table>
 
-<div class="btn btn-primary" ws-click="act.toggle('show')">test</div>
-<div ws-if="$show" style="width:100px; height:100px; border:1px solid red;">
-    pukka sukka
-</div>
-
-<div ws-repeat="$item in $items">$item.name</div>
-
-<my-component errors="$errors" kakka="this.pukka">
-    <div>Hello shit $errors.size</div>    
-</my-component>
-
-
-
-<form ws-submit="this.addUser()">
-    <input type="text" ws-value="$newUser">
+<hr>
+<form ws-submit="this.newitem.create()">
+    <input type="text" ws-value="$newitem.name">
     <input type="submit" ws-value="'submit'">
+    
+    <div id="$newitem._errors">
+        <div ws-repeat="$error in $newitem._errors">$error.message</div>
+    </div>
 </form>
 <hr>
 
-<input type="text" ws-value="$form.name"> $form.name
 
-<input type="button" value="change" ws-click="this.check()">
 
 
