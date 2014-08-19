@@ -64,7 +64,8 @@ var Wires = Wires || {};
 					message : "Failed to execute expression",
 					code : statement,
 					scope : scope,
-					variables : data
+					variables : data,
+					func : func
 				});
 			}
 			return result;
@@ -93,8 +94,10 @@ var Wires = Wires || {};
 		// Failed message
 		// Grouped in console for a clear view and understanding an error
 		failedMessage : function(e, options) {
+			Wires.Debug.showError(e, options.func);
 			console.groupCollapsed(options.message, options.param || '');
 			console.error(e.message);
+			console.error(e.stack ? e.stack : e);
 			if (options.code) {
 				console.error(options.code);
 			}

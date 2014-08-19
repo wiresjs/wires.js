@@ -5,7 +5,7 @@ var app = app || {};
 $(function() {
 	'use strict';
 	var history = new Wires.MVC.Router();
-	
+	Wires.Debug.enabled = true;
 	//history.register(new RegExp('.*?'), app.BaseController);
 	history.register('', app.MainController);
 	

@@ -37,7 +37,7 @@ var app = app || {};
 		},
 		check : function()
 		{
-			
+			i++;
 			this.form.reset();
 			
 		},
@@ -67,6 +67,7 @@ var app = app || {};
 			});
 		},
 		index : function(params, render) {
+			
 			this.singleItem = this.items.findById(params.id);
 			this.form = new Wires.Form();
 			render();

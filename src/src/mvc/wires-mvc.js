@@ -195,6 +195,7 @@ Wires.MVC = Wires.MVC || {};
 					});
 				}
 			} catch (e) {
+				Wires.Debug.showError(e);
 				console.log('error', e.stack ? e.stack : e);
 			}
 		};
