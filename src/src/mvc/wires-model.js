@@ -87,6 +87,18 @@ var Wires = Wires || {};
 			}
 			return attrs;
 		},
+		_triggerServerValidationError : function(e, self) {
+			if (e.responseText) {
+				try {
+					var json = JSON.parse(e.responseText);
+					if (json.code === 400) {
+						self._errors.addAll(json);
+						self.trigger('save:blocker', json);
+					}
+				} catch(e) {
+				}
+			}
+		},
 		create : function() {
 			this._errors.removeAll();
 			var validation;
@@ -102,6 +114,9 @@ var Wires = Wires || {};
 					self._collection.add(model);
 				}
 				self._resetAttributes();
+			}, function(e) {
+				// Parser saving error
+				self._triggerServerValidationError(e, self);
 			});
 		},
 		save : function(done, fail) {
@@ -128,7 +143,8 @@ var Wires = Wires || {};
 					done ? done(self) : '';
 				}, function(e) {
 					self.trigger('save:failed', e);
-					fail ? fail(self) : '';
+					fail ? fail(e) : '';
+					self._triggerServerValidationError(e, self);
 				});
 			} else {
 				Wires.MVC.rest.put({
@@ -139,7 +155,8 @@ var Wires = Wires || {};
 					done ? done(self) : '';
 				}, function(e) {
 					self.trigger('save:failed', e);
-					fail ? fail(self) : '';
+					fail ? fail(e) : '';
+					self._triggerServerValidationError(e, self);
 				});
 			}
 		},

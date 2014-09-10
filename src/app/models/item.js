@@ -4,7 +4,7 @@ var app = app || {};
 	'use strict';
 	app.Item = Wires.Model.extend({
 		_settings : {
-			resource : '/items',
+			resource : '/api/items',
 			schema : {
 				id : {},
 				name : {

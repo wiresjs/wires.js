@@ -20,8 +20,6 @@
             <td ws-click="this.item.fetchMany('users');setTimeout(function(){console.log(this.item.users) }.bind(this),1000 )">$item.name
                  
                    <div ws-repeat="$user in $item.users">$user.name</div>
-                 
-                 
                  </td>
             <td>
                  <input type="text" ws-value="$item.name"/>
@@ -32,13 +30,15 @@
 </table>
 
 <hr>
+$newitem._errors.size
 <form ws-submit="this.newitem.create()">
     <input type="text" ws-value="$newitem.name">
     <input type="submit" ws-value="'submit'">
     
-    <div id="$newitem._errors">
-        <div ws-repeat="$error in $newitem._errors">$error.message</div>
-    </div>
+   
+    <div ws-repeat="$error in $newitem._errors">$error.message</div>
+   
+    
 </form>
 <hr>
 
