@@ -66,7 +66,9 @@ var Wires = Wires || {};
 			var attrs = this._getAttributes();
 			var self = this;
 			_.each(attrs, function(v, k) {
-				self[k] = null;
+				if ( _.isString( self[k]) ){
+					self[k] = null;
+				}
 			});
 		},
 		_getAttributes : function() {
