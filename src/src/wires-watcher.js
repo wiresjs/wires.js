@@ -32,7 +32,6 @@ var Wires = Wires || {};
 		},
 		valueChanged : function(value) {
 			var self = this;
-			
 			_.each(this.nodeCollection, function(node) {
 				node.setValue(self.variable, value);
 			});
@@ -44,24 +43,25 @@ var Wires = Wires || {};
 			var self = this;
 			var index = this.index++;
 			var el = node.element;
-			
-			// Determine target 
-			var watchedElement = (this.node instanceof Wires.TextNode) 
-				? node.element.parentNode || node.element : node.element;
-				
-			// Adding the event to an element and 
+			// Determine target
+			var watchedElement = (this.node instanceof Wires.TextNode) ? node.element.parentNode || node.element : node.element;
+			// Adding the event to an element and
 			// Removing the element from watching ( garbage collector )
-			watchedElement.addEventListener("DOMNodeRemovedFromDocument", function() {
-				var node = self.nodeCollection[this.index];
-				// IF node does not want to be removed
-				// (Some of them want to stay (like ws-if) )
-				if (!node.persistWatch) {
-					delete self.nodeCollection[this.index];
-				}
-			}.bind({
-				index : index,
-				node : node
-			}), false);
+
+			if (watchedElement.__persists === undefined) {
+				watchedElement.addEventListener("DOMNodeRemovedFromDocument", function() {
+					var node = self.nodeCollection[this.index];
+					// IF node does not want to be removed
+					// (Some of them want to stay (like ws-if) )
+					if (node !== undefined || (node && !node.persistWatch)) {
+						
+						delete self.nodeCollection[this.index];
+					}
+				}.bind({
+					index : index,
+					node : node
+				}), false);
+			}
 			this.nodeCollection[index] = node;
 		}
 	}, {
@@ -102,4 +102,4 @@ var Wires = Wires || {};
 			singleWatcher.setInitial(node);
 		}
 	});
-})(); 
+})();

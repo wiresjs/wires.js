@@ -2,18 +2,12 @@ var app = app || {};
 (function() {
 	'use strict';
 	var MyComponent = Wires.Component.extend({
-		//template : '<div><b>$user.name</b></div>',
-		//sourceElement : '#test',
 		view : 'test-component.html',
+		module : true,
 		initialize : function()
 		{
-			console.log(this);
-		},
-		test : function()
-		{
-			alert('test');
+			this.name = "test shit";
 		}
 	});
-	
 	Wires.Component.register("my-component", MyComponent);
 })();

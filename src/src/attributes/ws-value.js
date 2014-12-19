@@ -20,7 +20,7 @@ Wires.attrs = Wires.attrs || {};
 				elType = nodeName;
 				
 			if ( nodeName === 'input' && !elType){
-			//	elType = 'text';
+				elType = 'text';
 			} 
 			
 			switch (elType) {

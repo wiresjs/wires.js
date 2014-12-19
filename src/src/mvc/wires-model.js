@@ -167,7 +167,7 @@ var Wires = Wires || {};
 			return this._collection;
 		},
 		fetchAll : function(opt) {
-			if (!opt.force && this._fetched)
+			if (opt !== undefined && !opt.force && this._fetched)
 				return;
 			var path = this._settings.json || this._settings.resource;
 			if (opt && opt.path) {

@@ -176,8 +176,10 @@ Wires.MVC = Wires.MVC || {};
 			try {
 				var controllerExecuted = false;
 				_.each(this.routes, function(info) {
+					
 					if (_.isString(info.path)) {
 						if (info.path === params.controller) {
+							
 							self.executeController.bind(self)(info);
 							controllerExecuted = true;
 						}
@@ -219,6 +221,7 @@ Wires.MVC = Wires.MVC || {};
 		// Executing controller
 		this.executeController = function(info) {
 			this.createController(info, function(controller) {
+				
 				if (controller[this.params.action]) {
 					Wires.MVC.ExecuteTarget(controller, this.params.action);
 				}

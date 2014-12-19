@@ -1,66 +1,9 @@
-<a href="/app/#user">to user</a>
-
-zero: $zero
-<div repeat="$item in $numbers">
- Hello
- $item 
-</div>
-
-<div ws-class="{ 'btn-primary' : $color == 'gray', 'btn-warning' : $color == 'pink' }" class="btn">
-Test ws-class
-</div>
+<div>$hello</div>
+<a href="#test">test</a>
+<my-component/>
+<div>$hello</div>
 
 
-<h5>Try pink</h5>
-<h1>
-	Color:<span style="color: $color">$color</span> {# $color==='pink' ? 'so gay choice' : '' #}
-</h1>
-<input type="text" value="$color">
-<hr>
-<h4>Users</h4>
-
-<a href="/app/#main/test">test</a>
-<h1 if="$color=='pink'">This is really gay...<div>111</div></h1>
-<h3 if="$color=='pink'">Like really...</h3>
-
-
-<table class="table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>First Name</th>
-          <th>Duplicate "each" for record</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr repeat="$user in $users" visible="$user.name !== 'test'">
-          <td>$user.id</td>
-          <td>$user.name</td>
-          <td> 
-	            <div>
-	                <input type="text" value="$user.name"/>
-	            </div>
-          </td>
-        </tr>
-       
-      </tbody>
-    </table>
-    
-    <div visible="$newUserName === 'test'" class="label label-danger">User test won't be displayed!</div><br>
-    <input type="text" value="$newUserName">
-    
-    <div click="this.addUser()" class="btn btn-primary">Add user $newUserName</div>
-    
-    
-
-
-
-<h4>Modify userJose.name</h4>
-<input type="text" value="$userJose.name">
-
-<h4>Modify userIvan.name</h4>
-<input type="text" value="$userIvan.name">
-<hr>
 
  
 
