@@ -93,8 +93,14 @@ Wires.MVC = Wires.MVC || {};
 		});
 	};
 	Wires.MVC.LastOpenedView = null;
+
+
 	Wires.MVC.Essentials = function(controller, action, ready) {
 		// Geting current params
+
+		var isComponent = controller instanceof Wires.Component;
+
+
 		var params = Wires.MVC.getURLParameters();
 		
 		var action = action || "index";
@@ -136,8 +142,10 @@ Wires.MVC = Wires.MVC || {};
 				sameView : templateFor === Wires.MVC.LastOpenedView && _.isEqual(params, Wires.MVC.currentParams),
 				params : params
 			});
-			Wires.MVC.currentParams = params;
-			Wires.MVC.LastOpenedView = templateFor;
+			if (!isComponent){
+				Wires.MVC.currentParams = params;
+				Wires.MVC.LastOpenedView = templateFor;
+			}
 		});
 	};
 	Wires.MVC.ExecuteTarget = function(controller, method) {
