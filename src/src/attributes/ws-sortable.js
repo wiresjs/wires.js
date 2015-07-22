@@ -1,26 +1,23 @@
-var Wires = Wires || {};
-Wires.attrs = Wires.attrs || {};
-(function() {
-	'use strict';
-	var WsSortable = Wires.BaseAttribute.extend({
-		initialize : function() {
+domain.service("attributes.ws-sortable", function() {
+	return WsSortable = Wires.BaseAttribute.extend({
+		initialize: function() {
 			WsSortable.__super__.initialize.apply(this, arguments);
 			this.options = this.executeStatement(null, null, 'return');
 			this.setBindings();
 		},
-		setBindings : function() {
+		setBindings: function() {
 			var options = this.options;
 			var positionStart;
 			$(this.element).sortable({
-				axis : "y",
-				start : function(event, ui) {
+				axis: "y",
+				start: function(event, ui) {
 					positionStart = ui.item.position().top;
 				},
-				update : function(event, ui) {
+				update: function(event, ui) {
 					var round_number = function(num, dec) {
 						return Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);
 					};
-					
+
 					var el = ui.item;
 					var stop = el.position().top;
 					var movingDirection = positionStart < stop ? -1.0 : 1.0;
@@ -58,5 +55,4 @@ Wires.attrs = Wires.attrs || {};
 			});
 		}
 	});
-	Wires.attrs['ws-sortable'] = WsSortable;
-})();
+})

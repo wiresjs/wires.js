@@ -1,21 +1,18 @@
-var Wires = Wires || {};
-Wires.attrs = Wires.attrs || {};
-(function() {
-	'use strict';
-	var WsSubmit = Wires.BaseAttribute.extend({
-		initialize : function() {
+domain.service("attributes.ws-submit", function() {
+	return WsSubmit = Wires.BaseAttribute.extend({
+		initialize: function() {
 			WsSubmit.__super__.initialize.apply(this, arguments);
 			this.setBindings();
 		},
-		setBindings : function() {
-			$(this.element).submit( function(e) {
+		setBindings: function() {
+			$(this.element).submit(function(e) {
 				$(this.element).find("select").each(function() {
 					var attrs = $(this).data('wires-node').attributes;
 					var wsValue = attrs['ws-value'];
 					if (wsValue && wsValue.variables.length) {
 						var currentValue = wsValue.variables[0].getValue();
 						if (currentValue === undefined || currentValue === '') {
-							
+
 							var cel = $(this).find("option:selected");
 							if (cel.length) {
 								var currentElement = $(cel).data("wires-node");
@@ -26,7 +23,7 @@ Wires.attrs = Wires.attrs || {};
 									wsValue.variables[0].setValue(valueToBeSet);
 								}
 							}
-							
+
 						}
 					}
 				});
@@ -35,5 +32,4 @@ Wires.attrs = Wires.attrs || {};
 			}.bind(this));
 		}
 	});
-	Wires.attrs['ws-submit'] = WsSubmit;
-})(); 
+})

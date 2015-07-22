@@ -6,12 +6,18 @@ var Wires = Wires || {};
 			this.template = options.template;
 			this.target = options.target;
 			this.scope = options.scope;
+			this.done = options.done;
+
 			var self = this;
 			var handler = new Tautologistics.NodeHtmlParser.DefaultHandler(function(error, dom) {
 				if (error) {
 					console.log(error);
 				} else {
-					Wires.World.parse(self.scope, dom, self.target);
+					Wires.World.parse(self.scope, dom, self.target).then(function(){
+						if ( options.done ){
+							options.done();
+						}
+					})
 				}
 			});
 			var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
@@ -43,31 +49,40 @@ var Wires = Wires || {};
 		},
 		parse : function(scope, dom, target, options) {
 			var node;
-			var iterateAsync = function(index) {
-				if (index === undefined && dom.length > 0) {
-					index = 0;
-				};
-				var item = dom[index];
-				if (item.type === 'text') {
-					node = new Wires.TextNode(scope, item, target, options);
-					if (index < dom.length - 1) {
-						index++;
-						iterateAsync(index);
+			return new Promise(function(resolve, reject){
+				var self = this;
+
+				var iterateAsync = function(index) {
+					if (index === undefined && dom.length > 0) {
+						index = 0;
 					}
-				}
-				if (item.type === 'tag') {
-					node = new Wires.TagNode(scope, item, target, options);
-					node.create(function() {
+					var item = dom[index];
+					if (item.type === 'text') {
+						node = new Wires.TextNode(scope, item, target, options);
 						if (index < dom.length - 1) {
 							index++;
 							iterateAsync(index);
+						} else {
+							return resolve(node);
 						}
-					});
+					}
+					if (item.type === 'tag') {
+						node = new Wires.TagNode(scope, item, target, options);
+						node.create(function() {
+							
+							if (index < dom.length - 1) {
+								index++;
+								iterateAsync(index);
+							} else {
+								return resolve(node);
+							}
+						});
+					}
+				};
+				if (dom.length > 0){
+					iterateAsync();
 				}
-			};
-			if (dom.length > 0)
-				iterateAsync();
-			return node;
+			});
 		}
 	});
-})(); 
+})();

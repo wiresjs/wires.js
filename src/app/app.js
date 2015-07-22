@@ -1,19 +1,19 @@
-/*global $ */
-/*jshint unused:false */
-var app = app || {};
+
+
+
 
 $(function() {
 	'use strict';
-	var history = new Wires.MVC.Router();
-	Wires.Debug.enabled = true;
-	
-	history.register(null, app.MainController);
-	history.register('test', app.TestController);
-	
-	
-	history.on404(app.NotFoundController);
-	
-	history.start();
-	
 
+	domain.require(function($router){
+		$router.add('/test/state1/:action?', 'BaseController',[
+         $router.state('/test/state1/hello', 'HelloController')
+      ])
+
+      $router.add('/test/state2/:action?', 'BaseController2',[
+         $router.state('/test/state2/hello', 'HelloController2')
+      ])
+
+      $router.start();
+	})
 });

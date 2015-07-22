@@ -11,9 +11,7 @@ Wires.attrs = Wires.attrs || {};
 			this.attr = attr;
 			this.condition = this.attr.value;
 			this.bindEssentials(this.condition);
-		},/*
-		setValue : function(newVariable, newValue) {
-		},*/
+		}
 	}, {
 		addAttibute : false
 	});

@@ -1,0 +1,23 @@
+<h1>Base2</h1>
+<hr>
+
+<hr>
+<div>
+   <a ws-href="/test/state1">Switch to state1</a>
+</div>
+
+<ul>
+   <li ws-repeat="$item in $items">$item.name ($parent.name)
+      <my-component someItem="$item.name"></my-component>
+       <span href="#" ws-click="this.item.remove()">Remove</span>
+    </li>
+</ul>
+<hr>
+<div>Add new</div>
+<form ws-submit="this.add()">
+      <input type="text" ws-value="$name">
+</form>
+
+<div id="hello">
+
+</div>

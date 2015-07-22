@@ -56,7 +56,7 @@ var Wires = Wires || {};
 			try {
 
 				result = eval(func).apply(_this, _.values(data));
-				
+
 
 			} catch (e) {
 				// Fallback - nice print to console
@@ -94,7 +94,6 @@ var Wires = Wires || {};
 		// Failed message
 		// Grouped in console for a clear view and understanding an error
 		failedMessage : function(e, options) {
-			Wires.Debug.showError(e, options.func);
 			console.groupCollapsed(options.message, options.param || '');
 			console.error(e.message);
 			console.error(e.stack ? e.stack : e);

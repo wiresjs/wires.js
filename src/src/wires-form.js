@@ -1,16 +1,15 @@
 var Wires = Wires || {};
 (function() {
-	console.log(1);
 	'use strict';
 	Wires.Form = Wires.Class.extend({
-		initialize : function(attrs) {
+		initialize: function(attrs) {
 			var self = this;
 			_.each(attrs, function(v, k) {
 				self[k] = v;
 			});
 		},
 		// Reseting form values
-		reset : function() {
+		reset: function() {
 			var self = this;
 			_.each(this, function(v, k) {
 				if (self.hasOwnProperty(k)) {
@@ -21,7 +20,7 @@ var Wires = Wires || {};
 			});
 		},
 		// Getting form values
-		getValues : function() {
+		getValues: function() {
 			var values = {};
 			var self = this;
 			_.each(this, function(v, k) {

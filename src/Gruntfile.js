@@ -1,18 +1,16 @@
 module.exports = function(grunt) {
 
-	var targetFiles = [ 
-	    
+	var targetFiles = [
+
 	    './lib/htmlparser.js',
+		 './lib/path-to-regexp.js',
 	    './src/wires-config.js',
 	    './src/wires-events.js',
 	    './src/wires-extend.js',
 	    './src/wires-form.js',
-	    './src/wires-debug.js',
 	    './src/wires-object-utils.js',
-	    
-	    './src/acts/main.js',
-	    './src/acts/toggle.js',
-	    
+		 './src/wires-root-scope.js',
+
 	    './src/wires-node.js',
 	    './src/wires-attr.js',
 	    './src/wires-text-node.js',
@@ -23,8 +21,16 @@ module.exports = function(grunt) {
 	    './src/wires-watcher.js',
 	    './src/wires-base-attr.js',
 	    './src/wires-variable-tricks.js',
-	    
-	    
+
+		 './src/services/loader.js',
+		 './src/services/query_string.js',
+		 './src/services/history.js',
+		 './src/services/http.js',
+		 './src/services/array.js',
+		 './src/attributes/ws-href.js',
+		 './src/wires-route.js',
+
+
 	    './src/attributes/ws-if.js',
 	    './src/attributes/ws-visible.js',
 	    './src/attributes/ws-repeat.js',
@@ -35,16 +41,9 @@ module.exports = function(grunt) {
 	    './src/attributes/ws-selected.js',
 	    './src/attributes/ws-class.js',
 	    './src/attributes/ws-sortable.js',
-	    
-	    './src/wires-component.js',
-	    
-	    './src/mvc/wires-mvc.js',
-	    './src/mvc/wires-collection.js',
-	    './src/mvc/wires-model.js',
-	    
+
 	    './src/wires-dom.js',
-	    './src/wires-controller.js',
-	    './src/wires-connect.js'
+
 	];
 
 	grunt.initConfig({
@@ -60,7 +59,7 @@ module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	//grunt.task.run('uglify');
-	
+
 	grunt.registerTask('default', ['uglify']);
 
 

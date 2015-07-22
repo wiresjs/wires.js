@@ -6,10 +6,10 @@ var Wires = Wires || {};
 		changeWatchableTarget : function(result)
 		{
 			// Check for wires collection
-			var isCollection = result instanceof Wires.Collection;
-			if ( isCollection ){
-				result = result.array;
-			}
+			//var isCollection = result instanceof Wires.Collection;
+			//if ( isCollection ){
+			//	result = result.array;
+		//	}
 			return result;
 		}
 	});
