@@ -58,41 +58,19 @@ var Wires = Wires || {};
 			return newScope;
 		},
 		parse : function(scope, dom, target, options) {
-			var node;
-			return new Promise(function(resolve, reject){
-				var self = this;
-
-				var iterateAsync = function(index) {
-					if (index === undefined && dom.length > 0) {
-						index = 0;
-					}
-					var item = dom[index];
-					if (item.type === 'text') {
-						node = new Wires.TextNode(scope, item, target, options);
-						if (index < dom.length - 1) {
-							index++;
-							iterateAsync(index);
-						} else {
-							return resolve(node);
-						}
-					}
-					if (item.type === 'tag') {
-						node = new Wires.TagNode(scope, item, target, options);
-						node.create(function() {
-
-							if (index < dom.length - 1) {
-								index++;
-								iterateAsync(index);
-							} else {
-								return resolve(node);
-							}
-						});
-					}
-				};
-				if (dom.length > 0){
-					iterateAsync();
+			return domain.each(dom, function(item){
+				if (item.type === 'text') {
+					return new Wires.TextNode(scope, item, target, options);
 				}
-			});
+				if (item.type === 'tag') {
+					var node = new Wires.TagNode(scope, item, target, options);
+					return new Promise(function(resolve, reject){
+						node.create(function() {
+							return resolve(node);
+						});
+					})
+				}
+			})
 		}
 	});
 })();

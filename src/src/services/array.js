@@ -9,6 +9,10 @@
                   array.splice(0, array.length);
                   if (_.isArray(list)) {
                      _.each(list, function(item) {
+                        item.remove = function(){
+   	                     var index = array.indexOf(this);
+   	                     array.splice(index,1);
+   	                  }
                         array.push(item);
                      });
                   }

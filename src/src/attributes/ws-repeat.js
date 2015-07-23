@@ -65,12 +65,18 @@ domain.service("attributes.ws-repeat", function() {
 					this.array.clean = function() {
 	               this.splice(0, this.length);
 	            }
+
+					this.array.remove = function() {
+	               this.splice(0, this.length);
+	            }
+
 					this.array._WiresEach = [];
 					this.array._WiresRepeat = this;
 
 					this.array.add = function() {
 	               this.push.apply(this, arguments)
 	            }
+
 					this.array.push = function() {
 						var target = arguments.length > 0 ? arguments[0] : null;
 						var push = Array.prototype.push.apply(this, arguments);
@@ -93,9 +99,7 @@ domain.service("attributes.ws-repeat", function() {
 
 						_.each(this._WiresEach, function(eachInstance) {
 							for (var i = index; i < index + untill; i++) {
-
-
-								$(eachInstance.items[i].element).remove();
+								$(eachInstance.items[i][0].element).remove();
 							}
 							eachInstance.items.splice(index, untill);
 						});
