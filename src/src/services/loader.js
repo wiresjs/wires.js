@@ -68,8 +68,11 @@
                }
 
                // Clean the current target
-               Wires.World.cleanUp($(target)[0])
-               return $http.getTemplate(view).then(function(html) {
+               Wires.World.cleanUp($(target)[0]);
+
+
+
+               return $http.getTemplate(view).then(function(tpl) {
                   var ctrlArgs = [1];
                   var ctrl;
                   if ( opts.args ){
@@ -81,8 +84,7 @@
                   }
                   ctrl.root = $root;
                   return new Promise(function(resolve, reject) {
-                     var wires = new Wires.World({
-                        template: html,
+                     var opts = {
                         scope: {
                            instance: ctrl
                         },
@@ -94,7 +96,18 @@
                               ctrl: ctrl
                            })
                         }
-                     });
+                     }
+                     if ( _.isPlainObject(tpl) ){
+                        if ( tpl.dom ){
+                           opts.dom = tpl.dom;
+                        }
+                        if ( tpl.html ){
+                           opts.template = tpl.html;
+                        }
+                     } else {
+                        opts.template = tpl;
+                     }
+                     var wires = new Wires.World(opts);
                   });
                });
             })

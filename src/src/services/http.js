@@ -45,14 +45,23 @@
          getTemplate: function(url, data) {
 
             return new Promise(function(resolve, reject) {
-               if ( templateCache[url] ){
-                  return resolve(templateCache[url])
-               }
 
-               $.get(url, data, function(res) {
-                  templateCache[url] = res;
-                  resolve(res);
-               });
+               if ( domain.isServiceRegistered("$wiresViewsCache") ){
+                  domain.require(['$wiresViewsCache'],function(cache){
+                     if ( cache[url] ){
+                        return resolve({ dom : cache[url] } )
+                     }
+                  }).catch(reject);
+               } else {
+                  if ( templateCache[url] ){
+                     return resolve(templateCache[url])
+                  }
+
+                  $.get(url, data, function(res) {
+                     templateCache[url] = res;
+                     resolve(res);
+                  });
+               }
             })
          },
          // Gett request

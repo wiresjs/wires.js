@@ -9,19 +9,29 @@ var Wires = Wires || {};
 			this.done = options.done;
 
 			var self = this;
-			var handler = new Tautologistics.NodeHtmlParser.DefaultHandler(function(error, dom) {
-				if (error) {
-					console.log(error);
-				} else {
-					Wires.World.parse(self.scope, dom, self.target).then(function(){
-						if ( options.done ){
-							options.done();
-						}
-					})
-				}
-			});
-			var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
-			parser.parseComplete(this.template);
+			if ( options.dom ){
+				Wires.World.parse(self.scope, options.dom, self.target).then(function(){
+					if ( options.done ){
+						options.done();
+					}
+				})
+			} else {
+				var handler = new Tautologistics.NodeHtmlParser.DefaultHandler(function(error, dom) {
+					if (error) {
+						console.log(error);
+					} else {
+						Wires.World.parse(self.scope, dom, self.target).then(function(){
+							if ( options.done ){
+								options.done();
+							}
+						})
+					}
+				});
+				var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
+				parser.parseComplete(this.template);
+			}
+
+
 		},
 		// At this point we are having our DOM in json
 	}, {
@@ -69,7 +79,7 @@ var Wires = Wires || {};
 					if (item.type === 'tag') {
 						node = new Wires.TagNode(scope, item, target, options);
 						node.create(function() {
-							
+
 							if (index < dom.length - 1) {
 								index++;
 								iterateAsync(index);

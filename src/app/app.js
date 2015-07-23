@@ -14,6 +14,11 @@ $(function() {
          $router.state('/test/state2/hello', 'HelloController2')
       ])
 
+
+		$router.add('/test/:action/:', 'State3Controller',[
+
+      ])
+
       $router.start();
 	})
 });

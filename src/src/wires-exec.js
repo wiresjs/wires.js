@@ -30,7 +30,7 @@ var Wires = Wires || {};
 
 			// Going through given parameters
 			// In order to user $ it's essential to pass the arguments to function
-			// However the variables with a nested objects can't be passed as is
+			// However the variables with nested objects can't be passed as is
 			// It's needed to be in a proper variable format
 			// Replacing . (DOT) sign with underscore solves this problem
 
