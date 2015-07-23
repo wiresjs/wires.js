@@ -1,7 +1,7 @@
 (function() {
    var _loaded = {};
 
-   domain.service("$load", ['$http', '$queryString', '$root'], function($http, $queryString, $root) {
+   domain.service("$load", ['$http', '$queryString','$waitForSelector', '$root'], function($http, $queryString, $waitForSelector,$root) {
       return {
          component: function(component, opts) {
 
@@ -47,69 +47,72 @@
                var targetSelector = loadOpts[3] || "section";
                var target;
 
-               // in case if we have a target (components)
-               // we should just force it
-               if (opts.target) {
-                  target = opts.target;
-               } else {
-                  // If parent controller was passed
-                  // We must find the target inside the parent div
-                  // To avoid collisions with other "sections"
-                  if (parent && parent.target) {
-                     target = $(parent.target).find(targetSelector)[0]
+               return new Promise(function(resolve, reject){
+
+                  // in case if we have a target (components)
+                  // we should just force it
+                  if (opts.target) {
+                     return resolve(opts.target);
                   } else {
-                     target = document.querySelector(targetSelector);
-                  }
-               }
-               if (!target) {
-                  throw {
-                     message: "Target '" + targetSelector + "' was not found"
-                  }
-               }
-
-               // Clean the current target
-               Wires.World.cleanUp($(target)[0]);
-
-
-
-               return $http.getTemplate(view).then(function(tpl) {
-                  var ctrlArgs = [1];
-                  var ctrl;
-                  if ( opts.args ){
-                     ctrlArgs = _.union(ctrlArgs,opts.args)
-                     var f = Ctrl.bind.apply(Ctrl, ctrlArgs);
-                     ctrl = new f();
-                  } else {
-                     ctrl = new Ctrl();
-                  }
-                  ctrl.root = $root;
-                  return new Promise(function(resolve, reject) {
-                     var opts = {
-                        scope: {
-                           instance: ctrl
-                        },
-                        target: target,
-                        done: function() {
-                           return resolve({
-                              wires: wires,
-                              target: target,
-                              ctrl: ctrl
-                           })
-                        }
-                     }
-                     if ( _.isPlainObject(tpl) ){
-                        if ( tpl.dom ){
-                           opts.dom = tpl.dom;
-                        }
-                        if ( tpl.html ){
-                           opts.template = tpl.html;
-                        }
+                     // If parent controller was passed
+                     // We must find the target inside the parent div
+                     // To avoid collisions with other "sections"
+                     if (parent && parent.target) {
+                        return $waitForSelector($(parent.target)[0], targetSelector).then(resolve)
                      } else {
-                        opts.template = tpl;
+                        $waitForSelector(null, targetSelector).then(resolve);
                      }
-                     var wires = new Wires.World(opts);
+                  }
+               }).then(function(target){
+                  // Clean the current target
+                  Wires.World.cleanUp($(target)[0]);
+                  return $http.getTemplate(view).then(function(tpl) {
+                     var ctrlArgs = [1];
+                     var ctrl;
+                     if ( opts.args ){
+                        ctrlArgs = _.union(ctrlArgs,opts.args)
+                        var f = Ctrl.bind.apply(Ctrl, ctrlArgs);
+                        ctrl = new f();
+                     } else {
+                        ctrl = new Ctrl();
+                     }
+                     ctrl.root = $root;
+                     return new Promise(function(resolve, reject) {
+                        var opts = {
+                           scope: {
+                              instance: ctrl
+                           },
+                           target: target,
+                           done: function() {
+                              return resolve({
+                                 wires: wires,
+                                 target: target,
+                                 ctrl: ctrl
+                              })
+                           }
+                        }
+                        if ( _.isPlainObject(tpl) ){
+                           if ( tpl.dom ){
+                              opts.dom = tpl.dom;
+                           }
+                           if ( tpl.html ){
+                              opts.template = tpl.html;
+                           }
+                        } else {
+                           opts.template = tpl;
+                        }
+                        var wires = new Wires.World(opts);
+                     });
                   });
-               });
+               })
+
+
+
+
+
+
+
+
             })
          }
       }

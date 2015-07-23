@@ -27,6 +27,7 @@ module.exports = function(grunt) {
 		 './src/services/history.js',
 		 './src/services/http.js',
 		 './src/services/array.js',
+		 './src/services/waitForSelector.js',
 		 './src/attributes/ws-href.js',
 		 './src/wires-route.js',
 
