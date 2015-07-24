@@ -18,32 +18,35 @@ Wires.StoredComponents = {};
       },
       prepareNodeStructure: function(ready) {
          var self = this;
-         var element = this.getElement(ready);
+         this.element = this.getElement(function(){
 
-         self.element = element;
-         var CustomComponentClass;
-         var cmpPath = "components." + self.dom.name;
-         if (domain.isServiceRegistered(cmpPath)) {
-            // Need to inject attributes
-            var attrs = {};
-            _.each(self.dom.attribs, function(attr, attrName) {
-               var result = Wires.Exec.expression({
-                  statement: attr,
-                  scope: self.scope,
-                  variables: Wires.Variable.extract(self.scope, attr)
+            var CustomComponentClass;
+            var cmpPath = "components." + self.dom.name;
+            if (domain.isServiceRegistered(cmpPath)) {
+               // Need to inject attributes
+               var attrs = {};
+               _.each(self.dom.attribs, function(attr, attrName) {
+                  var result = Wires.Exec.expression({
+                     statement: attr,
+                     scope: self.scope,
+                     variables: Wires.Variable.extract(self.scope, attr)
+                  });
+                  // Setting it to component
+                  attrs[attrName] = result;
                });
-               // Setting it to component
-               attrs[attrName] = result;
-            });
-            domain.require(['$load'], function($load) {
-               $load.controller(cmpPath, {
-                  target: element,
-                  args: [attrs]
-               }).then(function() {
+               domain.require(['$load'], function($load) {
+                  $load.controller(cmpPath, {
+                     target: self.element,
+                     args: [attrs]
+                  }).then(function() {
 
-               });
-            })
-         }
+                  });
+               })
+            }
+            ready();
+         });
+
+
 
       },
       create: function(ready) {
