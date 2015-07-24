@@ -10,21 +10,21 @@ var Wires = Wires || {};
 
 			var self = this;
 			if ( options.dom ){
-				Wires.World.parse(self.scope, options.dom, self.target).then(function(){
+				Wires.World.parse(self.scope, options.dom, self.target)
 					if ( options.done ){
 						options.done();
 					}
-				})
+
 			} else {
 				var handler = new Tautologistics.NodeHtmlParser.DefaultHandler(function(error, dom) {
 					if (error) {
 						console.log(error);
 					} else {
-						Wires.World.parse(self.scope, dom, self.target).then(function(){
+						Wires.World.parse(self.scope, dom, self.target);
 							if ( options.done ){
 								options.done();
 							}
-						})
+
 					}
 				});
 				var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
@@ -58,19 +58,20 @@ var Wires = Wires || {};
 			return newScope;
 		},
 		parse : function(scope, dom, target, options) {
-			return domain.each(dom, function(item){
+			var node;
+			_.each(dom, function(item){
 				if (item.type === 'text') {
-					return new Wires.TextNode(scope, item, target, options);
+					node = new Wires.TextNode(scope, item, target, options);
 				}
 				if (item.type === 'tag') {
-					var node = new Wires.TagNode(scope, item, target, options);
-					return new Promise(function(resolve, reject){
-						node.create(function() {
-							return resolve(node);
-						});
-					})
+					node = new Wires.TagNode(scope, item, target, options);
+					node.create(function() {
+
+					});
+
 				}
 			})
+			return node;
 		}
 	});
 })();

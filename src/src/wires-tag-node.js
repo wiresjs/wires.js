@@ -18,35 +18,33 @@ Wires.StoredComponents = {};
       },
       prepareNodeStructure: function(ready) {
          var self = this;
+         var element = this.getElement(ready);
 
-         this.getElement().then(function(element) {
-            self.element = element;
-            var CustomComponentClass;
-            var cmpPath = "components." + self.dom.name;
-            if (domain.isServiceRegistered(cmpPath)) {
-               // Need to inject attributes
-               var attrs = {};
-               _.each(self.dom.attribs, function(attr, attrName) {
-                  var result = Wires.Exec.expression({
-                     statement: attr,
-                     scope: self.scope,
-                     variables: Wires.Variable.extract(self.scope, attr)
-                  });
-                  // Setting it to component
-                  attrs[attrName] = result;
+         self.element = element;
+         var CustomComponentClass;
+         var cmpPath = "components." + self.dom.name;
+         if (domain.isServiceRegistered(cmpPath)) {
+            // Need to inject attributes
+            var attrs = {};
+            _.each(self.dom.attribs, function(attr, attrName) {
+               var result = Wires.Exec.expression({
+                  statement: attr,
+                  scope: self.scope,
+                  variables: Wires.Variable.extract(self.scope, attr)
                });
-               domain.require(['$load'], function($load) {
-                  $load.controller(cmpPath, {
-                     target: element,
-                     args  : [ attrs ]
-                  }).then(function() {
-                     ready();
-                  });
-               })
-            } else {
-               ready();
-            }
-         });
+               // Setting it to component
+               attrs[attrName] = result;
+            });
+            domain.require(['$load'], function($load) {
+               $load.controller(cmpPath, {
+                  target: element,
+                  args: [attrs]
+               }).then(function() {
+
+               });
+            })
+         }
+
       },
       create: function(ready) {
          var options = this.options;
@@ -94,7 +92,7 @@ Wires.StoredComponents = {};
       bindAttribute: function(attr, element) {
          new Wires.Attr(this.scope, this.dom, element, attr);
       },
-      getElement: function() {
+      getElement: function(done) {
          var element = document.createElement(this.dom.name);
          var self = this;
          this.shouldAppendElement = true;
@@ -106,7 +104,7 @@ Wires.StoredComponents = {};
             element.__persists = true;
 
          }
-         return domain.each(this.dom.attribs, function(attrValue, attrKey) {
+          domain.each(this.dom.attribs, function(attrValue, attrKey) {
             if (ignoreRestAttributes) {
                return false;
             }
@@ -158,9 +156,10 @@ Wires.StoredComponents = {};
                }
                self.attributes[data.attr.nodeName] = attributeHandler;
             });
-
+            done();
             return element;
          });
+         return element;
       }
    });
 })();

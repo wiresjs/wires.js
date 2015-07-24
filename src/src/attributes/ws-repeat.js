@@ -18,8 +18,10 @@ domain.service("attributes.ws-repeat", function() {
 			Wires.Watcher.spy(this.instance, this.essentials.collection, this);
 		},
 		onElementReady: function() {
+
 			this.node.placeholderBefore.nodeValue = 'ws-repeat: ' + this.condition;
 			this.node.placeholderAfter.nodeValue = '/ws-repeat: ' + this.condition;
+
 			if (this.delayedAddFunction) {
 				this.delayedAddFunction();
 				this.delayedAddFunction = undefined;
@@ -46,9 +48,10 @@ domain.service("attributes.ws-repeat", function() {
 
 			var child = Wires.World.parse(newScope, modifiedChildren, this.element, {
 				insertBefore: this.node.placeholderAfter
-			}).then(function(el){
-				self.items.push(el);
-			});
+			})
+
+			self.items.push(child);
+
 		},
 		bindArrayEvents: function(arrayWasInitialized) {
 			var collection = this.essentials.collection;
@@ -99,7 +102,8 @@ domain.service("attributes.ws-repeat", function() {
 
 						_.each(this._WiresEach, function(eachInstance) {
 							for (var i = index; i < index + untill; i++) {
-								$(eachInstance.items[i][0].element).remove();
+								console.log(eachInstance.items[i])
+								$(eachInstance.items[i].element).remove();
 							}
 							eachInstance.items.splice(index, untill);
 						});
@@ -129,6 +133,7 @@ domain.service("attributes.ws-repeat", function() {
 		},
 		_setValue: function(variable, newValue) {
 			var self = this;
+
 			var values = newValue ? newValue : variable.getTrickedValue();
 			if (_.isArray(values) && self.dom.children) {
 				_.each(values, function(item, index) {
