@@ -93,6 +93,19 @@
             args: localArgs
          }
       },
+      requirePackage : function(name){
+         var _packageServices = {}
+         return this.each(services, function(service, serviceName){
+            var _package = serviceName.split(".")[0]
+            if ( _package === name){
+               return domain.require([serviceName], function(serviceInstance){
+                  _packageServices[serviceName] = serviceInstance
+               })
+            }
+         }).then(function(){
+            return _packageServices;
+         })
+      },
       require: function() {
          var data = this.getInputArguments(arguments);
 

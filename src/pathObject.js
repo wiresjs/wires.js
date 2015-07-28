@@ -21,6 +21,10 @@ domain.service("$pathObject", function() {
          }
       });
       return {
+         update : function(newValue){
+            instance[property] = newValue;
+            return newValue;
+         },
          value : instance[property],
          property : property,
          instance : instance

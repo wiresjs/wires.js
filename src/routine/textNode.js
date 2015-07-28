@@ -7,14 +7,17 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
       },
       create : function(parent){
          this.element = document.createTextNode('');
-         parent.addChild(this);
+         if ( parent ){
+            parent.addChild(this);
+         }
          this.watchers = this.startWatching();
          return this.element;
       },
       startWatching : function(){
          var self = this;
+
          return $evaluate(this.item.data, {
-            scope: scope,
+            scope: this.scope,
             changed: function(data) {
                self.element.nodeValue = data.str;
             }

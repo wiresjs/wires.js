@@ -37,9 +37,9 @@
       console.log("**********")
    })*/
 
-domain.service("$pukka", function(){
-   return "pukka"
-})
+   domain.service("$pukka", function(){
+      return "pukka"
+   })
    domain.service("$something",function($params, $pukka) {
       console.log("params are", $params, $pukka)
    })
@@ -47,6 +47,21 @@ domain.service("$pukka", function(){
       console.log("**********")
    })
 
+   domain.service("attrs.one", function(){
+      return "YES, this is attrs.one"
+   })
+
+   domain.service("attrs.two", function(){
+      return new Promise(function(resolve, reject){
+         setTimeout(function(){
+            return resolve({ message : "Async service 2"})
+         },100)
+      })
+   })
+
+   domain.requirePackage("attrs").then(function(allAttrs){
+      console.log(allAttrs)
+   })
 
 
    // var a = [1, 2, 3];

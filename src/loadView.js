@@ -6,8 +6,10 @@
             if ( _cache[path] ){
                return _cache[path];
             }
-            $http.getHTML('/app/views/base.html').then(function(html){
+            $http.getHTML(path).then(function(html){
+
                $parseHTML(html).then(function(structure){
+                  
                   _cache[path] = structure;
                   return resolve(structure);
                })

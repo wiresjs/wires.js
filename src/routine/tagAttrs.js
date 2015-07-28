@@ -1,23 +1,35 @@
-domain.service("$tagAttrs", ['$evaluate'], function($evaluate){
+domain.service("$tagAttrs", ['TagAttribute','$evaluate', '$customAttributes'],
+   function(TagAttribute, $evaluate, $customAttributes){
    return {
       create : function(item, scope, element){
-         var _watchers = [];
-         _.each(item.attrs, function(attr, name){
-            // Creatinga attribute
-            var attribute = document.createAttribute(name);
+         var attributes = [];
 
-            var watcher = $evaluate(attr, {
-               scope: scope,
-               changed: function(data) {
-                  console.log("Triggered attr", data.str)
-                  attribute.value = data.str;
-               }
-            });
-            _watchers.push(watcher);
-            // Adding the attribute
-            element.setAttributeNode(attribute);
+         _.each(item.attrs, function(attr, name){
+
+            var customPath = "attrs." + name;
+            var tagAttribute;
+
+            var opts = {
+               scope : scope,
+               attr : attr,
+               name : name,
+               element : element
+            }
+
+            if ( $customAttributes[customPath] ){
+               tagAttribute = new $customAttributes[customPath](opts)
+            } else{
+               tagAttribute = new TagAttribute(opts);
+            }
+
+            if ( tagAttribute ){
+               tagAttribute.create();
+               attributes.push(tagAttribute);
+            } else {
+               console.log("no attr", customPath)
+            }
          });
-         return _watchers;
+         return attributes;
       }
    }
 })

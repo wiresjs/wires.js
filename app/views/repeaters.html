@@ -1,0 +1,17 @@
+
+
+<ul style="border:1px solid black; padding:20px" ws-visible="{{ $items.size }}">
+   <h1>Repeaters.Size: $items.size</h1>
+   <li ws-repeat="$item in $items" style="color: $color">
+      <strong>Name: $item.name ($index)</strong>
+
+      <div style="padding-left:10px">
+         Inner Loop:
+
+         <div ws-repeat="$item in $parent.items">
+            $item.name
+         </div>
+      </div>
+      <hr>
+   </li>
+</ul>

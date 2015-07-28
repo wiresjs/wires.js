@@ -1,5 +1,5 @@
 (function(){
-   domain.service("$watch", ['$pathObject'], function($pathObject){
+   domain.service("$watch", ['$pathObject', '$array'], function($pathObject, $array){
       return function(path, scope, cb){
 
          var pathObject = $pathObject(path, scope);
@@ -9,6 +9,15 @@
          if ( !instance.$watchers ){
             instance.$watchers = {};
          }
+         if (!_.isObject(instance) && _.isString(property) )
+            return;
+
+         // prototyping array if it was not
+         if ( _.isArray(instance) ){
+            instance = $array(instance)
+         }
+
+
          // detecting if property has been requested to be watched
          if ( !instance.$watchers[property] ){
             instance.$watchers[property] = [];
@@ -16,13 +25,15 @@
          if ( cb ){
             instance.$watchers[property].push(cb);
          }
+         if ( instance.$watchers[property].length === 1 ){
+            instance.watch(property, function(a, b, newvalue) {
+               _.each(instance.$watchers[property], function(_callback){
+                  _callback(b, newvalue);
+               });
+               return newvalue;
+   			});
+         }
 
-         instance.watch(property, function(a, b, newvalue) {
-            _.each(instance.$watchers[property], function(_callback){
-               _callback(b, newvalue);
-            });
-            return newvalue;
-			});
          return {
             remove : function(){
                var index = instance.$watchers[property].indexOf(cb);

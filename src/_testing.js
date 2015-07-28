@@ -29,24 +29,47 @@ $(function() {
       //    }
       // });
 
-      $loadView('/app/views/base.html').then(function(structure) {
-         console.log("structure", structure)
+
+
+      // $loadView('/app/views/base.html').then(function(structure) {
+      //    console.log("structure", structure)
+      //    var Controller = function(){
+      //       // this.user = {
+      //       //   name : "ivan"
+      //       // }
+      //       this.color = "blue";
+      //       var self = this;
+      //       this.someAction = function(){
+      //          self.user.name = "ivan";
+      //          self.color = "green";
+      //       }
+      //
+      //    }
+      //    window.scope = new Controller();
+      //    var start = new Date();
+      //    $run({
+      //       structure: structure,
+      //       target : document.querySelector("section"),
+      //       scope : scope
+      //    })
+      //    console.log(new Date() - start);
+      // });
+
+
+      $loadView('/app/views/repeaters.html').then(function(structure) {
+
          var Controller = function(){
-            // this.user = {
-            //   name : "ivan"
-            // }
-            setTimeout(function(){
-               $("h1").remove();
-            },2000)
+            this.items = [{name : "ivan"}, {name : "bang"}]
          }
-         window.scope = new Controller();
          var start = new Date();
+         window.scope = new Controller();
+         console.log(structure)
          $run({
             structure: structure,
             target : document.querySelector("section"),
             scope : scope
          })
-         console.log(new Date() - start);
+         console.log("Rendered in", (new Date() - start), 'ms')
       });
    });
 })

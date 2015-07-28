@@ -1,12 +1,13 @@
-domain.service("TagNode", ['$tagAttrs', 'TextNode'],function($tagAttrs, TextNode){
+domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
 
    return Wires.Class.extend({
       initialize : function(item, scope){
          this.item = item;
          this.scope = scope;
+
          this.children = [];
       },
-      create : function(parent){
+      create : function(parent, insertAfter){
          this.element = document.createElement(this.item.name);
          if ( parent ){
             parent.addChild(this);
@@ -22,13 +23,14 @@ domain.service("TagNode", ['$tagAttrs', 'TextNode'],function($tagAttrs, TextNode
       // Watching if dom Removed
       startWatching : function(){
          var self = this;
-         this.attrWatchers = $tagAttrs.create(this.item, this.scope, this.element);
+
+         this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
 
          self.element.addEventListener("DOMNodeRemovedFromDocument", function() {
 
             // Removing all watchers from the attributes
-   			_.each(self.attrWatchers, function(attrWatcher){
-   			   attrWatcher.detach();
+   			_.each(self.attributes, function(attribute){
+   			   attribute.watcher.detach();
    			});
 
             // TextNode should be triggered manually
@@ -41,9 +43,9 @@ domain.service("TagNode", ['$tagAttrs', 'TextNode'],function($tagAttrs, TextNode
                }
             });
             // Cleaning up stuff we don't need
-            delete self.attrWatchers;
-            delete this.children;
-            delete this.element;
+            delete self.attributes;
+            delete self.children;
+            delete self.element;
          });
       }
    });
