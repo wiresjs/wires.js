@@ -7,10 +7,14 @@ var bodyParser = require('body-parser');
 var app = express();
 var swig = require('swig');
 app.use(cookieParser('your secret here'));
+var wires = require("./compiler")
+
+app.all("/views.js", wires.views('./app/views/',{}).express() )
 
 app.use('/app', express.static(__dirname + '/app'));
 app.use('/external', express.static(__dirname + '/external'));
 app.use('/src', express.static(__dirname + '/src'));
+
 
 
 
@@ -20,7 +24,7 @@ domain.path(new RegExp('\/.*'),
 
 
 		return $includeAll( "./src", {
-         order: ['essentials/','app.js'],
+         order: ['essentials/'],
          rootPath : "/src/",
          tagOutput : true
       }).then(function(list){
@@ -33,6 +37,10 @@ domain.path(new RegExp('\/.*'),
 );
 
 
+
+// .each(function(index, element){
+// 	console.log(element)
+// })
 
 
 require("wires-include-all")

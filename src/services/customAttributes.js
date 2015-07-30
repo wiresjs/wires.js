@@ -6,6 +6,7 @@
             return resolve(_customAttributes);
          }
          domain.requirePackage('attrs').then(function(customAttributes){
+            
             _customAttributes = customAttributes;
             return resolve(_customAttributes);
          })

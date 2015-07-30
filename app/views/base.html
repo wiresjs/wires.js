@@ -1,31 +1,12 @@
-<div>
-   Username: | <input type="text" ws-value="$user.name">
+
+<div style="position:absolute; width:200px; height:100px; z-index:999;right:0">
+   <span class="button" ws-href="/test">Test</span>
+
+   <span class="button" ws-href="/calendar">Calendar</span>
 </div>
-<div>
-   Color: | <input type="text" ws-value="$color">
-</div>
+
+
 <hr>
-<h1 style="color: $color">Hello $user.name
-   <div>
-      Some div inside $color
-   </div>
-</h1>
+<section style="margin-top:50px">
 
-
-<a href="#" ws-click="{{ $someAction() }}">Click me</a>
-
-
-<div style="display:inline-block;width:300px; height:300px;" ws-visible="{{ $user.name == 'ivan' }}">
-   Some $color
-</div>
-
-<div style="display:inline-block;width:100px; height:100px; border:1px solid blue" ws-visible="{{ $user.name == 'ivan' }}">
-   Different box
-</div>
-<hr>
-
-<ul>
-   <li ws-repeat="$item in $items">
-      <a href="#">$name</a>
-   </li>
-</ul>
+</section>

@@ -95,7 +95,9 @@
       },
       requirePackage : function(name){
          var _packageServices = {}
+
          return this.each(services, function(service, serviceName){
+
             var _package = serviceName.split(".")[0]
             if ( _package === name){
                return domain.require([serviceName], function(serviceInstance){
@@ -108,7 +110,7 @@
       },
       require: function() {
          var data = this.getInputArguments(arguments);
-
+         var self = this;
          var localServices = data.localServices;
          var variables = _.isArray(data.source) ? data.source : getParamNames(data.source);
          var target = data.target;
@@ -124,8 +126,6 @@
                var v = variables[i];
 
                var variableName = variables[i];
-
-
                if (!avialableServices[variableName]) {
                   console.error("Error while injecting variable '" + variableName + "' into function \n" +
                      data.source.toString());
@@ -139,8 +139,8 @@
 
             }
             var results = [];
-            async.eachSeries(args, function(item, next) {
 
+            return self.each(args, function(item){
                var argService = item.target;
                var requiredArgs = item.args;
                if (_.isFunction(argService)) {
@@ -151,102 +151,54 @@
                   } else {
                      currentArgs = [argService, localServices]
                   }
-                  self.require.apply(self, currentArgs).then(function(r) {
-                     results.push(r)
-                     next(null);
-                  }).catch(function(e) {
-                     next(e);
-                  });
+                  return self.require.apply(self, currentArgs)
                } else {
-
-                  results.push(argService);
-                  next();
+                  return argService;
                }
-            }, function(err) {
-
-               if (err) {
-                  // Globally if error happenes, stop it here, before calling function
-                  return reject(err);
-               }
-
-               // Resolving promises if defined
-               var functionResult;
-               try {
-                  functionResult = target.apply(instance || results, results);
-               } catch (e) {
-                  console.error(e.stack || e);
-                  return reject(e)
-               }
-
-               if (_.isObject(functionResult)) {
-                  // Check special property of a function to destinuish if it's out guy
-                  var isDomainModel = functionResult.__domain_factory__;
-
-                  if (isDomainModel) {
-
-                     // Construct model and init it
-                     self.constructModel(avialableServices, functionResult, function(err,
-                        newinstance) {
-                        if (err) {
-                           return reject(err);
-                        } else {
-                           return resolve(newinstance);
-                        }
-                     });
-                  } else {
-                     var isPromise = _.isFunction(functionResult["then"]) && _.isFunction(
-                        functionResult["catch"]);
-                     if (isPromise) {
-                        functionResult.then(function(res) {
-                           return resolve(res);
-                        }).catch(function(e) {
-                           console.info(e);
-                           return reject(e);
-                        })
-                     } else {
-                        return resolve(functionResult);
-                     }
-                  }
-               } else {
-                  return resolve(functionResult);
-               };
-            });
+            }).then(function(results){
+               delete self;
+               return target.apply(instance || results, results);
+            }).then(resolve).catch(reject);
          })
          return resultPromise;
       },
       isServiceRegistered: function(name) {
          return services[name] !== undefined;
       },
-      each: function(arr, cb) {
-         return new Promise(function(resolve, reject) {
-            var promises = [];
-            _.each(arr, function(v, k) {
-               promises.push(function(callback) {
-                  var cbRes;
-                  try {
-                     cbRes = cb(v, k);
-                  } catch (e) {
-                     return callback(e, null)
-                  }
-                  if (cbRes instanceof Promise) {
-                     cbRes.then(function(r) {
-                        callback(null, r);
-                     }).catch(function(e) {
-                        callback(e);
-                     })
+      each: function(args, cb) {
+         return new Promise(function(resolve, reject){
+            var callbacks = [];
+            var results = [];
+            var isObject = _.isPlainObject(args);
+            var index = -1;
+            var iterate = function(){
+               index++;
+               if ( index < _.size(args) ){
+                  var key;
+                  var value;
+                  if (isObject){
+                     key = _.keys(args)[index];
+                     value = args[key];
                   } else {
-                     callback(null, cbRes);
+                     key = index;
+                     value = args[index];
                   }
-               });
-            });
-            async.series(promises, function(err, results) {
-               if (err) {
-                  return reject(err);
+                  var res = cb.call(cb, value, key);
+                  if ( res instanceof Promise ){
+                     res.then(function(a){
+                        results.push(a)
+                        iterate();
+                     }).catch(reject)
+                  } else {
+                     results.push(res)
+                     iterate();
+                  }
                } else {
-                  return resolve(results);
+                  return resolve(results)
                }
-            })
-         });
+            }
+            iterate();
+         })
       }
    }
 })(window)

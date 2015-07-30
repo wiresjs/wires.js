@@ -8,7 +8,8 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array'],
          this.parent =  opts.parent;
          this.scope = opts.scope;
 
-         var targetVars = this.item.target;
+         var targetVars = this.item.v;
+
          if ( !targetVars.vars){
             throw { error : "Repeater expects variables! e.g $item in items"}
          }
@@ -44,7 +45,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array'],
       },
       addItem : function(arrayItem){
 
-         var parentDom = this.item.it[0];
+         var parentDom = this.item.i[0];
 
          //Creating new scope with parent variable
          var localScope = {
@@ -64,12 +65,14 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array'],
          }
 
          // Appending element
-         $(parentNode.element).insertAfter((afterElement.node ? afterElement.node.element : afterElement ) )
+         var cNode = afterElement.node ? afterElement.node.element : afterElement;
+         cNode.parentNode.insertBefore(parentNode.element, cNode.nextSibling);
+         //$(parentNode.element).insertAfter((afterElement.node ? afterElement.node.element : afterElement ) )
          this._arrayElements.push({ node : parentNode, localScope : localScope} )
 
          //Running children
          this.run({
-            structure   : parentDom.children || [],
+            structure   : parentDom.c || [],
             parentNode  : parentNode,
             scope       : localScope
          });

@@ -3,6 +3,7 @@ domain.service("$evaluate", ['$preCompile', '$watch', '$pathObject', '$exec'],
       return function(input, opts) {
          var opts = opts || [];
          var scope = opts.scope || {};
+         var targetScope = opts.target;
 
          var changed = opts.changed;
          var watchVariables = opts.watchVariables !== undefined ? opts.watchVariables : true;
@@ -11,6 +12,7 @@ domain.service("$evaluate", ['$preCompile', '$watch', '$pathObject', '$exec'],
          var _watchers = [];
 
          var compile = function(newKey, newValue) {
+
             var tpl = input.tpl;
             var expressions = [];
             var locals = [];
@@ -29,7 +31,8 @@ domain.service("$evaluate", ['$preCompile', '$watch', '$pathObject', '$exec'],
                } else {
                   // Expression
                   if (variable.e) {
-                     value = $exec.expression(variable.e, scope);
+
+                     value = $exec.expression(variable.e, scope, targetScope);
                      expressions.push({
                         str: variable.e,
                         value: value
@@ -41,20 +44,21 @@ domain.service("$evaluate", ['$preCompile', '$watch', '$pathObject', '$exec'],
                tpl = tpl.split(k).join(value)
             });
 
-            // Exec functions
-            _.each(input.funcs, function(func, k) {
 
+            // Exec functions
+            for( var k in input.funcs){
+
+               var func = input.funcs[k]
                var existingFunction = $pathObject(func.p, scope).value;
                if (_.isFunction(existingFunction)) {
 
-                  var funcResult = $exec.func(func.f, scope);
+                  var funcResult = $exec.func(func.f, scope, targetScope);
                   tpl = tpl.split(k).join(funcResult !== undefined ? funcResult : '');
                } else {
                   // Replace it with empty string if function is not defined
                   tpl = tpl.split(k).join('');
                }
-            })
-
+            }
             var response = {
                str: tpl,
                expressions: expressions,

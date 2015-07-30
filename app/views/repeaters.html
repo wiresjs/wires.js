@@ -1,17 +1,12 @@
 
 
-<ul style="border:1px solid black; padding:20px" ws-visible="{{ $items.size }}">
-   <h1>Repeaters.Size: $items.size</h1>
-   <li ws-repeat="$item in $items" style="color: $color">
-      <strong>Name: $item.name ($index)</strong>
+<a  href="#" ws-click="{{ $randomize() }}">randomize</a>
+<ul ws-visible="{{ $items.size  }}" style="border:1px solid black; padding:20px">
+   <h1>Repeaters.Size: $items.size $status</h1>
 
-      <div style="padding-left:10px">
-         Inner Loop:
 
-         <div ws-repeat="$item in $parent.items">
-            $item.name
-         </div>
-      </div>
-      <hr>
-   </li>
+   <div ws-repeat="$item in $items">
+      <div class="preview">$item.name $index</div>
+   </div>
+
 </ul>

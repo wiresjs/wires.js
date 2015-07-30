@@ -15,7 +15,7 @@
             var params = /\$(\{)?(([a-zA-Z-0-9$.]+)(\([^\)]*\))?)(\})?/g.execAll(input)
 
             _.each(params, function(param, index){
-               
+
                var key = "$_v" + _counter++;
                // Preparing the string with macros
                if( replaceString ){

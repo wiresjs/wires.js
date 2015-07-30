@@ -9,22 +9,26 @@
             var scope = opts.scope || {};
 
             var createElements = function(children, parent) {
-               
+
                _.each(children, function(item) {
 
                   var node;
-                  if (item.type === "text") {
+                  // type TEXT
+                  if (item.t === 1) {
                      node = new TextNode(item, scope);
                      node.create(parent);
                   }
-                  if (item.type === "tag") {
+                  // type TAG
+                  if (item.t === 2) {
                      node = new TagNode(item, scope)
                      var element = node.create(parent);
-                     if (item.children) {
-                        createElements(item.children, node);
+                     if (item.c) {
+                        createElements(item.c, node);
                      }
                   }
-                  if (item.type === "repeater") {
+
+                  // Type Repeater
+                  if (item.t === 3) {
                      var repeater = new Repeater({
                         run : run,
                         item: item,
@@ -34,11 +38,16 @@
                   }
                })
             }
+
+            var detached = document.createElement("div");
+
             var pNode = opts.parentNode || new TagNode(target);
             if ( !pNode.element){
                pNode.element = target;
             }
             createElements(structure, pNode);
+         
+
          }
          return run;
       });

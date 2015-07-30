@@ -8,7 +8,7 @@ domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttr
       startWatching : function(){
          // Binding variable
          var watcher = $evaluate(this.attr, {
-               scope: scope,
+               scope: this.scope,
                changed: function(data) {
 
                }

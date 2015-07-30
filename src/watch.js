@@ -38,6 +38,7 @@
             remove : function(){
                var index = instance.$watchers[property].indexOf(cb);
                instance.$watchers[property].splice(index, 1);
+               
                delete cb;
             },
             removeAll : function(){

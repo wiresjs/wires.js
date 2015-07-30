@@ -1,5 +1,5 @@
 (function() {
-   /*
+
    domain.register("$a", function() {
       return "this is a";
    });
@@ -7,13 +7,12 @@
    domain.register("$b", ["$a"], function(pukka) {
       return "BBB " + pukka;
    });
-   domain.require(function($b) {
-      console.log("b is", $b)
-   })
+
 
    domain.register("$test", function() {
       return "hello"
    });
+   /*
 
    domain.register("$other", function() {
       return new Promise(function(resolve, reject) {
@@ -59,25 +58,38 @@
       })
    })
 
-   domain.requirePackage("attrs").then(function(allAttrs){
-      console.log(allAttrs)
-   })
-
-
-   // var a = [1, 2, 3];
-   // domain.each(a, function(num) {
-   //    if (num === 2) {
-   //       return new Promise(function(resolve, reject) {
-   //          setTimeout(function() {
-   //             console.log(num)
-   //             resolve("hello")
-   //          }, 500)
-   //       })
-   //    } else {
-   //       console.log(num)
-   //       return num;
-   //    }
-   // }).then(function(results) {
-   //    console.log(results)
+   // domain.requirePackage("attrs").then(function(allAttrs){
+   //    console.log(allAttrs)
    // })
+   var counter = 0;
+   var aa = setInterval(function(){
+      if ( counter === 50){
+         clearInterval(aa);
+      }
+
+      domain.service("attrs.one", function(){
+         return "YES, this is attrs.one"
+      })
+
+      domain.require(function($b) {
+         console.log("b is", $b)
+      })
+
+      // var a = [1, 2, 3];
+      // domain.each(a, function(num) {
+      //    if (num === 2) {
+      //       return new Promise(function(resolve, reject) {
+      //          setTimeout(function() {
+      //             console.log(num)
+      //             resolve("hello")
+      //          }, 500)
+      //       })
+      //    } else {
+      //       console.log(num)
+      //       return num;
+      //    }
+      // }).then(function(results) {
+      //    console.log(results)
+      // })
+   },1000)
 })();

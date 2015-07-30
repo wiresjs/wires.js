@@ -14,7 +14,9 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "~2.1.4",
-    "wires-domain": "~1.0.9"
+    "wires-domain": "~1.1.1",
+    "lodash": "~3.10.0",
+    "zepto": "~1.1.6",
+    "moment": "~2.10.6"
   }
 }

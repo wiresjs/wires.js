@@ -8,7 +8,10 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
          this.children = [];
       },
       create : function(parent, insertAfter){
-         this.element = document.createElement(this.item.name);
+         this.element = document.createElement(this.item.n);
+         this.element.$scope = this.scope;
+         this.element.$tag = this;
+
          if ( parent ){
             parent.addChild(this);
          }
@@ -30,21 +33,30 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
 
             // Removing all watchers from the attributes
    			_.each(self.attributes, function(attribute){
-   			   attribute.watcher.detach();
+               if( attribute.watcher){
+   			      attribute.watcher.detach();
+               }
    			});
 
             // TextNode should be triggered manually
             // So we iterate over each text node
             // And detach watchers manually
             _.each(self.children, function(child){
+
                if ( child.watchers){
                   child.watchers.detach();
                   delete child;
                }
+               if ( child.onRemove){
+                  child.onRemove();
+               }
+               delete child;
             });
             // Cleaning up stuff we don't need
             delete self.attributes;
             delete self.children;
+            delete self.element.$scope;
+            delete self.element.$tag;
             delete self.element;
          });
       }

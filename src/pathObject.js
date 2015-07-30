@@ -6,7 +6,7 @@ domain.service("$pathObject", function() {
       }
 
       var instance = scope;
-      var property;
+      var property = null;
       _.each(path, function(key, index) {
          if (path.length - 1 === index) {
             // The last one

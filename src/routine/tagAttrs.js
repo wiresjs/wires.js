@@ -4,7 +4,7 @@ domain.service("$tagAttrs", ['TagAttribute','$evaluate', '$customAttributes'],
       create : function(item, scope, element){
          var attributes = [];
 
-         _.each(item.attrs, function(attr, name){
+         _.each(item.a, function(attr, name){
 
             var customPath = "attrs." + name;
             var tagAttribute;
@@ -15,7 +15,7 @@ domain.service("$tagAttrs", ['TagAttribute','$evaluate', '$customAttributes'],
                name : name,
                element : element
             }
-
+            
             if ( $customAttributes[customPath] ){
                tagAttribute = new $customAttributes[customPath](opts)
             } else{
