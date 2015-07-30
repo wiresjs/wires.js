@@ -11,6 +11,7 @@ domain.service("$calendarDays", function() {
       function getFirstStringDay(year, week, day) {
          return moment().year(year).week(week).weekday(day).format('dd').charAt(0).toUpperCase()
       }
+
       function getDayOnly(year, week, day) {
          return moment().year(year).week(week).weekday(day).format('D');
       }
@@ -71,7 +72,7 @@ domain.service("controllers.Calendar", function($calendarDays) {
 
          // updating the time label ***********************
          this.setTime = function(s, e) {
-            var startTime = convertSlotToTime(this.start - (e ? e : 0) );
+            var startTime = convertSlotToTime(this.start - (e ? e : 0));
             var endTime = convertSlotToTime(this.end + (s ? s : 0));
             this.time = startTime + " - " + endTime;
          }
@@ -80,18 +81,18 @@ domain.service("controllers.Calendar", function($calendarDays) {
          var topShifted = 0;
 
          // Happens on drag *******************************
-         var shiftHeight = function(a){
+         var shiftHeight = function(a) {
             self.height = (self.end - self.start + a) * pxAmount;
          }
          this.addHeight = function(amount) {
+            shiftHeight(amount)
             slotShifted = amount;
             this.setTime(amount);
-            shiftHeight(amount)
          }
-         this.changeTop = function(amount){
+         this.changeTop = function(amount) {
             shiftHeight(amount);
-            this.top = ( this.start - amount)* pxAmount
-               topShifted = amount;
+            this.top = (this.start - amount) * pxAmount
+            topShifted = amount;
             this.setTime(0, amount);
          }
 
@@ -102,7 +103,7 @@ domain.service("controllers.Calendar", function($calendarDays) {
                this.height = (this.end - this.start) * pxAmount
                slotShifted = 0;
             }
-            if ( topShifted){
+            if (topShifted) {
                this.start = (this.start - topShifted)
                this.setTime();
                topShifted = 0;
@@ -129,9 +130,10 @@ domain.service("controllers.Calendar", function($calendarDays) {
          }
          if (event.type === "move") {
             if (targetAvailableTime) {
-               if ( direction === 0 ){
+               if (direction === 0) {
                   // moving down
                   var position = Math.floor(event.coords.y / pxAmount)
+                  console.log(position)
                   targetAvailableTime.addHeight((position * -1) - 1)
                } else {
                   var position = Math.floor(event.coords.y / pxAmount)
@@ -151,12 +153,12 @@ domain.service("controllers.Calendar", function($calendarDays) {
 
       var initWeekDays = function(calendarDaysArray) {
          // empty array but still keep the same reference
-         self.weekdays.splice(0,self.weekdays.length)
-         _.each(calendarDaysArray, function(item){
+         self.weekdays.splice(0, self.weekdays.length)
+         _.each(calendarDaysArray, function(item) {
             self.weekdays.push(new WeekDay(item.title, item.day))
          })
          self.monthLabel = moment().year(currentYear).week(currentWeek).weekday(0).format('MMMM');
-         self.yearLabel = moment().year(currentYear).week(currentWeek).weekday(0).format('YYYY');
+         self.year = moment().year(currentYear).week(currentWeek).weekday(0).format('MMMM');
       }
       initWeekDays($calendarDays(currentWeek, currentYear));
       self.nextWeek = function() {
