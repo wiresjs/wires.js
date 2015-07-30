@@ -6,12 +6,8 @@ domain.service("controllers.Base", function() {
 
 
 domain.service("$calendarDays", function() {
-   return function() {
-      var currentWeek = week = moment().week();
-      var currentMonth = month = moment().month();
-      var currentWeekDay = moment().weekday();
-      var currentYear = year = moment().year();
-      var monthLabel = moment().year(year).week(week).weekday(0).format('MMMM');
+   return function(week, year) {
+
       function getFirstStringDay(year, week, day) {
          return moment().year(year).week(week).weekday(day).format('dd').charAt(0).toUpperCase()
       }
@@ -19,7 +15,7 @@ domain.service("$calendarDays", function() {
          return moment().year(year).week(week).weekday(day).format('D');
       }
       var calendarDays = [];
-      for (var i = 0; i < 8; i++) {
+      for (var i = 0; i < 7; i++) {
          var title = getFirstStringDay(year, week, i);
          var day = getDayOnly(year, week, i);
          calendarDays.push({
@@ -34,6 +30,19 @@ domain.service("controllers.Calendar", function($calendarDays) {
    return ['calendar.html', function() {
       var self = this;
       var pxAmount = 20;
+      var currentWeek = moment().week();
+      var currentYear = moment().year();
+      self.weekdays = [];
+      self.lang = "fi"
+      self.setLanguage = function() {
+         moment.locale(self.lang, {
+            week: {
+               dow: 1,
+               doy: 4
+            }
+         });
+      }
+      self.setLanguage();
 
       var convertSlotToTime = function(slot) {
          var hour = (24 * slot) / 96;
@@ -109,6 +118,7 @@ domain.service("controllers.Calendar", function($calendarDays) {
       //Dragging
       var targetAvailableTime;
       var direction;
+
       self.onDrag = function(event) {
 
          if (event.type === "start") {
@@ -138,11 +148,33 @@ domain.service("controllers.Calendar", function($calendarDays) {
          }
       }
 
-      self.weekdays = [];
-      _.each($calendarDays(), function(item){
-         self.weekdays.push(new WeekDay(item.title, item.day))
-      })
 
+      var initWeekDays = function(calendarDaysArray) {
+         // empty array but still keep the same reference
+         self.weekdays.splice(0,self.weekdays.length)
+         _.each(calendarDaysArray, function(item){
+            self.weekdays.push(new WeekDay(item.title, item.day))
+         })
+         self.monthLabel = moment().year(currentYear).week(currentWeek).weekday(0).format('MMMM');
+         self.yearLabel = moment().year(currentYear).week(currentWeek).weekday(0).format('YYYY');
+      }
+      initWeekDays($calendarDays(currentWeek, currentYear));
+      self.nextWeek = function() {
+         currentWeek++;
+         if (currentWeek > moment().year(currentYear).weeksInYear()) {
+            currentYear++;
+            currentWeek = 1;
+         }
+         initWeekDays($calendarDays(currentWeek, currentYear));
+      };
+      self.previousWeek = function() {
+         currentWeek--;
+         if (currentWeek < 1) {
+            currentYear--;
+            currentWeek = moment().year(currentYear).weeksInYear();
+         }
+         initWeekDays($calendarDays(currentWeek, currentYear));
+      }
 
       // Adding available time
       var tuesday = self.weekdays[1]
@@ -155,7 +187,6 @@ domain.service("controllers.Calendar", function($calendarDays) {
       for (var i = 0; i < totalSlots; i++) {
          self.slots.push(new Slot(i))
       }
-
       // Hours (just for a display)
       self.hours = []
       for (var i = 1; i < 25; i++) {
@@ -163,20 +194,6 @@ domain.service("controllers.Calendar", function($calendarDays) {
             hour: i
          })
       }
-
-
-
-      self.lang = "fi"
-      self.setLanguage = function() {
-         moment.locale(self.lang, {
-            week: {
-               dow: 1,
-               doy: 4
-            }
-         });
-      }
-      self.setLanguage();
-
 
 
    }]

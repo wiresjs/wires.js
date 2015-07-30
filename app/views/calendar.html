@@ -1,9 +1,9 @@
 <div class="week-calendar-container" ws-drag="{{ $onDrag(target) }}">
 
         <div class="week-calendar-month">
-            <span class="previous" ng-click="prevWeek();"></span>
-            <span class="month ng-binding" colspan="5">July 2015</span>
-            <span class="next" ng-click="nextWeek();"></span>
+            <span class="previous" style="background: red;" ws-click="{{ $previousWeek() }}"></span>
+            <span class="month" colspan="5">$monthLabel $yearLabel</span>
+            <span class="next" style="background: purple;"  ws-click="{{ $nextWeek() }}"></span>
         </div>
 
         <div class="week-calendar-th">
