@@ -253,7 +253,7 @@ var getJavascript = function(folder, done){
       js.push(toSource(collection))
       js.push("\n $scope.__wires_views__ = v;")
       js.push("\n})(window)")
-      
+
       done(js.join(''));
     });
 
@@ -261,6 +261,7 @@ var getJavascript = function(folder, done){
 var _cachedViews;
 module.exports = {
    views: function(folder, opts){
+      var opts = opts || {};
       var cache = opts.cache;
       return {
          express : function(){
@@ -275,11 +276,8 @@ module.exports = {
                   res.setHeader('content-type', 'text/javascript');
                   res.send(js)
                })
-
-
             }
          }
       }
    }
-
 }

@@ -7,28 +7,28 @@ var bodyParser = require('body-parser');
 var app = express();
 var swig = require('swig');
 app.use(cookieParser('your secret here'));
-var wires = require("./compiler")
+var wires = require("./index.js")
 
 app.all("/views.js", wires.views('./app/views/',{}).express() )
 
 app.use('/app', express.static(__dirname + '/app'));
 app.use('/external', express.static(__dirname + '/external'));
 app.use('/src', express.static(__dirname + '/src'));
+app.use('/dist', express.static(__dirname + '/dist/'));
 
 
-
+var includeAll = require("wires-include-all")
 
 
 domain.path(new RegExp('\/.*'),
-	function($res, $includeAll) {
+	function($res) {
 
-
-		return $includeAll( "./src", {
+		return includeAll( "./src", {
          order: ['essentials/'],
          rootPath : "/src/",
          tagOutput : true
       }).then(function(list){
-			var contents = swig.render(fs.readFileSync("./index.html").toString(), {
+			var contents = swig.render(fs.readFileSync("./index.min.html").toString(), {
 				locals: { js : list}
 			});
 			$res.send(contents)
@@ -43,7 +43,7 @@ domain.path(new RegExp('\/.*'),
 // })
 
 
-require("wires-include-all")
+
 app.use(domain.express());
 
 var port = process.env.PORT || 3020;
