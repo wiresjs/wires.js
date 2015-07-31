@@ -7,7 +7,7 @@ domain.service("attrs.ws-drag", ['TagAttribute', '$evaluate'], function(TagAttri
 
 
          var fireEvent = function(ev) {
-               var original = ev.e.originalEvent ? ev.originalEvent.target : ev.e.target;
+               var original = ev.e.originalEvent ? ev.e.originalEvent.target : ev.e.target;
                ev.target = original.$scope;
                ev.element = original;
                var data = $evaluate(self.attr, {
