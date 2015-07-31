@@ -6,10 +6,13 @@ domain.service("attrs.ws-drag", ['TagAttribute', '$evaluate'], function(TagAttri
          var self = this;
 
 
-         var fireEvent = function(e) {
+         var fireEvent = function(ev) {
+               var original = ev.e.originalEvent ? ev.originalEvent.target : ev.e.target;
+               ev.target = original.$scope;
+               ev.element = original;
                var data = $evaluate(self.attr, {
                   scope: self.scope,
-                  target: e,
+                  target: ev,
                   watchVariables: false
                });
                event.preventDefault();
@@ -22,10 +25,8 @@ domain.service("attrs.ws-drag", ['TagAttribute', '$evaluate'], function(TagAttri
                x: e.clientX,
                y: e.clientY
             }
-
             fireEvent({
-               target: e.target.$scope,
-               element : e.target,
+               e : e,
                coords: startCoords,
                type: "start"
             })
@@ -39,16 +40,14 @@ domain.service("attrs.ws-drag", ['TagAttribute', '$evaluate'], function(TagAttri
                   dx : x < 0 ? "right" : "left"
                }
                fireEvent({
-                  target: e.target.$scope,
+                  e : e,
                   coords: coords,
-                  element : e.target,
                   type: "move"
                });
             })
             $(this).bind( m ? "touchend touchleave touchcancel" : "mouseup", function(e) {
                fireEvent({
-                  target: e.target.$scope,
-                  element : e.target,
+                  e: e,
                   type: "stop"
                });
                $(this).unbind("mouseup mousemove")

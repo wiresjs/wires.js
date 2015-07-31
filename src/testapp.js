@@ -123,6 +123,9 @@ domain.service("controllers.Calendar", function($calendarDays) {
       self.onDrag = function(event) {
 
          if (event.type === "start") {
+            if ( event.target.weekday ){
+
+            }
             if (event.target.av) {
                direction = $(event.element).hasClass("week-calendar-edit-booking-end") ? 0 : 1;
                targetAvailableTime = event.target.av
@@ -161,6 +164,7 @@ domain.service("controllers.Calendar", function($calendarDays) {
          self.year = moment().year(currentYear).week(currentWeek).weekday(0).format('MMMM');
       }
       initWeekDays($calendarDays(currentWeek, currentYear));
+
       self.nextWeek = function() {
          currentWeek++;
          if (currentWeek > moment().year(currentYear).weeksInYear()) {

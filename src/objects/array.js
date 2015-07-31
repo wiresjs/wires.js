@@ -20,7 +20,6 @@ domain.service("$array", function(){
          return {
             // Detaching current callback
             detach : function(){
-               console.log("wacher detached")
                var index = array.$arrayWatchers.indexOf(cb);
                array.$arrayWatchers.splice(index, 1);
 

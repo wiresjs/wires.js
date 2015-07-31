@@ -5,11 +5,11 @@ domain.service("attrs.ws-click", ['TagAttribute', '$evaluate'], function(TagAttr
       create : function(){
          var self = this;
          var elementClicked = function(e){
-
-            var targetScope = e.target.$scope;
+            var target = e.originalEvent ? e.originalEvent.target : e.target;
             var data = $evaluate(self.attr, {
                scope: self.scope,
-               target : targetScope,
+               element : target,
+               target : target.$scope,
                watchVariables : false
             });
             delete elementClicked;
