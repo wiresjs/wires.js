@@ -18,8 +18,8 @@ It will install dependencies, that you need to include into your project along w
 
 ## Arrays
 
-Wires has an $array object that serves as a rest service. Any array passed to the template will be converted. 
-However it's more clear if you do it yourself. REST configuration is optional.
+Wires has an $array object that provides necessary methods. Any array passed to the template will be converted. 
+However it's more clear if you do it yourself. You can attach REST configuration if you need one.
 
 ```js
 var user1 = {name : "user1"}
