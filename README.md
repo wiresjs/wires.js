@@ -41,6 +41,7 @@ Adds new values to array
 ```js
 this.users.$add({name : "user3"}) // Object passed
 this.users.$add([{name : "user4"}, {name : "user5"}]) // Array with objects
+this.users.$add(user1, user2, user3, ...) // Also works
 ```
 If rest configuration is attached - POST http request will be peformed.
 
