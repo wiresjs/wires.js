@@ -25,7 +25,9 @@
          if ( cb ){
             instance.$watchers[property].push(cb);
          }
+
          if ( instance.$watchers[property].length === 1 ){
+            
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback){
                   _callback(b, newvalue);
@@ -38,7 +40,7 @@
             remove : function(){
                var index = instance.$watchers[property].indexOf(cb);
                instance.$watchers[property].splice(index, 1);
-               
+
                delete cb;
             },
             removeAll : function(){

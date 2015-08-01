@@ -209,7 +209,9 @@ domain.service("controllers.Calendar", function($calendarDays) {
 
 domain.service("controllers.Test", function() {
    return ['test.html', function() {
-
+      window.ivan = {name : "ivan"}
+      this.users = [window.ivan, {name : "bang"}]
+      window.ctrl = this;
    }]
 })
 $(function() {

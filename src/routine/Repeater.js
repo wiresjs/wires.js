@@ -1,5 +1,5 @@
-domain.service("Repeater", ['TagNode','$pathObject', '$array'],
-   function(TagNode,$pathObject, $array, $run){
+domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
+   function(TagNode,$pathObject, $array, $watch ){
    return Wires.Class.extend({
       initialize : function(opts){
          var self = this;
@@ -19,6 +19,14 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array'],
          }
          this.scopeKey = targetVars.vars.$_v0.p.join('');
 
+         // Watch current array (in case if someone overrides is)
+         // This should not happen
+         // But just in case we should check this case
+         $watch(targetVars.vars.$_v1.p, this.scope, function(oldArray, newvalue){
+            throw { message : "You can't assign a new array. Use "+targetVars.vars.$_v1.p+".$removeAll() instead"}
+         })
+
+
          // Getting the target array
          var arrayPath = $pathObject(targetVars.vars.$_v1.p, this.scope)
 
@@ -32,8 +40,10 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array'],
 
          this.parent.addChild(this)
 
+         this.assign();
+      },
+      assign : function(){
          this.watchers = this.array.$watch(this.onEvent.bind(this));
-
          this._arrayElements = [];
          this.createInitialElements();
       },

@@ -1,1 +1,9 @@
 <h1>Test</h1>
+<ul>
+   <li ws-repeat="$user in $users">
+         $user.name
+         <div style="margin-left:10px">
+            <div ws-repeat="$user in $parent.users">$user.name</div>
+         </div>
+   </li>
+</ul>
