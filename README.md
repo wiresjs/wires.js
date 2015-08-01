@@ -42,11 +42,11 @@ Adds new values to array
 this.users.$add({name : "user3"}) // Object passed
 this.users.$add([{name : "user4"}, {name : "user5"}]) // Array with objects
 ```
-If rest configuration is attached - ADD http request will be peformed.
+If rest configuration is attached - POST http request will be peformed.
 
 ### $remove
 
-You can pass index or an object.
+You can pass index or object respectfuly.
 ```js
 this.users.$remove(0}) // First element will be removed
 this.users.$remove(user1) // user1 object will be removed
@@ -60,6 +60,8 @@ Removes all elements from array
 ```js
 this.users.$removeAll()
 ```
+
+If REST configuration is attached - DELETE request will be ignored for the sake of security.
 
 
 
