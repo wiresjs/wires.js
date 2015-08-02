@@ -28,13 +28,15 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
          var self = this;
 
          this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
-
-         self.element.addEventListener("DOMNodeRemovedFromDocument", function() {
+         var listener = function() {
 
             // Removing all watchers from the attributes
    			_.each(self.attributes, function(attribute){
                if( attribute.watcher){
    			      attribute.watcher.detach();
+               }
+               if ( _.isFunction(attribute.detach) ){
+                  attribute.detach();
                }
    			});
 
@@ -52,13 +54,18 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
                }
                delete child;
             });
+            $(self.element).unbind();
+            self.element.removeEventListener("DOMNodeRemovedFromDocument", listener)
             // Cleaning up stuff we don't need
             delete self.attributes;
             delete self.children;
             delete self.element.$scope;
             delete self.element.$tag;
             delete self.element;
-         });
+            delete listener;
+
+         }
+         self.element.addEventListener("DOMNodeRemovedFromDocument", listener);
       }
    });
 });

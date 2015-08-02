@@ -1,9 +1,27 @@
-<h1>Test</h1>
-<ul>
-   <li ws-repeat="$user in $users">
-         $user.name
-         <div style="margin-left:10px">
-            <div ws-repeat="$user in $parent.users">$user.name</div>
+<h1>Forms $some.name</h1>
+<table width="100%">
+   <tr>
+      <td valign="top" width="400" style="border:1px solid #ececec;padding:10px">
+
+
+         <form ws-submit="{{ $create() }}">
+            <input type="text" ws-value="$form.name"/>
+
+            <input type="submit" value="add"/>
+            <div style="color:red" ws-visible="$form.$err">
+               $form.$err
+            </div>
+         </form>
+
+      </td>
+      <td valign="top" style="border:1px solid #ececec; padding:10px;">
+
+         <div>
+            <div ws-repeat="$user in $users">
+               $user.name (<a href="#" ws-click="{{ $user.$remove() }}">remove</a>)
+            </div>
          </div>
-   </li>
-</ul>
+
+      </td>
+   </tr>
+</table>

@@ -15,14 +15,9 @@ domain.service("attrs.ws-click", ['TagAttribute', '$evaluate'], function(TagAttr
             delete elementClicked;
             e.preventDefault();
          }
-
-
          var evName = window.isMobile ? "touchend" : "click";
-
          $(this.element).bind( evName, elementClicked)
-
       }
-
    });
    return WsClick;
 })

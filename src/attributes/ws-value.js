@@ -6,13 +6,21 @@ domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttr
          this.watcher = this.startWatching();
       },
       startWatching : function(){
+         var self = this;
+         var selfCheck = false;
          // Binding variable
          var watcher = $evaluate(this.attr, {
                scope: this.scope,
                changed: function(data) {
 
+                  if ( selfCheck === false){
+                     self.setValue(data.str);
+                  }
+                  selfCheck = false;
+                  
                }
          });
+
          // Extracting the first variable defined
          var variable;
          if ( watcher.locals && watcher.locals.length === 1 ){
@@ -20,12 +28,16 @@ domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttr
          }
          this.bindActions(function(newValue){
             if ( variable ) {
+               selfCheck = true;
                variable.value.update(newValue);
             }
          })
          // !Important!
          // Return the watcher!
          return watcher;
+      },
+      setValue : function(v){
+         $(this.element).val(v);
       },
       bindActions : function(cb){
          var self = this;

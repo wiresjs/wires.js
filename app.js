@@ -8,7 +8,11 @@ var app = express();
 var swig = require('swig');
 app.use(cookieParser('your secret here'));
 var wires = require("./index.js")
-
+app.use(bodyParser.json());
+		app.use(bodyParser.urlencoded({
+			extended: true
+		}));
+		
 app.all("/views.js", wires.views('./app/views/',{}).express() )
 
 app.use('/app', express.static(__dirname + '/app'));
@@ -17,6 +21,7 @@ app.use('/src', express.static(__dirname + '/src'));
 app.use('/dist', express.static(__dirname + '/dist/'));
 
 
+require('require-all')(__dirname + "/testbackend")
 var includeAll = require("wires-include-all")
 
 

@@ -16,6 +16,7 @@
             var request = $.ajax(opts);
 
             request.always(function(res, status) {
+               
                if ( res.status) {
                   return fail({ status : res.status, message : res.responseJSON || res.statusText} )
                }
