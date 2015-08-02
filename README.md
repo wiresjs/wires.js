@@ -62,6 +62,12 @@ this.user.$reset()
 ```
 
 ### Remove resource
+If a parent array is attached calles array.$remove(obj)
+
+If restful endpoint is attached pefrorms a DELETE request
+```js
+this.user.$remove()
+```
 
 ## Arrays
 
@@ -98,7 +104,12 @@ Will peform a request to /api/user?someQuery=hello
 Returns a promise
 
 ```js
-this.users.$fetch({ someQuery : "hello"})
+this.users.$fetch({ someQuery : "hello"}).then(function(arr){
+ // do whatever you like.
+ // At this point all models are injected into the dom if (ws-repeat) was defined
+}).catch(function(e){
+ // Catch an error
+})
 ```
 
 ### $add
@@ -111,6 +122,15 @@ this.users.$add([{name : "user4"}, {name : "user5"}]) // Array with objects
 this.users.$add(user1, user2, user3, ...) // Also works
 ```
 If rest configuration is attached - POST http request will be peformed.
+
+Returns a promise
+```js
+this.users.$add(user).then(function(){
+  // User has been sucessfully added
+}).catch(function(e){
+ // Handles errors here
+})
+```
 
 ### $remove
 
