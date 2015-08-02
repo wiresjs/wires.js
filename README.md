@@ -63,8 +63,8 @@ this.user.$reset()
 
 ## Arrays
 
-Wires has an $array object that provides necessary methods. Any array passed to the template will be converted. 
-However it's more clear if you do it yourself. You can attach REST configuration if you need one.
+Arrays are the most smartest objects in entire framework. They automate data interaction with RESTful service.
+Any array passed to the template will be converted to $array object. 
 
 ```js
 var user1 = {name : "user1"}
@@ -72,8 +72,7 @@ var user2 = {name : "user2"}
 this.users = $array([user1, user2])
 ```
 
-Basically means, that once your template is processed, this.users will be converted to $array, which methods described below.
-If you want to access them right away, initialize your array like this:
+Once your template is processed, this.users will be converted to $array, which methods described below.
 
 ```js
 this.users = $array([user1, user2]);
