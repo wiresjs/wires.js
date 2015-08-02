@@ -15,6 +15,36 @@ It will install dependencies, that you need to include into your project along w
 * Jquery
 * wires-domain
 
+## Resource
+Resource, in essense, represents an object with magic method. It can fetch data into the object, as well as reset all defined paramaters. 
+
+You can initialize resource 2 different ways:
+
+```js
+this.user = $resource("/api/user/:id")
+```
+
+:_id is the parameter that will be replaced with input parameters (if defined)
+
+Let's load some data into resource
+
+## Fetch
+
+```js
+this.user.$fetch({id : 1})
+```
+
+Makes a GET request to /api/user/1, Imagine if you don't supply $fetch with request parameters. :_id will be just ignored, and the GET request is going to look like /api/user. 
+
+Fetch  automatically fulfills the array and returns a promise.
+
+```js
+this.user.$fetch({id : 1}).then(function(myData){
+   // do anything you like
+}).catch(function(e){
+   // handle errors
+})
+```
 
 ## Arrays
 
