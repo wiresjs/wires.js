@@ -36,7 +36,7 @@ this.user = $resource({name : "user"}, {endpoint : "/api/user/:id" })
 
 Let's load some data into resource
 
-### Fetch
+### Fetch resource
 
 ```js
 this.user.$fetch({id : 1})
@@ -54,12 +54,14 @@ this.user.$fetch({id : 1}).then(function(myData){
 })
 ```
 
-### Reset
+### Reset resource
 
 To erase all defined values use $reset
 ```js
 this.user.$reset()
 ```
+
+### Remove resource
 
 ## Arrays
 
@@ -76,6 +78,27 @@ Once your template is processed, this.users will be converted to $array, which m
 
 ```js
 this.users = $array([user1, user2]);
+```
+
+### Initialize with RESTful endpoint
+You can easily tell $array to fetch data from RESTful service. To do that initialize $array object like so:
+```js
+this.users = $array("/api/user/:_id"); // First arguments is a string
+this.users = $array({ endpoint :"/api/user/:_id"} ); // First argument is an object
+```
+
+It's important for you to leave :id parameter (or any other, e.g :slug) in order to remove items automatically
+
+### Fetch
+```js
+this.users.$fetch({ someQuery : "hello"})
+```
+Will peform a request to /api/user?someQuery=hello
+
+Returns a promise
+
+```js
+this.users.$fetch({ someQuery : "hello"})
 ```
 
 ### $add
