@@ -16,19 +16,27 @@ It will install dependencies, that you need to include into your project along w
 * wires-domain
 
 ## Resource
-Resource, in essense, represents an object with magic method. It can fetch data into the object, as well as reset all defined paramaters. 
+Resource, in essense, represents an object with magic methods attached. It can fetch data into the object, as well as reset all defined parameters. 
 
 You can initialize resource 2 different ways:
 
+Provide a string:
+
 ```js
 this.user = $resource("/api/user/:id")
+```
+
+Provide initial data and options with endpoint property:
+
+```js
+this.user = $resource({name : "user"}, {endpoint : "/api/user/:id" })
 ```
 
 :_id is the parameter that will be replaced with input parameters (if defined)
 
 Let's load some data into resource
 
-## Fetch
+### Fetch
 
 ```js
 this.user.$fetch({id : 1})
@@ -44,6 +52,13 @@ this.user.$fetch({id : 1}).then(function(myData){
 }).catch(function(e){
    // handle errors
 })
+```
+
+### Reset
+
+To erase all defined values use $reset
+```js
+this.user.$reset()
 ```
 
 ## Arrays
