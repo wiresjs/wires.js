@@ -1,4 +1,5 @@
 (function() {
+   var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
    domain.service("attrs.ws-drag", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate) {
       var WsClick = TagAttribute.extend({
          // Overriding default method
@@ -21,6 +22,9 @@
 
             var m = window.isMobile;
             $(this.element).bind(m ? "touchstart" : "mousedown", function(e) {
+               if ( is_firefox ){
+                  e.preventDefault();
+               }
                var startCoords = {
                   x: e.clientX,
                   y: e.clientY
@@ -46,6 +50,9 @@
                   });
                })
                $(this).bind(m ? "touchend touchleave touchcancel" : "mouseup", function(e) {
+                  if ( is_firefox ){
+                     e.preventDefault();
+                  }
                   fireEvent({
                      e: e,
                      type: "stop"
