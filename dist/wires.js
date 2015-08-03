@@ -1399,7 +1399,9 @@ var Wires = Wires || {};
          if ( cb ){
             instance.$watchers[property].push(cb);
          }
+
          if ( instance.$watchers[property].length === 1 ){
+            
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback){
                   _callback(b, newvalue);
@@ -1412,7 +1414,7 @@ var Wires = Wires || {};
             remove : function(){
                var index = instance.$watchers[property].indexOf(cb);
                instance.$watchers[property].splice(index, 1);
-               
+
                delete cb;
             },
             removeAll : function(){
@@ -1422,6 +1424,27 @@ var Wires = Wires || {};
          };
       }
    });
+})();
+
+(function(){
+   domain.service("$restEndPoint", function(){
+      return function(path, params){
+         var params = params || {};
+         var p = path.split("\/");
+         var processedPath = [];
+         _.each(p, function(item){
+            var variable = item.match(/:(.+)/);
+            if ( variable ){
+               if ( params.hasOwnProperty(variable[1])) {
+                  processedPath.push(params[variable[1]])
+               }
+            } else {
+               processedPath.push(item);
+            }
+         });
+         return processedPath.join("/");
+      }
+   })
 })();
 
 (function(){
@@ -1438,6 +1461,38 @@ var Wires = Wires || {};
          })
       })
    })
+})();
+
+(function(){
+   domain.service("$form", function(){
+
+      return function(){
+         var form = {};
+
+         // Filter out system and private  objects
+         // $ - system
+         // _ - private
+         form.$getAttrs = function(){
+            var attrs = {};
+            _.each(this, function(v, k){
+               if ( !k.match(/^(\$|_)/)){
+                  attrs[k] = v;
+
+               }
+            })
+            return attrs;
+         }
+         form.$reset = function(){
+            _.each(this, function(v, k){
+               if ( !k.match(/^(\$|_)/)){
+                 this[k] = undefined;
+               }
+            }, this);
+         }
+         return form;
+      };
+   })
+
 })();
 
 (function(){
@@ -1496,6 +1551,7 @@ var Wires = Wires || {};
             var request = $.ajax(opts);
 
             request.always(function(res, status) {
+               
                if ( res.status) {
                   return fail({ status : res.status, message : res.responseJSON || res.statusText} )
                }
@@ -1794,8 +1850,8 @@ var Wires = Wires || {};
       })
 })();
 
-domain.service("Repeater", ['TagNode','$pathObject', '$array'],
-   function(TagNode,$pathObject, $array, $run){
+domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
+   function(TagNode,$pathObject, $array, $watch ){
    return Wires.Class.extend({
       initialize : function(opts){
          var self = this;
@@ -1815,6 +1871,14 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array'],
          }
          this.scopeKey = targetVars.vars.$_v0.p.join('');
 
+         // Watch current array (in case if someone overrides is)
+         // This should not happen
+         // But just in case we should check this case
+         $watch(targetVars.vars.$_v1.p, this.scope, function(oldArray, newvalue){
+            throw { message : "You can't assign a new array. Use "+targetVars.vars.$_v1.p+".$removeAll() instead"}
+         })
+
+
          // Getting the target array
          var arrayPath = $pathObject(targetVars.vars.$_v1.p, this.scope)
 
@@ -1828,8 +1892,10 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array'],
 
          this.parent.addChild(this)
 
+         this.assign();
+      },
+      assign : function(){
          this.watchers = this.array.$watch(this.onEvent.bind(this));
-
          this._arrayElements = [];
          this.createInitialElements();
       },
@@ -2010,13 +2076,15 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
          var self = this;
 
          this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
-
-         self.element.addEventListener("DOMNodeRemovedFromDocument", function() {
+         var listener = function() {
 
             // Removing all watchers from the attributes
    			_.each(self.attributes, function(attribute){
                if( attribute.watcher){
    			      attribute.watcher.detach();
+               }
+               if ( _.isFunction(attribute.detach) ){
+                  attribute.detach();
                }
    			});
 
@@ -2034,13 +2102,18 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
                }
                delete child;
             });
+            $(self.element).unbind();
+            self.element.removeEventListener("DOMNodeRemovedFromDocument", listener)
             // Cleaning up stuff we don't need
             delete self.attributes;
             delete self.children;
             delete self.element.$scope;
             delete self.element.$tag;
             delete self.element;
-         });
+            delete listener;
+
+         }
+         self.element.addEventListener("DOMNodeRemovedFromDocument", listener);
       }
    });
 });
@@ -2085,72 +2158,241 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
 })
 })();
 
-domain.service("$array", function(){
-   return function(a, b){
+domain.service("$array", ['$http', '$resource', '$restEndPoint'], function($http, $resource, $restEndPoint) {
+   return function(a, b) {
       var opts;
       var array;
-      if ( _.isArray(a) ){
+      if (_.isArray(a)) {
          array = a;
          opts = b || {};
       } else {
          array = [];
-         opts = _.isPlainObject(b) ? b : {};
+         opts = _.isPlainObject(a) ? a : {};
       }
+      var endpoint = opts.endpoint;
+      if ( _.isString(a) ){
+         endpoint = a;
+      }
+
 
       // Array has been already initialized
-      if ( array.$watch)
+      if (array.$watch)
          return array;
 
-      array.$arrayWatchers = [];
-      array.$watch = function(cb){
-         array.$arrayWatchers.push(cb);
-         return {
-            // Detaching current callback
-            detach : function(){
-               var index = array.$arrayWatchers.indexOf(cb);
-               array.$arrayWatchers.splice(index, 1);
+      var watchers = [];
 
-               delete cb;
-            }
-         }
-      }
 
-      var notify = function(){
+      var notify = function() {
          var args = arguments;
-         _.each(array.$arrayWatchers, function(watcher){
-            if ( watcher ){
+         _.each(watchers, function(watcher) {
+            if (watcher) {
                watcher.apply(null, args);
             }
          })
       }
+
+
+      array.$watch = function(cb) {
+            watchers.push(cb);
+            return {
+               // Detaching current callback
+               detach: function() {
+                  var index = watchers.indexOf(cb);
+                  watchers.splice(index, 1);
+
+                  delete cb;
+               }
+            }
+         }
+         // clean up array
+      array.$removeAll = function() {
+         array.splice(0, array.length);
+      }
+
+      array.$empty = function() {
+         this.$removeAll();
+      }
+
+      // Completely destroys this.array
+      // Removes all elements
+      // Detaches all watchers
+      array.$destroy = function() {
+         array.$removeAll();
+         _.each(watchers, function(watcher) {
+            delete watcher;
+         })
+         watchers = undefined;
+         delete array
+      }
+
+      // fetching is rest endpoint is provided
+      array.$fetch = function(params) {
+         var self = this;
+         return new Promise(function(resolve, reject) {
+            var params = params || {};
+            if (!endpoint) {
+               throw {
+                  message: "Can't fetch without the endpoint!"
+               }
+            }
+            var url = $restEndPoint(endpoint, params);
+
+            return $http.get(url, params).then(function(data) {
+               // If we get the result, removing everything
+               self.$removeAll();
+               _.each(data, function(item) {
+                  self.push($resource(item, {
+                     endpoint: endpoint,
+                     array : self
+                  }))
+               });
+               return resolve(self)
+            }).catch(reject);
+         })
+      }
+
+
+      // Adding new value to array
+      array.$add = function() {
+         var self = this;
+         var items = _.flatten(arguments);
+         return new Promise(function(resolve, reject) {
+            return domain.each(items, function(item) {
+               var data = _.isFunction(item.$getAttrs) ? item.$getAttrs() : data;
+               // Reset errors
+               if (item.$err) {
+                  item.$err = undefined;
+               }
+               // if api is restull need to perform a request
+               if (endpoint) {
+                  var url = $restEndPoint(endpoint, data);
+                  return $http.post(url, data)
+               }
+               return item;
+               //array.push(item)
+            }).then(function(newrecords) {
+               _.each(newrecords, function(item) {
+                  array.push($resource(item, {endpoint: endpoint, array : self}));
+               });
+
+               return resolve(newrecords);
+            }).catch(function(e) {
+
+               // Storing error message to items
+               _.each(items, function(item) {
+                  item.$err = e.message && e.message.message ? e.message.message : e;
+               });
+               // Continue here
+               return reject(e);
+            })
+         })
+
+      }
+
+
       // Watching variable size
       array.size = array.length;
 
       // overriding array properties
-      array.push = function(target){
-			var push = Array.prototype.push.apply(this, arguments);
-         notify('push', target)
-         array.size = array.length;
-         return push;
-      }
-      // Splicing (removing)
-      array.splice = function(index, howmany){
+      array.push = function(target) {
+            var target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
+            var push = Array.prototype.push.apply(this, [target]);
+            notify('push', target)
+            array.size = array.length;
+            return push;
+         }
+         // Splicing (removing)
+      array.splice = function(index, howmany) {
 
-         notify('splice', index, howmany);
-         var sp = Array.prototype.splice.apply(this, arguments);
-         array.size = array.length;
-         return  sp;
-      }
-      // Convinience methods
-      array.$remove = function(index){
+            notify('splice', index, howmany);
+            var sp = Array.prototype.splice.apply(this, arguments);
+            array.size = array.length;
+            return sp;
+         }
+         // Convinience methods
+      array.$remove = function(index) {
+         if (_.isObject(index)) {
+            index = this.indexOf(index);
+         }
          return this.splice(index, 1);
       }
-      array.$add = function(item){
-         return this.push(item)
-      }
+
 
 
       return array;
+   }
+})
+
+domain.service("$resource", ['$restEndPoint', '$http'], function($restEndPoint, $http){
+   return function(a, b){
+      var opts = {};
+      var obj;
+      var endpoint;
+
+      if ( _.isObject(a) ){
+         obj = a || {};
+         opts = b || {};
+         endpoint = opts.endpoint;
+      }
+      if (_.isString(a)){
+         endpoint = a;
+         obj = {};
+      }
+
+      var array = opts.array;
+
+      obj.$reset = function(){
+         _.each(this, function(v, k){
+            if ( !k.match(/^(\$|_)/)){
+              this[k] = undefined;
+            }
+         }, this);
+      }
+
+
+      obj.$fetch = function(o){
+
+         return new Promise(function(resolve, reject){
+            if (endpoint){
+               var pm = o || {};
+               var url = $restEndPoint(endpoint, pm);
+               $http.get(url, pm).then(function(data){
+                  _.each(data, function(v, k){
+                     obj[k] = v;
+                  })
+                  return resolve(obj)
+               }).catch(function(e){
+                  return reject(e)
+               })
+
+            }
+         })
+      }
+
+      obj.$remove = function(){
+         return new Promise(function(resolve, reject){
+            // Removing from the parent array
+            if (endpoint){
+               var url = $restEndPoint(endpoint, obj);
+               $http.delete(url).then(function(){
+                  if ( array ){
+                     array.$remove(obj);
+                  }
+                  obj.$reset();
+                  return resolve()
+               }).catch(function(){
+                  return reject(e)
+               })
+            } else {
+               if ( array ){
+                  array.$remove(obj);
+                  return resolve();
+               }
+            }
+         })
+      }
+
+      return obj
    }
 })
 
@@ -2171,14 +2413,9 @@ domain.service("attrs.ws-click", ['TagAttribute', '$evaluate'], function(TagAttr
             delete elementClicked;
             e.preventDefault();
          }
-
-
          var evName = window.isMobile ? "touchend" : "click";
-
          $(this.element).bind( evName, elementClicked)
-
       }
-
    });
    return WsClick;
 })
@@ -2272,6 +2509,35 @@ domain.service("attrs.ws-href", ['TagAttribute', '$history'],
       return WsVisible;
    })
 
+(function(){
+   domain.service("attrs.ws-submit", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate) {
+      var WsClick = TagAttribute.extend({
+
+         create: function() {
+            var self = this;
+            $(this.element).submit(function(event) {
+               try {
+                  var e = event.originalEvent;
+                  $evaluate(self.attr, {
+                     scope: self.scope,
+                     element: e.target,
+                     target: e.target.$scope,
+                     watchVariables: false
+                  });
+
+               } catch (e) {
+                  console.error(e.stack || e)
+               }
+               e.preventDefault();
+            })
+         }
+
+      });
+      return WsClick;
+   })
+   
+})();
+
 domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate){
    var WsVisible = TagAttribute.extend({
       // Overriding default method
@@ -2280,13 +2546,21 @@ domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttr
          this.watcher = this.startWatching();
       },
       startWatching : function(){
+         var self = this;
+         var selfCheck = false;
          // Binding variable
          var watcher = $evaluate(this.attr, {
                scope: this.scope,
                changed: function(data) {
 
+                  if ( selfCheck === false){
+                     self.setValue(data.str);
+                  }
+                  selfCheck = false;
+                  
                }
          });
+
          // Extracting the first variable defined
          var variable;
          if ( watcher.locals && watcher.locals.length === 1 ){
@@ -2294,12 +2568,16 @@ domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttr
          }
          this.bindActions(function(newValue){
             if ( variable ) {
+               selfCheck = true;
                variable.value.update(newValue);
             }
          })
          // !Important!
          // Return the watcher!
          return watcher;
+      },
+      setValue : function(v){
+         $(this.element).val(v);
       },
       bindActions : function(cb){
          var self = this;

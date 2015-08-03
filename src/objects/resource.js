@@ -23,7 +23,7 @@ domain.service("$resource", ['$restEndPoint', '$http'], function($restEndPoint, 
             }
          }, this);
       }
-      
+
 
       obj.$fetch = function(o){
 
@@ -53,6 +53,7 @@ domain.service("$resource", ['$restEndPoint', '$http'], function($restEndPoint, 
                   if ( array ){
                      array.$remove(obj);
                   }
+                  obj.$reset();
                   return resolve()
                }).catch(function(){
                   return reject(e)
@@ -64,7 +65,6 @@ domain.service("$resource", ['$restEndPoint', '$http'], function($restEndPoint, 
                }
             }
          })
-
       }
 
       return obj
