@@ -15,7 +15,7 @@ domain.service("controllers.Test", function($array, $form, $resource, $restEndPo
 
       this.some = $resource("/api/user/:_id");
 
-      this.some.$fetch({_id :"55bd306657d75939c5ef50d4"});
+      //this.some.$fetch({_id :"55bd306657d75939c5ef50d4"});
 
       self.users.$fetch();
       self.create = function() {

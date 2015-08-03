@@ -1,6 +1,6 @@
 (function() {
-   domain.service("$run", ['TagNode', 'TextNode', 'Repeater'],
-      function(TagNode, TextNode, Repeater) {
+   domain.service("$run", ['TagNode', 'TextNode', 'Repeater', 'Conditional'],
+      function(TagNode, TextNode, Repeater, Conditional) {
          var run = function(opts) {
 
             var opts = opts || {};
@@ -36,6 +36,15 @@
                         scope: scope
                      });
                   }
+                  // If statement
+                  if (item.t === 4) {
+                     var conditional = new Conditional({
+                        run : run,
+                        item: item,
+                        parent: parent,
+                        scope: scope
+                     });
+                  }
                })
             }
 
@@ -46,7 +55,7 @@
                pNode.element = target;
             }
             createElements(structure, pNode);
-         
+
 
          }
          return run;

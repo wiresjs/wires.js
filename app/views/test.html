@@ -16,7 +16,7 @@
       </td>
       <td valign="top" style="border:1px solid #ececec; padding:10px;">
 
-         <div>
+         <div ws-if="{{ $showList }}">
             <div ws-repeat="$user in $users">
                $user.name (<a href="#" ws-click="{{ $user.$remove() }}">remove</a>)
             </div>

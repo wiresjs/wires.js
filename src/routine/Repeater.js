@@ -37,6 +37,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
 
          // Create a placeholder
          this.element = document.createComment('repeat ' + this.scopeKey);
+         this.parent.addChild(this)
 
          this.parent.addChild(this)
 

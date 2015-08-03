@@ -10,7 +10,8 @@ $(function() {
 
       $router.add('/:ctrl?/:action?/:id?', 'Base', [
          $router.state('/calendar', 'Calendar'),
-         $router.state('/test', 'Test')
+         $router.state('/test', 'Test'),
+         $router.state('/kukka', 'Kukka')
       ])
 
 

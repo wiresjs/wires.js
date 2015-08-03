@@ -212,7 +212,29 @@ var getJSONStructure = function(html) {
                   }
                   item.i = [it]
                   children.push(item)
-               } else {
+               }
+
+               // Handle if case
+               else if (_item.attribs["ws-if"]){
+                  item.z = preCompile(_item.attribs["ws-if"])
+                  delete _item.attribs["ws-if"];
+                  delete item.n;
+                  item.t = 4;
+                  var it = {
+                     t: 2,
+                     n: _item.name,
+                  }
+
+                  if (_item.attribs && _.keys(_item.attribs).length) {
+                     it.a = preCompileAttrs(_item.attribs)
+                  }
+                  if (_item.children && _item.children.length) {
+                     it.c = iterate(_item.children)
+                  }
+                  item.c = [it]
+                  children.push(item)
+               }
+                else {
                   if (_item.children && _item.children.length) {
                      item.c = iterate(_item.children)
                   }
@@ -273,6 +295,7 @@ module.exports = {
                   if ( cache ){
                      _cachedViews = js;
                   }
+                  
                   res.setHeader('content-type', 'text/javascript');
                   res.send(js)
                })
