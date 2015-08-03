@@ -2449,9 +2449,8 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
                      target: ev,
                      watchVariables: false
                   });
-                  event.preventDefault();
-               }
-               // Binding events
+            }
+            // Binding events
 
             var m = window.isMobile;
             $(this.element).bind(m ? "touchstart" : "mousedown", function(e) {
