@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 		app.use(bodyParser.urlencoded({
 			extended: true
 		}));
-		
+
 app.all("/views.js", wires.views('./app/views/',{}).express() )
 
 app.use('/app', express.static(__dirname + '/app'));
@@ -33,7 +33,7 @@ domain.path(new RegExp('\/.*'),
          rootPath : "/src/",
          tagOutput : true
       }).then(function(list){
-			var contents = swig.render(fs.readFileSync("./index.html").toString(), {
+			var contents = swig.render(fs.readFileSync("./index.min.html").toString(), {
 				locals: { js : list}
 			});
 			$res.send(contents)

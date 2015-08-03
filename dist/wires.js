@@ -2158,356 +2158,373 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
 })
 })();
 
-domain.service("$array", ['$http', '$resource', '$restEndPoint'], function($http, $resource, $restEndPoint) {
-   return function(a, b) {
-      var opts;
-      var array;
-      if (_.isArray(a)) {
-         array = a;
-         opts = b || {};
-      } else {
-         array = [];
-         opts = _.isPlainObject(a) ? a : {};
-      }
-      var endpoint = opts.endpoint;
-      if ( _.isString(a) ){
-         endpoint = a;
-      }
-
-
-      // Array has been already initialized
-      if (array.$watch)
-         return array;
-
-      var watchers = [];
-
-
-      var notify = function() {
-         var args = arguments;
-         _.each(watchers, function(watcher) {
-            if (watcher) {
-               watcher.apply(null, args);
-            }
-         })
-      }
-
-
-      array.$watch = function(cb) {
-            watchers.push(cb);
-            return {
-               // Detaching current callback
-               detach: function() {
-                  var index = watchers.indexOf(cb);
-                  watchers.splice(index, 1);
-
-                  delete cb;
-               }
-            }
+(function() {
+   domain.service("$array", ['$http', '$resource', '$restEndPoint'], function($http, $resource, $restEndPoint) {
+      return function(a, b) {
+         var opts;
+         var array;
+         if (_.isArray(a)) {
+            array = a;
+            opts = b || {};
+         } else {
+            array = [];
+            opts = _.isPlainObject(a) ? a : {};
          }
-         // clean up array
-      array.$removeAll = function() {
-         array.splice(0, array.length);
-      }
+         var endpoint = opts.endpoint;
+         if (_.isString(a)) {
+            endpoint = a;
+         }
 
-      array.$empty = function() {
-         this.$removeAll();
-      }
 
-      // Completely destroys this.array
-      // Removes all elements
-      // Detaches all watchers
-      array.$destroy = function() {
-         array.$removeAll();
-         _.each(watchers, function(watcher) {
-            delete watcher;
-         })
-         watchers = undefined;
-         delete array
-      }
+         // Array has been already initialized
+         if (array.$watch)
+            return array;
 
-      // fetching is rest endpoint is provided
-      array.$fetch = function(params) {
-         var self = this;
-         return new Promise(function(resolve, reject) {
-            var params = params || {};
-            if (!endpoint) {
-               throw {
-                  message: "Can't fetch without the endpoint!"
+         var watchers = [];
+
+
+         var notify = function() {
+            var args = arguments;
+            _.each(watchers, function(watcher) {
+               if (watcher) {
+                  watcher.apply(null, args);
                }
-            }
-            var url = $restEndPoint(endpoint, params);
-
-            return $http.get(url, params).then(function(data) {
-               // If we get the result, removing everything
-               self.$removeAll();
-               _.each(data, function(item) {
-                  self.push($resource(item, {
-                     endpoint: endpoint,
-                     array : self
-                  }))
-               });
-               return resolve(self)
-            }).catch(reject);
-         })
-      }
-
-
-      // Adding new value to array
-      array.$add = function() {
-         var self = this;
-         var items = _.flatten(arguments);
-         return new Promise(function(resolve, reject) {
-            return domain.each(items, function(item) {
-               var data = _.isFunction(item.$getAttrs) ? item.$getAttrs() : data;
-               // Reset errors
-               if (item.$err) {
-                  item.$err = undefined;
-               }
-               // if api is restull need to perform a request
-               if (endpoint) {
-                  var url = $restEndPoint(endpoint, data);
-                  return $http.post(url, data)
-               }
-               return item;
-               //array.push(item)
-            }).then(function(newrecords) {
-               _.each(newrecords, function(item) {
-                  array.push($resource(item, {endpoint: endpoint, array : self}));
-               });
-
-               return resolve(newrecords);
-            }).catch(function(e) {
-
-               // Storing error message to items
-               _.each(items, function(item) {
-                  item.$err = e.message && e.message.message ? e.message.message : e;
-               });
-               // Continue here
-               return reject(e);
             })
-         })
-
-      }
-
-
-      // Watching variable size
-      array.size = array.length;
-
-      // overriding array properties
-      array.push = function(target) {
-            var target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
-            var push = Array.prototype.push.apply(this, [target]);
-            notify('push', target)
-            array.size = array.length;
-            return push;
          }
-         // Splicing (removing)
-      array.splice = function(index, howmany) {
-
-            notify('splice', index, howmany);
-            var sp = Array.prototype.splice.apply(this, arguments);
-            array.size = array.length;
-            return sp;
-         }
-         // Convinience methods
-      array.$remove = function(index) {
-         if (_.isObject(index)) {
-            index = this.indexOf(index);
-         }
-         return this.splice(index, 1);
-      }
 
 
+         array.$watch = function(cb) {
+               watchers.push(cb);
+               return {
+                  // Detaching current callback
+                  detach: function() {
+                     var index = watchers.indexOf(cb);
+                     watchers.splice(index, 1);
 
-      return array;
-   }
-})
-
-domain.service("$resource", ['$restEndPoint', '$http'], function($restEndPoint, $http){
-   return function(a, b){
-      var opts = {};
-      var obj;
-      var endpoint;
-
-      if ( _.isObject(a) ){
-         obj = a || {};
-         opts = b || {};
-         endpoint = opts.endpoint;
-      }
-      if (_.isString(a)){
-         endpoint = a;
-         obj = {};
-      }
-
-      var array = opts.array;
-
-      obj.$reset = function(){
-         _.each(this, function(v, k){
-            if ( !k.match(/^(\$|_)/)){
-              this[k] = undefined;
+                     delete cb;
+                  }
+               }
             }
-         }, this);
-      }
+            // clean up array
+         array.$removeAll = function() {
+            array.splice(0, array.length);
+         }
+
+         array.$empty = function() {
+            this.$removeAll();
+         }
+
+         // Completely destroys this.array
+         // Removes all elements
+         // Detaches all watchers
+         array.$destroy = function() {
+            array.$removeAll();
+            _.each(watchers, function(watcher) {
+               delete watcher;
+            })
+            watchers = undefined;
+            delete array
+         }
+
+         // fetching is rest endpoint is provided
+         array.$fetch = function(params) {
+            var self = this;
+            return new Promise(function(resolve, reject) {
+               var params = params || {};
+               if (!endpoint) {
+                  throw {
+                     message: "Can't fetch without the endpoint!"
+                  }
+               }
+               var url = $restEndPoint(endpoint, params);
+
+               return $http.get(url, params).then(function(data) {
+                  // If we get the result, removing everything
+                  self.$removeAll();
+                  _.each(data, function(item) {
+                     self.push($resource(item, {
+                        endpoint: endpoint,
+                        array: self
+                     }))
+                  });
+                  return resolve(self)
+               }).catch(reject);
+            })
+         }
 
 
-      obj.$fetch = function(o){
+         // Adding new value to array
+         array.$add = function() {
+            var self = this;
+            var items = _.flatten(arguments);
+            return new Promise(function(resolve, reject) {
+               return domain.each(items, function(item) {
+                  var data = _.isFunction(item.$getAttrs) ? item.$getAttrs() : data;
+                  // Reset errors
+                  if (item.$err) {
+                     item.$err = undefined;
+                  }
+                  // if api is restull need to perform a request
+                  if (endpoint) {
+                     var url = $restEndPoint(endpoint, data);
+                     return $http.post(url, data)
+                  }
+                  return item;
+                  //array.push(item)
+               }).then(function(newrecords) {
+                  _.each(newrecords, function(item) {
+                     array.push($resource(item, {
+                        endpoint: endpoint,
+                        array: self
+                     }));
+                  });
 
-         return new Promise(function(resolve, reject){
-            if (endpoint){
-               var pm = o || {};
-               var url = $restEndPoint(endpoint, pm);
-               $http.get(url, pm).then(function(data){
-                  _.each(data, function(v, k){
-                     obj[k] = v;
-                  })
-                  return resolve(obj)
-               }).catch(function(e){
-                  return reject(e)
+                  return resolve(newrecords);
+               }).catch(function(e) {
+
+                  // Storing error message to items
+                  _.each(items, function(item) {
+                     item.$err = e.message && e.message.message ? e.message.message :
+                        e;
+                  });
+                  // Continue here
+                  return reject(e);
                })
+            })
 
+         }
+
+
+         // Watching variable size
+         array.size = array.length;
+
+         // overriding array properties
+         array.push = function(target) {
+               var target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
+               var push = Array.prototype.push.apply(this, [target]);
+               notify('push', target)
+               array.size = array.length;
+               return push;
             }
-         })
-      }
+            // Splicing (removing)
+         array.splice = function(index, howmany) {
 
-      obj.$remove = function(){
-         return new Promise(function(resolve, reject){
-            // Removing from the parent array
-            if (endpoint){
-               var url = $restEndPoint(endpoint, obj);
-               $http.delete(url).then(function(){
+               notify('splice', index, howmany);
+               var sp = Array.prototype.splice.apply(this, arguments);
+               array.size = array.length;
+               return sp;
+            }
+            // Convinience methods
+         array.$remove = function(index) {
+            if (_.isObject(index)) {
+               index = this.indexOf(index);
+            }
+            return this.splice(index, 1);
+         }
+
+
+
+         return array;
+      }
+   });
+})();
+
+(function(){
+   domain.service("$resource", ['$restEndPoint', '$http'], function($restEndPoint, $http){
+      return function(a, b){
+         var opts = {};
+         var obj;
+         var endpoint;
+
+         if ( _.isObject(a) ){
+            obj = a || {};
+            opts = b || {};
+            endpoint = opts.endpoint;
+         }
+         if (_.isString(a)){
+            endpoint = a;
+            obj = {};
+         }
+
+         var array = opts.array;
+
+         obj.$reset = function(){
+            _.each(this, function(v, k){
+               if ( !k.match(/^(\$|_)/)){
+                 this[k] = undefined;
+               }
+            }, this);
+         }
+
+
+         obj.$fetch = function(o){
+
+            return new Promise(function(resolve, reject){
+               if (endpoint){
+                  var pm = o || {};
+                  var url = $restEndPoint(endpoint, pm);
+                  $http.get(url, pm).then(function(data){
+                     _.each(data, function(v, k){
+                        obj[k] = v;
+                     })
+                     return resolve(obj)
+                  }).catch(function(e){
+                     return reject(e)
+                  })
+
+               }
+            })
+         }
+
+         obj.$remove = function(){
+            return new Promise(function(resolve, reject){
+               // Removing from the parent array
+               if (endpoint){
+                  var url = $restEndPoint(endpoint, obj);
+                  $http.delete(url).then(function(){
+                     if ( array ){
+                        array.$remove(obj);
+                     }
+                     obj.$reset();
+                     return resolve()
+                  }).catch(function(){
+                     return reject(e)
+                  })
+               } else {
                   if ( array ){
                      array.$remove(obj);
+                     return resolve();
                   }
-                  obj.$reset();
-                  return resolve()
-               }).catch(function(){
-                  return reject(e)
-               })
-            } else {
-               if ( array ){
-                  array.$remove(obj);
-                  return resolve();
                }
-            }
-         })
-      }
-
-      return obj
-   }
-})
-
-domain.service("attrs.ws-click", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate){
-   var WsClick = TagAttribute.extend({
-      // Overriding default method
-      // (we don't need to create an attribute for this case)
-      create : function(){
-         var self = this;
-         var elementClicked = function(e){
-            var target = e.originalEvent ? e.originalEvent.target : e.target;
-            var data = $evaluate(self.attr, {
-               scope: self.scope,
-               element : target,
-               target : target.$scope,
-               watchVariables : false
-            });
-            delete elementClicked;
-            e.preventDefault();
+            })
          }
-         var evName = window.isMobile ? "touchend" : "click";
-         $(this.element).bind( evName, elementClicked)
+
+         return obj
       }
-   });
-   return WsClick;
-})
+   })
 
-domain.service("attrs.ws-drag", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate) {
-   var WsClick = TagAttribute.extend({
-      // Overriding default method
-      // (we don't need to create an attribute for this case)
-      create: function() {
-         var self = this;
+})();
 
-
-         var fireEvent = function(ev) {
-               var original = ev.e.originalEvent ? ev.e.originalEvent.target : ev.e.target;
-               ev.target = original.$scope;
-               ev.element = original;
+(function(){
+   domain.service("attrs.ws-click", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate){
+      var WsClick = TagAttribute.extend({
+         // Overriding default method
+         // (we don't need to create an attribute for this case)
+         create : function(){
+            var self = this;
+            var elementClicked = function(e){
+               var target = e.originalEvent ? e.originalEvent.target : e.target;
                var data = $evaluate(self.attr, {
                   scope: self.scope,
-                  target: ev,
-                  watchVariables: false
+                  element : target,
+                  target : target.$scope,
+                  watchVariables : false
                });
-               event.preventDefault();
+               delete elementClicked;
+               e.preventDefault();
             }
-            // Binding events
-
-         var m = window.isMobile;
-         $(this.element).bind(m ? "touchstart" : "mousedown", function(e) {
-            var startCoords = {
-               x: e.clientX,
-               y: e.clientY
-            }
-            fireEvent({
-               e : e,
-               coords: startCoords,
-               type: "start"
-            })
-            $(this).bind( m ? "touchmove" : "mousemove", function(e) {
-               var x = startCoords.x - e.clientX;
-               var y = startCoords.y - e.clientY
-               var coords = {
-                  x: x,
-                  y: y,
-                  dy : y < 0 ? "down" : "up",
-                  dx : x < 0 ? "right" : "left"
-               }
-               fireEvent({
-                  e : e,
-                  coords: coords,
-                  type: "move"
-               });
-            })
-            $(this).bind( m ? "touchend touchleave touchcancel" : "mouseup", function(e) {
-               fireEvent({
-                  e: e,
-                  type: "stop"
-               });
-               $(this).unbind("mouseup mousemove")
-            })
-         });
-      }
-
+            var evName = window.isMobile ? "touchend" : "click";
+            $(this.element).bind( evName, elementClicked)
+         }
+      });
+      return WsClick;
    });
-   return WsClick;
-})
+})();
 
-domain.service("attrs.ws-href", ['TagAttribute', '$history'],
-   function(TagAttribute, $history) {
-      var WsVisible = TagAttribute.extend({
+(function() {
+   domain.service("attrs.ws-drag", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate) {
+      var WsClick = TagAttribute.extend({
          // Overriding default method
          // (we don't need to create an attribute for this case)
          create: function() {
-            this.watcher = this.startWatching();
-         },
-         onValue: function(v) {
+            var self = this;
 
-            if ( v && v.str){
-               var link = v.str;
 
-               if ( this.element.nodeName === "A"){
-                  $(this.element)
-                     .attr("href", link)
+            var fireEvent = function(ev) {
+                  var original = ev.e.originalEvent ? ev.e.originalEvent.target : ev.e.target;
+                  ev.target = original.$scope;
+                  ev.element = original;
+                  var data = $evaluate(self.attr, {
+                     scope: self.scope,
+                     target: ev,
+                     watchVariables: false
+                  });
+                  event.preventDefault();
                }
+               // Binding events
 
-                  $(this.element).click(function(event){
+            var m = window.isMobile;
+            $(this.element).bind(m ? "touchstart" : "mousedown", function(e) {
+               var startCoords = {
+                  x: e.clientX,
+                  y: e.clientY
+               }
+               fireEvent({
+                  e: e,
+                  coords: startCoords,
+                  type: "start"
+               })
+               $(this).bind(m ? "touchmove" : "mousemove", function(e) {
+                  var x = startCoords.x - e.clientX;
+                  var y = startCoords.y - e.clientY
+                  var coords = {
+                     x: x,
+                     y: y,
+                     dy: y < 0 ? "down" : "up",
+                     dx: x < 0 ? "right" : "left"
+                  }
+                  fireEvent({
+                     e: e,
+                     coords: coords,
+                     type: "move"
+                  });
+               })
+               $(this).bind(m ? "touchend touchleave touchcancel" : "mouseup", function(e) {
+                  fireEvent({
+                     e: e,
+                     type: "stop"
+                  });
+                  $(this).unbind("mouseup mousemove")
+               })
+            });
+         }
+
+      });
+      return WsClick;
+   });
+})();
+
+(function() {
+
+
+   domain.service("attrs.ws-href", ['TagAttribute', '$history'],
+      function(TagAttribute, $history) {
+         var WsVisible = TagAttribute.extend({
+            // Overriding default method
+            // (we don't need to create an attribute for this case)
+            create: function() {
+               this.watcher = this.startWatching();
+            },
+            onValue: function(v) {
+
+               if (v && v.str) {
+                  var link = v.str;
+
+                  if (this.element.nodeName === "A") {
+                     $(this.element)
+                        .attr("href", link)
+                  }
+
+                  $(this.element).click(function(event) {
                      event.preventDefault();
                      $history.go(link);
                   })
+               }
             }
-         }
-      });
-      return WsVisible;
-   })
+         });
+         return WsVisible;
+      })
+})();
 
 (function(){
    domain.service("attrs.ws-submit", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate) {
@@ -2538,109 +2555,113 @@ domain.service("attrs.ws-href", ['TagAttribute', '$history'],
    
 })();
 
-domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate){
-   var WsVisible = TagAttribute.extend({
-      // Overriding default method
-      // (we don't need to create an attribute for this case)
-      create : function(){
-         this.watcher = this.startWatching();
-      },
-      startWatching : function(){
-         var self = this;
-         var selfCheck = false;
-         // Binding variable
-         var watcher = $evaluate(this.attr, {
+(function() {
+   domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate) {
+      var WsVisible = TagAttribute.extend({
+         // Overriding default method
+         // (we don't need to create an attribute for this case)
+         create: function() {
+            this.watcher = this.startWatching();
+         },
+         startWatching: function() {
+            var self = this;
+            var selfCheck = false;
+            // Binding variable
+            var watcher = $evaluate(this.attr, {
                scope: this.scope,
                changed: function(data) {
 
-                  if ( selfCheck === false){
+                  if (selfCheck === false) {
                      self.setValue(data.str);
                   }
                   selfCheck = false;
-                  
+
                }
-         });
+            });
 
-         // Extracting the first variable defined
-         var variable;
-         if ( watcher.locals && watcher.locals.length === 1 ){
-            variable = watcher.locals[0];
-         }
-         this.bindActions(function(newValue){
-            if ( variable ) {
-               selfCheck = true;
-               variable.value.update(newValue);
+            // Extracting the first variable defined
+            var variable;
+            if (watcher.locals && watcher.locals.length === 1) {
+               variable = watcher.locals[0];
             }
-         })
-         // !Important!
-         // Return the watcher!
-         return watcher;
-      },
-      setValue : function(v){
-         $(this.element).val(v);
-      },
-      bindActions : function(cb){
-         var self = this;
-			var nodeName = this.element.nodeName.toLowerCase();
-			var elType = $(this.element).attr('type');
-			if (nodeName === 'textarea'){
-				elType = nodeName;
-         }
-			if (nodeName === 'select'){
-				elType = nodeName;
-         }
-			if (nodeName === 'input' && !elType) {
-				elType = 'text';
-			}
-			switch (elType) {
-				case 'text':
-				case 'email':
-				case 'password':
-				case 'textarea':
-					this.element.addEventListener("keydown", function(evt) {
-                  var _that = this;
-						clearInterval(self.interval);
-						self.interval = setTimeout(function() {
-							cb($(_that).val())
-						}, 50);
-					}, false);
-					break;
-				case 'checkbox':
-					this.element.addEventListener("click", function(evt) {
-						cb(this.checked);
-					});
-					break;
-				case 'select':
-					$(this.element).bind('change', function() {
-						var value = $(this).val();
-						var cel = $(this).find("option:selected");
-						if (cel.length) {
-						}
-					});
-					break;
-			}
-      }
-   });
-   return WsVisible;
-})
-
-domain.service("attrs.ws-visible", ['TagAttribute'], function(TagAttribute){
-   var WsVisible = TagAttribute.extend({
-      // Overriding default method
-      // (we don't need to create an attribute for this case)
-      create : function(){
-         this.watcher = this.startWatching();
-      },
-      onExpression : function(expression){
-         if ( expression ){
-         //   console.log("Bllody visible",expression.value)
-            if ( expression.value ){
-               $(this.element).show(0);
-            } else {
-               $(this.element).hide(0);
+            this.bindActions(function(newValue) {
+                  if (variable) {
+                     selfCheck = true;
+                     variable.value.update(newValue);
+                  }
+               })
+               // !Important!
+               // Return the watcher!
+            return watcher;
+         },
+         setValue: function(v) {
+            $(this.element).val(v);
+         },
+         bindActions: function(cb) {
+            var self = this;
+            var nodeName = this.element.nodeName.toLowerCase();
+            var elType = $(this.element).attr('type');
+            if (nodeName === 'textarea') {
+               elType = nodeName;
+            }
+            if (nodeName === 'select') {
+               elType = nodeName;
+            }
+            if (nodeName === 'input' && !elType) {
+               elType = 'text';
+            }
+            switch (elType) {
+               case 'text':
+               case 'email':
+               case 'password':
+               case 'textarea':
+                  this.element.addEventListener("keydown", function(evt) {
+                     var _that = this;
+                     clearInterval(self.interval);
+                     self.interval = setTimeout(function() {
+                        cb($(_that).val())
+                     }, 50);
+                  }, false);
+                  break;
+               case 'checkbox':
+                  this.element.addEventListener("click", function(evt) {
+                     cb(this.checked);
+                  });
+                  break;
+               case 'select':
+                  $(this.element).bind('change', function() {
+                     var value = $(this).val();
+                     var cel = $(this).find("option:selected");
+                     if (cel.length) {}
+                  });
+                  break;
             }
          }
-      }
-   });
-   return WsVisible;
-})
+      });
+      return WsVisible;
+   })
+
+})();
+
+(function(){
+   domain.service("attrs.ws-visible", ['TagAttribute'], function(TagAttribute){
+      var WsVisible = TagAttribute.extend({
+         // Overriding default method
+         // (we don't need to create an attribute for this case)
+         create : function(){
+            this.watcher = this.startWatching();
+         },
+         onExpression : function(expression){
+            if ( expression ){
+            //   console.log("Bllody visible",expression.value)
+               if ( expression.value ){
+                  $(this.element).show(0);
+               } else {
+                  $(this.element).hide(0);
+               }
+            }
+         }
+      });
+      return WsVisible;
+   })
+})();
