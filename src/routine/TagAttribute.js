@@ -17,20 +17,20 @@ domain.service("TagAttribute", ['$evaluate'],function($evaluate){
       },
       startWatching : function(){
          var self = this;
-         
+
          return $evaluate(this.attr, {
             scope: this.scope,
             changed: function(data) {
                // If we have a custom listener
                if ( self.onExpression ){
                   if ( data.expressions &&  data.expressions.length > 0){
-                     self.onExpression( data.expressions[0] )
+                     self.onExpression.bind(self)( data.expressions[0] )
                   } else {
-                     self.onExpression()
+                     self.onExpression.bind(self)()
                   }
                } else {
                   if ( self.onValue ){
-                     self.onValue(data);
+                     self.onValue.bind(self)(data);
                   }
                }
             }

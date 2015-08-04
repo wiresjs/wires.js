@@ -1,3 +1,4 @@
+<a href="#" ws-href="/kukka">KUKKA</a>
 <h1>Forms $some.name</h1>
 <table width="100%">
    <tr>
@@ -7,16 +8,54 @@
          <form ws-submit="{{ $create() }}">
             <input type="text" ws-value="$form.name"/>
 
-            <input type="submit" value="add"/>
+
+            <hr>
+
+
+            <div>
+               Age is $form.age
+            </div>
+            <select ws-value="$form.age">
+               <option ws-repeat="$age in $ages" ws-value="$age.value">$age.age</option>
+            </select>
+            <hr>
+            <div>
+               <input type="submit" value="add"/>
+            </div>
             <div style="color:red" ws-visible="$form.$err">
                $form.$err
             </div>
+
+            <!-- Checkboxes and array list -->
+            <hr>
+            <div>Checkboxes list</div>
+            <div ws-repeat="$item in $items">
+               <input type="checkbox" ws-value="$item.id" ws-checked="$parent.form.ids"> $item.title
+            </div>
+            <!-- <div style="padding:3px; border:1px solid gray">
+               Selected values:
+               <ul>
+                  <li ws-repeat="$id in $form.ids">$id</li>
+               </ul>
+            </div> -->
+            <!-- Checkboxes true/false -->
+            <hr>
+            <div>Checkboxes true/false</div>
+
+            <input type="checkbox" ws-value="$agree" ws-checked="$agree">I agree ($agree)
+            <div>
+               <span ws-if="{{ !$agree}}" style="color:red">You must agree</span>
+            </div>
+
+
+
+
          </form>
 
       </td>
       <td valign="top" style="border:1px solid #ececec; padding:10px;">
 
-         <div ws-if="{{ $showList }}">
+         <div>
             <div ws-repeat="$user in $users">
                $user.name (<a href="#" ws-click="{{ $user.$remove() }}">remove</a>)
             </div>

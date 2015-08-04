@@ -33,7 +33,14 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
             // Removing all watchers from the attributes
    			_.each(self.attributes, function(attribute){
                if( attribute.watcher){
-   			      attribute.watcher.detach();
+                  if (_.isArray(attribute.watcher)){
+                     _.each(attribute.watcher, function(w){
+                        console.log("detach", w)
+                        w.detach();
+                     })
+                  } else {
+   			            attribute.watcher.detach();
+                  }
                }
                if ( _.isFunction(attribute.detach) ){
                   attribute.detach();

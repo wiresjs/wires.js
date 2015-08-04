@@ -9,13 +9,16 @@
          if ( !instance.$watchers ){
             instance.$watchers = {};
          }
-         if (!_.isObject(instance) && _.isString(property) )
-            return;
-
          // prototyping array if it was not
          if ( _.isArray(instance) ){
             instance = $array(instance)
+            console.log("watch", instance)
          }
+
+         if (!_.isObject(instance) && _.isString(property) )
+            return;
+
+
 
 
          // detecting if property has been requested to be watched
@@ -27,7 +30,7 @@
          }
 
          if ( instance.$watchers[property].length === 1 ){
-            
+
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback){
                   _callback(b, newvalue);

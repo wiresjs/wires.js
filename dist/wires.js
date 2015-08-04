@@ -1392,13 +1392,16 @@ var Wires = Wires || {};
          if ( !instance.$watchers ){
             instance.$watchers = {};
          }
-         if (!_.isObject(instance) && _.isString(property) )
-            return;
-
          // prototyping array if it was not
          if ( _.isArray(instance) ){
             instance = $array(instance)
+            console.log("watch", instance)
          }
+
+         if (!_.isObject(instance) && _.isString(property) )
+            return;
+
+
 
 
          // detecting if property has been requested to be watched
@@ -1410,7 +1413,7 @@ var Wires = Wires || {};
          }
 
          if ( instance.$watchers[property].length === 1 ){
-            
+
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback){
                   _callback(b, newvalue);
@@ -1472,29 +1475,33 @@ var Wires = Wires || {};
    })
 })();
 
-(function(){
-   domain.service("$form", function(){
+(function() {
+   domain.service("$form", function() {
 
-      return function(){
+      return function() {
          var form = {};
 
          // Filter out system and private  objects
          // $ - system
          // _ - private
-         form.$getAttrs = function(){
+         form.$getAttrs = function() {
             var attrs = {};
-            _.each(this, function(v, k){
-               if ( !k.match(/^(\$|_)/)){
+            _.each(this, function(v, k) {
+               if (!k.match(/^(\$|_)/)) {
                   attrs[k] = v;
 
                }
             })
             return attrs;
          }
-         form.$reset = function(){
-            _.each(this, function(v, k){
-               if ( !k.match(/^(\$|_)/)){
-                 this[k] = undefined;
+         form.$reset = function() {
+            _.each(this, function(v, k) {
+               if (!k.match(/^(\$|_)/)) {
+                  if (_.isArray(this[k])) {
+                     this[k].$removeAll();
+                  } else {
+                     this[k] = undefined;
+                  }
                }
             }, this);
          }
@@ -1943,7 +1950,13 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          // This should not happen
          // But just in case we should check this case
          $watch(targetVars.vars.$_v1.p, this.scope, function(oldArray, newvalue){
-            throw { message : "You can't assign a new array. Use "+targetVars.vars.$_v1.p+".$removeAll() instead"}
+            //throw { message : "You can't assign a new array. Use "+targetVars.vars.$_v1.p+".$removeAll() instead"}
+            self.array = $array(newvalue);
+            if ( !self.element){
+               self.element = document.createComment('repeat ' + self.scopeKey);
+               self.parent.addChild(self)
+            }
+            self.assign();
          })
 
 
@@ -1957,10 +1970,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
 
          // Create a placeholder
          this.element = document.createComment('repeat ' + this.scopeKey);
-         this.parent.addChild(this)
-
-         this.parent.addChild(this)
-
+         this.parent.addChild(this);
          this.assign();
       },
       assign : function(){
@@ -1999,8 +2009,10 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          var cNode = afterElement.node ? afterElement.node.element : afterElement;
          cNode.parentNode.insertBefore(parentNode.element, cNode.nextSibling);
          //$(parentNode.element).insertAfter((afterElement.node ? afterElement.node.element : afterElement ) )
-         this._arrayElements.push({ node : parentNode, localScope : localScope} )
 
+         this._arrayElements.push({ node : parentNode, localScope : localScope} )
+         this.element.$scope = localScope;
+         this.element.$tag = self;
          //Running children
          this.run({
             structure   : parentDom.c || [],
@@ -2055,20 +2067,20 @@ domain.service("TagAttribute", ['$evaluate'],function($evaluate){
       },
       startWatching : function(){
          var self = this;
-         
+
          return $evaluate(this.attr, {
             scope: this.scope,
             changed: function(data) {
                // If we have a custom listener
                if ( self.onExpression ){
                   if ( data.expressions &&  data.expressions.length > 0){
-                     self.onExpression( data.expressions[0] )
+                     self.onExpression.bind(self)( data.expressions[0] )
                   } else {
-                     self.onExpression()
+                     self.onExpression.bind(self)()
                   }
                } else {
                   if ( self.onValue ){
-                     self.onValue(data);
+                     self.onValue.bind(self)(data);
                   }
                }
             }
@@ -2150,7 +2162,14 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
             // Removing all watchers from the attributes
    			_.each(self.attributes, function(attribute){
                if( attribute.watcher){
-   			      attribute.watcher.detach();
+                  if (_.isArray(attribute.watcher)){
+                     _.each(attribute.watcher, function(w){
+                        console.log("detach", w)
+                        w.detach();
+                     })
+                  } else {
+   			            attribute.watcher.detach();
+                  }
                }
                if ( _.isFunction(attribute.detach) ){
                   attribute.detach();
@@ -2475,6 +2494,81 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
 })();
 
 (function(){
+   domain.service("attrs.ws-checked", ['TagAttribute', '$array'],
+      function(TagAttribute, $array) {
+         var WsOption = TagAttribute.extend({
+            create: function() {
+
+               var currentVar = this.element.$variable;
+               if ( currentVar){
+                  this.currentValue = currentVar.value.value;
+               }
+               this.watcher = [];
+               this.watcher.push(this.startWatching())
+
+               this.arrayWatcher = false;
+            },
+            onValue: function(v) {
+               var self = this;
+               if ( this.selfUpdate === true){
+                  this.selfUpdate = false;
+                  return;
+               }
+               var targetObject = v.locals[0].value;
+               var targetValue = v.locals[0].value.value;
+               this.element.$checked =  targetObject;
+
+               if ( _.isArray(targetValue) ){
+                  // Convert to $array object just in case
+                  targetValue = $array(targetValue);
+
+                  // Check if this array is watched
+                  if ( !this.arrayWatcher){
+                     this.watcherCreated = true;
+                     this.arrayWatcher = targetValue.$watch(function(event, start, end){
+                        var isChecked;
+                        if ( event === "splice"){
+                           var index = v;
+                           // Getting spliced objects
+
+                           for(var i = start; i<= end; i++){
+                              var modifiedValue = targetValue[i]
+
+                              if ( modifiedValue === self.currentValue){
+                                 if ( self.element.checked === true){
+                                    self.element.checked = false;
+                                 }
+                              }
+                           }
+                        } else {
+                           if ( self.currentValue === start){
+                              var isChecked = targetValue.indexOf(start) > -1;
+                              self.element.checked = isChecked
+                           }
+                        }
+                     });
+                     self.watcher.push(self.arrayWatcher);
+                  }
+                  if ( this.currentValue ){
+                     var isChecked = targetValue.indexOf(this.currentValue) > -1;
+                     if ( isChecked ){
+                        this.element.checked = true;
+
+                     } else {
+                        this.element.checked = false;
+                     }
+                  }
+               } else {
+                  this.selfUpdate = true;
+                  targetObject.update(!targetValue ? false : true);
+               }
+            }
+         });
+         return WsOption;
+      })
+})();
+
+(function(){
    domain.service("attrs.ws-click", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate){
       var WsClick = TagAttribute.extend({
          // Overriding default method
@@ -2655,14 +2749,18 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
             });
 
             // Extracting the first variable defined
-            var variable;
+            this.variable;
             if (watcher.locals && watcher.locals.length === 1) {
-               variable = watcher.locals[0];
+               this.variable = watcher.locals[0];
             }
+            // store variable to the element
+            this.element.$variable = this.variable;
+
             this.bindActions(function(newValue) {
-                  if (variable) {
+                  if (self.variable) {
                      selfCheck = true;
-                     variable.value.update(newValue);
+
+                     self.variable.value.update(newValue);
                   }
                })
                // !Important!
@@ -2682,9 +2780,13 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
             if (nodeName === 'select') {
                elType = nodeName;
             }
+            if (nodeName === 'option') {
+               elType = nodeName;
+            }
             if (nodeName === 'input' && !elType) {
                elType = 'text';
             }
+
             switch (elType) {
                case 'text':
                case 'email':
@@ -2700,18 +2802,78 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
                   break;
                case 'checkbox':
                   this.element.addEventListener("click", function(evt) {
-                     cb(this.checked);
+                     var target = this.$checked;
+
+                     if ( _.isArray(target.value) ){
+
+                        var currValue = self.variable.value.value;
+                        var index = target.value.indexOf(currValue);
+
+                        if ( this.checked ){
+                           if ( index === - 1 ){
+                              target.value.push(currValue);
+                           }
+                        } else {
+                           // Removing value from an array
+                           if ( index > - 1 ){
+                              target.value.splice(index, 1)
+                           }
+                        }
+
+                     } else {
+                        self.variable.value.update(this.checked)
+                     }
                   });
                   break;
+               case 'option':
+
+               break;
                case 'select':
-                  $(this.element).bind('change', function() {
-                     var value = $(this).val();
-                     var cel = $(this).find("option:selected");
-                     if (cel.length) {}
+                  $(this.element).change(function() {
+                     var value = self.detectSelectValue();
+                     cb(value);
+                  });
+                  _.defer(function(){
+                     // If we have set the variable beforehand
+                     if ( self.variable.value.value !== undefined){
+                        self.setValue(self.variable.value.value);
+                     } else {
+                        // In Any other case
+                        // we should update variable with first option
+                        var firstValue = self.detectSelectValue(true)
+                        self.variable.value.update(firstValue);
+                     }
                   });
                   break;
             }
-         }
+         },
+         detectSelectValue: function(first) {
+            var value;
+            $(this.element).find(first ? "option:first" : "option:selected").each(function() {
+
+               var el = this;
+               var tag = this.$tag;
+               // in case of option
+               var storedVariable = this.$variable;
+               if ( storedVariable ){
+                  value = storedVariable.value.value
+               } else {
+                  // Checking the value from simple attribute "value"
+                  _.each(tag.attributes, function(attr) {
+                     if (attr.name === "value") {
+                        value = $(el).val();
+                     }
+                  });
+                  // if value is stil undefined
+                  // try to get it from html
+                  if (value === undefined) {
+                     value = $(el).html();
+                  }
+               }
+
+            });
+            return value;
+         },
       });
       return WsVisible;
    })
@@ -2743,8 +2905,9 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
 
 domain.service("controllers.Kukka", function($array, $form, $resource, $restEndPoint) {
    return ['kukka.html', function() {
-      
+
 
       window.ctrl = this;
+      ctrl.users = [{name : "ivan"}, {name : "samuli"}]
    }]
 })

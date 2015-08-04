@@ -23,14 +23,18 @@
             });
 
             // Extracting the first variable defined
-            var variable;
+            this.variable;
             if (watcher.locals && watcher.locals.length === 1) {
-               variable = watcher.locals[0];
+               this.variable = watcher.locals[0];
             }
+            // store variable to the element
+            this.element.$variable = this.variable;
+
             this.bindActions(function(newValue) {
-                  if (variable) {
+                  if (self.variable) {
                      selfCheck = true;
-                     variable.value.update(newValue);
+
+                     self.variable.value.update(newValue);
                   }
                })
                // !Important!
@@ -50,9 +54,13 @@
             if (nodeName === 'select') {
                elType = nodeName;
             }
+            if (nodeName === 'option') {
+               elType = nodeName;
+            }
             if (nodeName === 'input' && !elType) {
                elType = 'text';
             }
+
             switch (elType) {
                case 'text':
                case 'email':
@@ -68,18 +76,78 @@
                   break;
                case 'checkbox':
                   this.element.addEventListener("click", function(evt) {
-                     cb(this.checked);
+                     var target = this.$checked;
+
+                     if ( _.isArray(target.value) ){
+
+                        var currValue = self.variable.value.value;
+                        var index = target.value.indexOf(currValue);
+
+                        if ( this.checked ){
+                           if ( index === - 1 ){
+                              target.value.push(currValue);
+                           }
+                        } else {
+                           // Removing value from an array
+                           if ( index > - 1 ){
+                              target.value.splice(index, 1)
+                           }
+                        }
+
+                     } else {
+                        self.variable.value.update(this.checked)
+                     }
                   });
                   break;
+               case 'option':
+
+               break;
                case 'select':
-                  $(this.element).bind('change', function() {
-                     var value = $(this).val();
-                     var cel = $(this).find("option:selected");
-                     if (cel.length) {}
+                  $(this.element).change(function() {
+                     var value = self.detectSelectValue();
+                     cb(value);
+                  });
+                  _.defer(function(){
+                     // If we have set the variable beforehand
+                     if ( self.variable.value.value !== undefined){
+                        self.setValue(self.variable.value.value);
+                     } else {
+                        // In Any other case
+                        // we should update variable with first option
+                        var firstValue = self.detectSelectValue(true)
+                        self.variable.value.update(firstValue);
+                     }
                   });
                   break;
             }
-         }
+         },
+         detectSelectValue: function(first) {
+            var value;
+            $(this.element).find(first ? "option:first" : "option:selected").each(function() {
+
+               var el = this;
+               var tag = this.$tag;
+               // in case of option
+               var storedVariable = this.$variable;
+               if ( storedVariable ){
+                  value = storedVariable.value.value
+               } else {
+                  // Checking the value from simple attribute "value"
+                  _.each(tag.attributes, function(attr) {
+                     if (attr.name === "value") {
+                        value = $(el).val();
+                     }
+                  });
+                  // if value is stil undefined
+                  // try to get it from html
+                  if (value === undefined) {
+                     value = $(el).html();
+                  }
+               }
+
+            });
+            return value;
+         },
       });
       return WsVisible;
    })

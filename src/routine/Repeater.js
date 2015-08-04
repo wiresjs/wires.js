@@ -23,7 +23,13 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          // This should not happen
          // But just in case we should check this case
          $watch(targetVars.vars.$_v1.p, this.scope, function(oldArray, newvalue){
-            throw { message : "You can't assign a new array. Use "+targetVars.vars.$_v1.p+".$removeAll() instead"}
+            //throw { message : "You can't assign a new array. Use "+targetVars.vars.$_v1.p+".$removeAll() instead"}
+            self.array = $array(newvalue);
+            if ( !self.element){
+               self.element = document.createComment('repeat ' + self.scopeKey);
+               self.parent.addChild(self)
+            }
+            self.assign();
          })
 
 
@@ -37,10 +43,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
 
          // Create a placeholder
          this.element = document.createComment('repeat ' + this.scopeKey);
-         this.parent.addChild(this)
-
-         this.parent.addChild(this)
-
+         this.parent.addChild(this);
          this.assign();
       },
       assign : function(){
@@ -79,8 +82,10 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          var cNode = afterElement.node ? afterElement.node.element : afterElement;
          cNode.parentNode.insertBefore(parentNode.element, cNode.nextSibling);
          //$(parentNode.element).insertAfter((afterElement.node ? afterElement.node.element : afterElement ) )
-         this._arrayElements.push({ node : parentNode, localScope : localScope} )
 
+         this._arrayElements.push({ node : parentNode, localScope : localScope} )
+         this.element.$scope = localScope;
+         this.element.$tag = self;
          //Running children
          this.run({
             structure   : parentDom.c || [],
