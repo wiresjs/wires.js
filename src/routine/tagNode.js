@@ -35,7 +35,7 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
                if( attribute.watcher){
                   if (_.isArray(attribute.watcher)){
                      _.each(attribute.watcher, function(w){
-                        console.log("detach", w)
+                     
                         w.detach();
                      })
                   } else {

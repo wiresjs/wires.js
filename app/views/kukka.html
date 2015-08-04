@@ -1,8 +1,11 @@
 <a href="#" ws-href="/test">TEST</a>
 <h2>Kukka $name</h2>
 <input type="text" ws-value="$name"/>
-
-
+<hr>
+<div ws-if="{{ $name === 'ivan' }}" ws-bind="$testData.some">
+   $name
+</div>
+<hr>
 <ul>
    <li style="color: {{ $parent.name === 'bang' ? 'red' : 'blue' }}" ws-repeat="$user in $users">$user.name ( parent name $parent.name)</li>
 </ul>

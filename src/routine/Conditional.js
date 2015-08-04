@@ -1,6 +1,6 @@
 (function() {
-   domain.service("Conditional", ['TagNode', '$pathObject', '$array', '$watch', '$evaluate'], function(TagNode, $pathObject,
-      $array, $watch, $evaluate) {
+   domain.service("Conditional", ['TagNode', '$pathObject', '$array', '$watch', '$evaluate', '$pathObject'], function(TagNode, $pathObject,
+      $array, $watch, $evaluate, $pathObject) {
       return Wires.Class.extend({
          initialize: function(opts) {
             var self = this;
@@ -11,6 +11,18 @@
 
 
             var parentDom = self.item.c[0];
+
+            // Checking new scope
+            this.attachedScopePath;
+            if ( parentDom.a && parentDom.a["ws-bind"] ){
+               var wsBind = parentDom.a["ws-bind"];
+               if ( _.values(wsBind.vars).length > 0 ){
+                  var newScope =  _.values(wsBind.vars)[0]
+                  delete parentDom.a["ws-bind"];
+                  this.attachedScopePath = newScope.p;
+               }
+            }
+
             this.element = document.createComment(' if ');
             this.parent.addChild(this)
 
@@ -28,15 +40,20 @@
                         // Only if element was removed
                         // We don't want to re-create it all the time
                         if ( self.parentElement === undefined ){
-                           var parentNode = new TagNode(parentDom, self.scope);
+                           // check for modified SCOPE
+                           var scope = self.scope;
+                           if ( self.attachedScopePath ){
+                              scope = $pathObject(self.attachedScopePath, scope).value
+                           }
+                           var parentNode = new TagNode(parentDom, scope);
                            parentNode.create();
                            self.parentElement = parentNode.element;
-                           
+
                            // Kicking of the run with parent's children
                            self.run({
                               structure   : parentDom.c || [],
                               parentNode  : parentNode,
-                              scope       : self.scope
+                              scope       : scope
                            });
                            self.element.parentNode.insertBefore(parentNode.element, self.element.nextSibling);
                         }
