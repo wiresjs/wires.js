@@ -13,6 +13,7 @@
             var parentDom = self.item.c[0];
 
             // Checking new scope
+            // TODO: move to compiler
             this.attachedScopePath;
             if ( parentDom.a && parentDom.a["ws-bind"] ){
                var wsBind = parentDom.a["ws-bind"];

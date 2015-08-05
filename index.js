@@ -63,12 +63,26 @@ var preCompile = function(str, opts) {
                p: path
             }
          }
-      })
-
+      });
       return _out;
    }
 
    var _out = {};
+
+   // Extract proxies
+   var proxies = /\$(\w+):([a-zA-Z-0-9._]+)/g.execAll(str)
+   _.each(proxies, function(_proxy){
+      var key = "$_p" + _counter++;
+
+      str = str.split(_proxy[0]).join(key);
+      var proxyName = _proxy[1];
+      var proxyKey = _proxy[2];
+      if (!_out.x){
+          _out.x = {}
+      }
+      _out.x[key] = { n : proxyName, k : proxyKey}
+   })
+
    // Expressions within {{  }}
    // ******************************************************
    var expressions = /\{\{([^\}]+)\}\}/g.execAll(str)
@@ -295,7 +309,7 @@ module.exports = {
                   if ( cache ){
                      _cachedViews = js;
                   }
-                  
+
                   res.setHeader('content-type', 'text/javascript');
                   res.send(js)
                })

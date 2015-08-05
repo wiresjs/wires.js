@@ -6,36 +6,15 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
          this.scope = scope;
 
          this.children = [];
-      },
-      create : function(parent, insertAfter){
-         this.element = document.createElement(this.item.n);
-         this.element.$scope = this.scope;
-         this.element.$tag = this;
-
-         if ( parent ){
-            parent.addChild(this);
-         }
-         this.startWatching();
-         return this.element;
-      },
-      addChild : function(child){
-         $(this.element).append(child.element);
-         this.children.push(child);
-      },
-      // Create attributes here
-      // Watching if dom Removed
-      startWatching : function(){
          var self = this;
 
-         this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
-         var listener = function() {
-
+         this.detachAllEvents = function() {
             // Removing all watchers from the attributes
    			_.each(self.attributes, function(attribute){
                if( attribute.watcher){
                   if (_.isArray(attribute.watcher)){
                      _.each(attribute.watcher, function(w){
-                     
+
                         w.detach();
                      })
                   } else {
@@ -50,6 +29,7 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
             // TextNode should be triggered manually
             // So we iterate over each text node
             // And detach watchers manually
+
             _.each(self.children, function(child){
 
                if ( child.watchers){
@@ -62,17 +42,45 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
                delete child;
             });
             $(self.element).unbind();
-            self.element.removeEventListener("DOMNodeRemovedFromDocument", listener)
+            if ( self.element ){
+               self.element.removeEventListener("DOMNodeRemovedFromDocument", self.detachAllEvents)
+            }
             // Cleaning up stuff we don't need
             delete self.attributes;
             delete self.children;
-            delete self.element.$scope;
-            delete self.element.$tag;
+            if ( self.element){
+               delete self.element.$scope;
+               delete self.element.$tag;
+            }
             delete self.element;
-            delete listener;
-
          }
-         self.element.addEventListener("DOMNodeRemovedFromDocument", listener);
+      },
+      setElement : function(element){
+         this.element = element;
+         this.element.$scope = this.scope;
+         this.element.$tag = this;
+      },
+      create : function(parent){
+         this.setElement(document.createElement(this.item.n));
+         if ( parent ){
+            parent.addChild(this);
+         }
+         this.startWatching();
+         return this.element;
+      },
+      addChild : function(child){
+         $(this.element).append(child.element);
+         this.children.push(child);
+      },
+      attachGarbageCollector : function(){
+         this.element.addEventListener("DOMNodeRemovedFromDocument", this.detachAllEvents);
+      },
+      // Create attributes here
+      // Watching if dom Removed
+      startWatching : function(){
+         var self = this;
+         this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
+         this.attachGarbageCollector();
       }
    });
 });

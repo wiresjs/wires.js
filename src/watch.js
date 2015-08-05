@@ -1,5 +1,6 @@
 (function(){
-   domain.service("$watch", ['$pathObject', '$array'], function($pathObject, $array){
+   var _proxies = {};
+   domain.service("$watch", ['$pathObject', '$array', '$projectProxies'], function($pathObject, $array, $projectProxies){
       return function(path, scope, cb){
 
          var pathObject = $pathObject(path, scope);
@@ -12,13 +13,10 @@
          // prototyping array if it was not
          if ( _.isArray(instance) ){
             instance = $array(instance)
-            console.log("watch", instance)
          }
 
          if (!_.isObject(instance) && _.isString(property) )
             return;
-
-
 
 
          // detecting if property has been requested to be watched
@@ -33,6 +31,7 @@
 
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback){
+               //   console.log("changed")
                   _callback(b, newvalue);
                });
                return newvalue;
@@ -41,6 +40,7 @@
 
          return {
             remove : function(){
+
                var index = instance.$watchers[property].indexOf(cb);
                instance.$watchers[property].splice(index, 1);
 

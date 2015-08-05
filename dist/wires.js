@@ -1108,8 +1108,8 @@ var Wires = Wires || {};
 })();
 
 (function() {
-   domain.service("$evaluate", ['$watch', '$pathObject', '$exec'],
-      function( $watch, $pathObject, $exec) {
+   domain.service("$evaluate", ['$watch', '$pathObject', '$exec', '$proxy'],
+      function($watch, $pathObject, $exec, $proxy) {
          return function(input, opts) {
             var opts = opts || [];
             var scope = opts.scope || {};
@@ -1121,72 +1121,75 @@ var Wires = Wires || {};
             // watchers for the current callback
             var _watchers = [];
 
-            var compile = function(newKey, newValue) {
+            var compile = function() {
 
-                  var tpl = input.tpl;
-                  var expressions = [];
-                  var locals = [];
-                  _.each(input.vars, function(variable, k) {
-                     var value;
+               var tpl = input.tpl;
+               var expressions = [];
+               var locals = []
 
-                     // If compile is called with new value we have to take the new value instead
-                     if (variable.p) {
-                        // The rest can be taken from the scope
-                        path = $pathObject(variable.p, scope)
-                        value = path.value;
-                        locals.push({
-                           path: variable.p,
-                           value: path
-                        })
-                     } else {
-                        // Expression
-                        if (variable.e) {
-
-                           value = $exec.expression(variable.e, scope, targetScope);
-                           expressions.push({
-                              str: variable.e,
-                              value: value
-                           })
-                        }
-                     }
-                     value = value === undefined ? '' : value;
-
-                     tpl = tpl.split(k).join(value)
-                  });
-
-
-                  // Exec functions
-                  for (var k in input.funcs) {
-
-                     var func = input.funcs[k]
-                     var existingFunction = $pathObject(func.p, scope).value;
-                     if (_.isFunction(existingFunction)) {
-
-                        var funcResult = $exec.func(func.f, scope, targetScope);
-                        tpl = tpl.split(k).join(funcResult !== undefined ? funcResult : '');
-                     } else {
-                        // Replace it with empty string if function is not defined
-                        tpl = tpl.split(k).join('');
-                     }
-                  }
-                  var response = {
-                     str: tpl,
-                     expressions: expressions,
-                     locals: locals,
-                     // detach (unwatch)
-                     detach: function() {
-                        _.each(_watchers, function(wt) {
-                           wt.remove();
+               _.each(input.vars, function(variable, k) {
+                  var value;
+                  // If compile is called with new value we have to take the new value instead
+                  if (variable.p) {
+                     // The rest can be taken from the scope
+                     path = $pathObject(variable.p, scope)
+                     value = path.value;
+                     locals.push({
+                        path: variable.p,
+                        value: path
+                     })
+                  } else {
+                     // Expression
+                     if (variable.e) {
+                        value = $exec.expression(variable.e, scope, targetScope);
+                        expressions.push({
+                           str: variable.e,
+                           value: value
                         })
                      }
                   }
-                  if (_.isFunction(changed)) {
-                     changed(response)
-                  }
-                  return response;
+                  value = value === undefined ? '' : value;
+                  tpl = tpl.split(k).join(value)
+               });
+               // Proxies ***********************************************
+               for (var k in input.x) {
+                  var proxy = input.x[k]
+                  var value = $proxy.exec(proxy, scope);
+                  tpl = tpl.split(k).join(value);
                }
-               // Calling if variables need to be watched
-               // Sometimes we need to just to evaluate and that's it
+               // Exec functions ****************************************
+               for (var k in input.funcs) {
+                  var func = input.funcs[k]
+                  var existingFunction = $pathObject(func.p, scope).value;
+                  if (_.isFunction(existingFunction)) {
+
+                     var funcResult = $exec.func(func.f, scope, targetScope);
+                     tpl = tpl.split(k).join(funcResult !== undefined ? funcResult : '');
+                  } else {
+                     // Replace it with empty string if function is not defined
+                     tpl = tpl.split(k).join('');
+                  }
+               }
+               var response = {
+                  str: tpl,
+                  expressions: expressions,
+                  locals: locals,
+                  // detach (unwatch)
+                  detach: function() {
+
+                     _.each(_watchers, function(wt) {
+                        wt.remove();
+                     });
+                  }
+               }
+               if (_.isFunction(changed)) {
+                  changed(response)
+               }
+               return response;
+            }
+
+            // Calling if variables need to be watched
+            // Sometimes we need to just to evaluate and that's it
             if (watchVariables) {
                // to be watched
                var variables2Watch = {};
@@ -1205,25 +1208,34 @@ var Wires = Wires || {};
                   });
                }
                collectWatchers(input.vars);
-               _.each(variables2Watch, function(variable) {
 
+               // Watch proxies ****************
+               _.each(input.x, function(_proxy) {
+                  var proxy = $proxy.getProxy(_proxy);
+                  if ( proxy ){
+                     var watcher = $watch('_changed', proxy, function(old, value) {
+                        compile();
+                     });
+                     _watchers.push(watcher);
+                  }
+               });
+
+               _.each(variables2Watch, function(variable) {
                   // In case of a direct variable
                   var watcher = $watch(variable.p, scope, function(old, value) {
-                     var newVar = {}
                         // Have to call if after values been actually changed
                      _.defer(function() {
-                        compile(variable.p.join('.'), value);
+                        compile();
                      });
                   });
                   if (watcher) {
                      _watchers.push(watcher);
                   }
                });
+
             }
 
-            var compiled = compile();
-
-            return compiled;
+            return compile();
          }
       })
 })();
@@ -1317,6 +1329,33 @@ var Wires = Wires || {};
    })
 })();
 
+(function(){
+   var _proxies = {};
+   domain.service("$proxy", ['$projectProxies'], function($projectProxies){
+      return {
+         getProxy : function(proxyData){
+            var name = proxyData.n;
+            var _Proxy = $projectProxies[name];
+            if ( _Proxy ) {
+               var proxy = _proxies[name];
+               if ( !proxy  ){
+                  proxy = _proxies[name] = new _Proxy();
+               }
+               return proxy;
+            }
+         },
+         exec : function(proxyData, scope){
+            var proxy = this.getProxy(proxyData);
+            if ( proxy ){
+               return proxy.get(proxyData.k, scope)
+            }
+            return '';
+         }
+      }
+
+   })
+})();
+
 (function() {
    domain.service("$run", ['TagNode', 'TextNode', 'Repeater', 'Conditional'],
       function(TagNode, TextNode, Repeater, Conditional) {
@@ -1367,22 +1406,40 @@ var Wires = Wires || {};
                })
             }
 
-            var detached = document.createElement("div");
-
             var pNode = opts.parentNode || new TagNode(target);
             if ( !pNode.element){
-               pNode.element = target;
+               pNode.setElement(target);
             }
             createElements(structure, pNode);
-
-
          }
          return run;
       });
 })();
 
+domain.service("controllers.Base", function() {
+   return ['base.html', function() {
+
+   }]
+})
+
+$(function() {
+   domain.require(function($router) {
+
+
+      $router.add('/:ctrl?/:action?/:id?', 'Base', [
+         $router.state('/calendar', 'Calendar'),
+         $router.state('/test', 'Test'),
+         $router.state('/kukka', 'Kukka')
+      ])
+
+
+      $router.start();
+   })
+})
+
 (function(){
-   domain.service("$watch", ['$pathObject', '$array'], function($pathObject, $array){
+   var _proxies = {};
+   domain.service("$watch", ['$pathObject', '$array', '$projectProxies'], function($pathObject, $array, $projectProxies){
       return function(path, scope, cb){
 
          var pathObject = $pathObject(path, scope);
@@ -1395,13 +1452,10 @@ var Wires = Wires || {};
          // prototyping array if it was not
          if ( _.isArray(instance) ){
             instance = $array(instance)
-            console.log("watch", instance)
          }
 
          if (!_.isObject(instance) && _.isString(property) )
             return;
-
-
 
 
          // detecting if property has been requested to be watched
@@ -1416,6 +1470,7 @@ var Wires = Wires || {};
 
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback){
+               //   console.log("changed")
                   _callback(b, newvalue);
                });
                return newvalue;
@@ -1424,6 +1479,7 @@ var Wires = Wires || {};
 
          return {
             remove : function(){
+
                var index = instance.$watchers[property].indexOf(cb);
                instance.$watchers[property].splice(index, 1);
 
@@ -1694,11 +1750,16 @@ var Wires = Wires || {};
                }
 
                var ctrl = new Ctrl();
+               // detach the very first
+               if ( target.$tag ){
+                  if ( target.$tag.detachAllEvents){
+                     target.$tag.detachAllEvents();
+                  }
+               }
                while (target.firstChild) {
                   target.removeChild(target.firstChild);
                }
                return $loadView(view).then(function(structure){
-
                   $run({
                      structure : structure,
                      target : target,
@@ -1709,6 +1770,28 @@ var Wires = Wires || {};
             })
          }
       }
+   })
+})();
+
+(function(){
+   var _projectProxies;
+   domain.service("$projectProxies", function(){
+      if ( _projectProxies ){
+         return _projectProxies;
+      }
+      return new Promise(function(resolve, reject){
+
+         domain.requirePackage('proxies').then(function(projectProxies){
+
+            _projectProxies = {};
+            
+            _.each(projectProxies, function(proxy, key){
+               var name = key.slice(8, key.length);
+               _projectProxies[name] = proxy;
+            })
+            return resolve(_projectProxies);
+         })
+      })
    })
 })();
 
@@ -1881,6 +1964,7 @@ var Wires = Wires || {};
             var parentDom = self.item.c[0];
 
             // Checking new scope
+            // TODO: move to compiler
             this.attachedScopePath;
             if ( parentDom.a && parentDom.a["ws-bind"] ){
                var wsBind = parentDom.a["ws-bind"];
@@ -1940,6 +2024,40 @@ var Wires = Wires || {};
       })
    })
 
+})();
+
+(function() {
+   domain.service("Proxy", function() {
+      return Wires.Class.extend({
+         initialize: function() {
+            this.callbacks = [];
+            this._changed = 1;
+            this.init();
+         },
+         init : function(){
+
+         },
+         // _changed variable is beeing watch by $evaluate
+         // So any access to this variable should provoke node's re-render
+         update : function(){
+            this._changed = 1;
+         },
+         addCallback: function(cb, path) {
+
+            var callback = cb.bind({
+               proxy: this,
+               path: path
+            });
+            this.callbacks.push(callback);
+            callback(null, this.get(path));
+         },
+         get : function(key){
+
+         }
+      }, {
+         name: 'ss'
+      })
+   })
 })();
 
 domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
@@ -2152,36 +2270,15 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
          this.scope = scope;
 
          this.children = [];
-      },
-      create : function(parent, insertAfter){
-         this.element = document.createElement(this.item.n);
-         this.element.$scope = this.scope;
-         this.element.$tag = this;
-
-         if ( parent ){
-            parent.addChild(this);
-         }
-         this.startWatching();
-         return this.element;
-      },
-      addChild : function(child){
-         $(this.element).append(child.element);
-         this.children.push(child);
-      },
-      // Create attributes here
-      // Watching if dom Removed
-      startWatching : function(){
          var self = this;
 
-         this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
-         var listener = function() {
-
+         this.detachAllEvents = function() {
             // Removing all watchers from the attributes
    			_.each(self.attributes, function(attribute){
                if( attribute.watcher){
                   if (_.isArray(attribute.watcher)){
                      _.each(attribute.watcher, function(w){
-                     
+
                         w.detach();
                      })
                   } else {
@@ -2196,6 +2293,7 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
             // TextNode should be triggered manually
             // So we iterate over each text node
             // And detach watchers manually
+
             _.each(self.children, function(child){
 
                if ( child.watchers){
@@ -2208,17 +2306,45 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
                delete child;
             });
             $(self.element).unbind();
-            self.element.removeEventListener("DOMNodeRemovedFromDocument", listener)
+            if ( self.element ){
+               self.element.removeEventListener("DOMNodeRemovedFromDocument", self.detachAllEvents)
+            }
             // Cleaning up stuff we don't need
             delete self.attributes;
             delete self.children;
-            delete self.element.$scope;
-            delete self.element.$tag;
+            if ( self.element){
+               delete self.element.$scope;
+               delete self.element.$tag;
+            }
             delete self.element;
-            delete listener;
-
          }
-         self.element.addEventListener("DOMNodeRemovedFromDocument", listener);
+      },
+      setElement : function(element){
+         this.element = element;
+         this.element.$scope = this.scope;
+         this.element.$tag = this;
+      },
+      create : function(parent){
+         this.setElement(document.createElement(this.item.n));
+         if ( parent ){
+            parent.addChild(this);
+         }
+         this.startWatching();
+         return this.element;
+      },
+      addChild : function(child){
+         $(this.element).append(child.element);
+         this.children.push(child);
+      },
+      attachGarbageCollector : function(){
+         this.element.addEventListener("DOMNodeRemovedFromDocument", this.detachAllEvents);
+      },
+      // Create attributes here
+      // Watching if dom Removed
+      startWatching : function(){
+         var self = this;
+         this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
+         this.attachGarbageCollector();
       }
    });
 });
@@ -2239,11 +2365,12 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
       create : function(parent){
          var self = this;
          this.firstLoad = true;
-         
+
          var data = watcher = $evaluate(this.item.d, {
             scope: this.scope,
             changed: function(data) {
                counter++;
+               
 
                if ( self.firstLoad === false ){
                   self.element.nodeValue = data.str;

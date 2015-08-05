@@ -48,15 +48,11 @@
                })
             }
 
-            var detached = document.createElement("div");
-
             var pNode = opts.parentNode || new TagNode(target);
             if ( !pNode.element){
-               pNode.element = target;
+               pNode.setElement(target);
             }
             createElements(structure, pNode);
-
-
          }
          return run;
       });

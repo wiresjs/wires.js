@@ -14,11 +14,12 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
       create : function(parent){
          var self = this;
          this.firstLoad = true;
-         
+
          var data = watcher = $evaluate(this.item.d, {
             scope: this.scope,
             changed: function(data) {
                counter++;
+               
 
                if ( self.firstLoad === false ){
                   self.element.nodeValue = data.str;

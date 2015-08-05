@@ -60,11 +60,16 @@
                }
 
                var ctrl = new Ctrl();
+               // detach the very first
+               if ( target.$tag ){
+                  if ( target.$tag.detachAllEvents){
+                     target.$tag.detachAllEvents();
+                  }
+               }
                while (target.firstChild) {
                   target.removeChild(target.firstChild);
                }
                return $loadView(view).then(function(structure){
-
                   $run({
                      structure : structure,
                      target : target,
