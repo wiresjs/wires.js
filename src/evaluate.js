@@ -17,7 +17,7 @@
                var tpl = input.tpl;
                var expressions = [];
                var locals = []
-
+               
                _.each(input.vars, function(variable, k) {
                   var value;
                   // If compile is called with new value we have to take the new value instead
@@ -47,6 +47,7 @@
                   var proxy = input.x[k]
                   var value = $proxy.exec(proxy, scope);
                   tpl = tpl.split(k).join(value);
+
                }
                // Exec functions ****************************************
                for (var k in input.funcs) {

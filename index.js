@@ -30,7 +30,7 @@ var preCompile = function(str, opts) {
 
       _.each(params, function(param, index) {
 
-         var key = "$_v" + _counter++;
+         var key = "__v" + _counter++;
          // Preparing the string with macros
          if (replaceString) {
             str = str.split(param[0]).join(key);
@@ -72,7 +72,7 @@ var preCompile = function(str, opts) {
    // Extract proxies
    var proxies = /\$(\w+):([a-zA-Z-0-9._]+)/g.execAll(str)
    _.each(proxies, function(_proxy){
-      var key = "$_p" + _counter++;
+      var key = "__p" + _counter++;
 
       str = str.split(_proxy[0]).join(key);
       var proxyName = _proxy[1];
@@ -80,6 +80,7 @@ var preCompile = function(str, opts) {
       if (!_out.x){
           _out.x = {}
       }
+
       _out.x[key] = { n : proxyName, k : proxyKey}
    })
 
@@ -95,7 +96,7 @@ var preCompile = function(str, opts) {
       if (!_out.vars) {
          _out.vars = {};
       }
-      var key = "$_e" + _counter++;
+      var key = "__e" + _counter++;
 
       str = str.split(_expr[0]).join(key);
 
@@ -124,6 +125,7 @@ var preCompile = function(str, opts) {
 
    // Variables and functions starting with $
    // ***************************************
+
    var _vout = extractVariablesAndFunction(str, true);
    _out.vars = _out.vars || {};
    _out.vars = _.merge(_out.vars, _vout.vars);
@@ -134,7 +136,6 @@ var preCompile = function(str, opts) {
    if (!_.keys(_out.vars).length) {
       delete _out.vars;
    }
-
    return _out;
 }
 

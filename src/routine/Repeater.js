@@ -17,13 +17,13 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          if ( _.keys(targetVars.vars).length !== 2 ){
             throw { error : "Repeater expects 2 variables. Scope key and Target Array (e.g $item in items)"}
          }
-         this.scopeKey = targetVars.vars.$_v0.p.join('');
+         this.scopeKey = targetVars.vars.__v0.p.join('');
 
          // Watch current array (in case if someone overrides is)
          // This should not happen
          // But just in case we should check this case
-         $watch(targetVars.vars.$_v1.p, this.scope, function(oldArray, newvalue){
-            //throw { message : "You can't assign a new array. Use "+targetVars.vars.$_v1.p+".$removeAll() instead"}
+         $watch(targetVars.vars.__v1.p, this.scope, function(oldArray, newvalue){
+            
             self.array = $array(newvalue);
             if ( !self.element){
                self.element = document.createComment('repeat ' + self.scopeKey);
@@ -34,7 +34,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
 
 
          // Getting the target array
-         var arrayPath = $pathObject(targetVars.vars.$_v1.p, this.scope)
+         var arrayPath = $pathObject(targetVars.vars.__v1.p, this.scope)
 
          var array = arrayPath.value ? arrayPath.value : arrayPath.update([]);
 
