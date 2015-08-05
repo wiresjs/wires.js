@@ -33,7 +33,7 @@ domain.path(new RegExp('\/.*'),
          rootPath : "/src/",
          tagOutput : true
       }).then(function(list){
-			var contents = swig.render(fs.readFileSync("./index.html").toString(), {
+			var contents = swig.render(fs.readFileSync("./index.min.html").toString(), {
 				locals: { js : list}
 			});
 			$res.send(contents)

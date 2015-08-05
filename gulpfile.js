@@ -25,7 +25,7 @@ gulp.task('default',['getFiles'], function () {
 gulp.task('getFiles', function(done) {
    includeAll( "./src", {
       order: ['essential/'],
-      ignore : ['test', 'testapp.js', '_testapp'],
+      ignore : ['test', '_testapp'],
       rootPath : "./src/",
    }).then(function(list){
       data.files = _.union(external, list)
