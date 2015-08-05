@@ -26,7 +26,7 @@ var preCompile = function(str, opts) {
 
    var extractVariablesAndFunction = function(input, replaceString) {
       var _out = {};
-      var params = /\$(\{)?(([a-zA-Z-0-9$.]+)(\([^\)]*\))?)(\})?/g.execAll(input)
+      var params = /\$(\{)?(([a-zA-Z-0-9_$.]+)(\([^\)]*\))?)(\})?/g.execAll(input)
 
       _.each(params, function(param, index) {
 
