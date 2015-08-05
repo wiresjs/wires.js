@@ -85,7 +85,7 @@ var preCompile = function(str, opts) {
 
    // Expressions within {{  }}
    // ******************************************************
-   var expressions = /\{\{([^\}]+)\}\}/g.execAll(str)
+   var expressions = /\{\{(.+)\}\}/g.execAll(str)
 
    _.each(expressions, function(_expr) {
 

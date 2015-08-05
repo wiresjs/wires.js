@@ -5,6 +5,7 @@
       if (_cache[stringFunction]){
          userFunc = _cache[stringFunction];
       } else {
+         console.log(stringFunction)
          userFunc = eval("(function($, target){ return " + stringFunction + "})");
          _cache[stringFunction] = userFunc
       }
@@ -14,7 +15,7 @@
    domain.service("$exec", ['$pathObject'], function($pathObject) {
       return {
          func: function(str, scope, targetScope) {
-            
+
 
             var userFunc = getFunctionFromString(str)
             var result = userFunc.bind(scope)(scope,targetScope);

@@ -1247,6 +1247,7 @@ var Wires = Wires || {};
       if (_cache[stringFunction]){
          userFunc = _cache[stringFunction];
       } else {
+         console.log(stringFunction)
          userFunc = eval("(function($, target){ return " + stringFunction + "})");
          _cache[stringFunction] = userFunc
       }
@@ -1256,7 +1257,7 @@ var Wires = Wires || {};
    domain.service("$exec", ['$pathObject'], function($pathObject) {
       return {
          func: function(str, scope, targetScope) {
-            
+
 
             var userFunc = getFunctionFromString(str)
             var result = userFunc.bind(scope)(scope,targetScope);
@@ -2689,6 +2690,39 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
          });
          return WsOption;
       })
+})();
+
+(function() {
+   domain.service("attrs.ws-class", ['TagAttribute'], function(TagAttribute) {
+      var WsVisible = TagAttribute.extend({
+         // Overriding default method
+         // (we don't need to create an attribute for this case)
+         create: function() {
+            this.watcher = this.startWatching();
+         },
+
+         onExpression: function(expression) {
+
+            var el = $(this.element);
+            if (expression) {
+               if (_.isPlainObject(expression.value)) {
+                  _.each(expression.value, function(v, cls) {
+
+                     if (v) {
+                        if (!el.hasClass(cls)) {
+                           el.addClass(cls)
+                        }
+                     } else {
+                        el.removeClass(cls)
+                     }
+                  });
+               }
+            }
+
+         }
+      });
+      return WsVisible;
+   })
 })();
 
 (function(){

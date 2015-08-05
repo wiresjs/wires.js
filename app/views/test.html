@@ -5,13 +5,10 @@
       <td valign="top" width="400" style="border:1px solid #ececec;padding:10px">
 
 
-         <form ws-submit="{{ $create() }}">
+         <form ws-submit="{{ $create() }}" ws-class="{{ { 'ivan' : $form.name === 'ivan' } }}">
             <input type="text" ws-value="$form.name"/>
 
 
-            <hr>
-            <textarea type="text" ws-value="$form.name"/>
-            <hr>
 
             <div>
                Age is $form.age
