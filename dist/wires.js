@@ -1126,7 +1126,7 @@ var Wires = Wires || {};
                var tpl = input.tpl;
                var expressions = [];
                var locals = []
-               
+
                _.each(input.vars, function(variable, k) {
                   var value;
                   // If compile is called with new value we have to take the new value instead
@@ -1177,7 +1177,6 @@ var Wires = Wires || {};
                   locals: locals,
                   // detach (unwatch)
                   detach: function() {
-
                      _.each(_watchers, function(wt) {
                         wt.remove();
                      });
@@ -1268,6 +1267,42 @@ var Wires = Wires || {};
          }
       }
    });
+})();
+
+(function() {
+   var observer;
+   // Garbage collector based on MutationObserver
+
+   $(function(){
+      var target = document.querySelector('body');
+
+      // create an observer instance
+      observer = new MutationObserver(function(mutations) {
+         mutations.forEach(function(mutation) {
+            if ( mutation.removedNodes ){
+               _.each(mutation.removedNodes, function(node){
+                  if ( node.$tag ){
+                     if ( node.$tag  && node.$tag.gc){
+                        
+                        node.$tag.gc(true);
+                     }
+                  }
+               })
+            }
+         });
+      });
+
+      // configuration of the observer:
+      var config = {
+         childList: true,
+         subtree : true
+      };
+
+      // pass in the target node, as well as the observer options
+      observer.observe(target, config);
+   });
+
+
 })();
 
 (function(){
@@ -1724,8 +1759,8 @@ var Wires = Wires || {};
                var ctrl = new Ctrl();
                // detach the very first
                if ( target.$tag ){
-                  if ( target.$tag.detachAllEvents){
-                     target.$tag.detachAllEvents();
+                  if ( target.$tag.gc){
+                     target.$tag.gc(true);
                   }
                }
                while (target.firstChild) {
@@ -1922,9 +1957,10 @@ var Wires = Wires || {};
 })();
 
 (function() {
-   domain.service("Conditional", ['TagNode', '$pathObject', '$array', '$watch', '$evaluate', '$pathObject'], function(TagNode, $pathObject,
-      $array, $watch, $evaluate, $pathObject) {
-      return Wires.Class.extend({
+   domain.service("Conditional", ['TagNode', '$pathObject', '$array', '$watch', '$evaluate', '$pathObject', 'GarbageCollector'],
+   function(TagNode, $pathObject,
+      $array, $watch, $evaluate, $pathObject, GarbageCollector) {
+      return GarbageCollector.extend({
          initialize: function(opts) {
             var self = this;
             this.item = opts.item;
@@ -1973,6 +2009,7 @@ var Wires = Wires || {};
                            parentNode.create();
                            self.parentElement = parentNode.element;
 
+
                            // Kicking of the run with parent's children
                            self.run({
                               structure   : parentDom.c || [],
@@ -1984,7 +2021,12 @@ var Wires = Wires || {};
                      } else {
                         // Destroying the element
                         if (  self.parentElement ){
+                           if ( self.parentElement.$tag ){
+                              self.parentElement.$tag.gc();
+                           }
+
                            $(self.parentElement).remove();
+
                            self.parentElement = undefined;
                         }
                      }
@@ -1996,6 +2038,59 @@ var Wires = Wires || {};
       })
    })
 
+})();
+
+(function() {
+   domain.service("GarbageCollector", function() {
+      return Wires.Class.extend({
+         gc: function(recursive) {
+            var self = this;
+            if ( this.element ){
+               $(this.element).unbind();
+            }
+            if ( self.detach ){
+               self.detach();
+            }
+            // Removing all watchers from the attributes
+            if (self.attributes) {
+               _.each(self.attributes, function(attribute) {
+                  if (attribute.watcher) {
+                     if (_.isArray(attribute.watcher)) {
+                        _.each(attribute.watcher, function(w) {
+
+                           w.detach();
+                        })
+                     } else {
+                        attribute.watcher.detach();
+                     }
+                  }
+                  if (_.isFunction(attribute.detach)) {
+                     attribute.detach();
+                  }
+               });
+
+               self.attributes.splice(0, self.attributes.length - 1)
+               delete self.attributes;
+            }
+            if ( self.watchers ){
+               var collection = [].concat(self.watchers)
+               _.each(collection, function(watcher) {
+                  watcher.detach();
+               });
+            }
+            // TextNode should be triggered manually
+            // So we iterate over each text node
+            // And detach watchers manually
+            //if ( recursive ){
+            if (self.children) {
+               _.each(self.children, function(child) {
+                  child.gc();
+               });
+            }
+
+         }
+      })
+   })
 })();
 
 (function() {
@@ -2026,15 +2121,13 @@ var Wires = Wires || {};
          get : function(key){
 
          }
-      }, {
-         name: 'ss'
       })
    })
 })();
 
-domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
-   function(TagNode,$pathObject, $array, $watch ){
-   return Wires.Class.extend({
+domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','GarbageCollector'],
+   function(TagNode,$pathObject, $array, $watch, GarbageCollector ){
+   return GarbageCollector.extend({
       initialize : function(opts){
          var self = this;
          this.item = opts.item;
@@ -2057,7 +2150,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          // This should not happen
          // But just in case we should check this case
          $watch(targetVars.vars.__v1.p, this.scope, function(oldArray, newvalue){
-            
+
             self.array = $array(newvalue);
             if ( !self.element){
                self.element = document.createComment('repeat ' + self.scopeKey);
@@ -2090,6 +2183,14 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          _.each(this.array, function(element){
             self.addItem(element);
          })
+      },
+      detach : function(){
+         _.each(this._arrayElements, function(item){
+            if ( item.node.element && item.node.element.$tag){
+               item.node.element.$tag.gc();
+            }
+         });
+         this._arrayElements.splice(0,this._arrayElements.length);
       },
       addItem : function(arrayItem){
 
@@ -2135,6 +2236,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
             if ( this._arrayElements[i] ){
                 var el = this._arrayElements[i].node.element;
                 // removing the actual dom element
+                el.$tag.gc();
                 $(el).remove();
             }
 			}
@@ -2155,8 +2257,8 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
    })
 })
 
-domain.service("TagAttribute", ['$evaluate'],function($evaluate){
-   var TagAttribute =  Wires.Class.extend({
+domain.service("TagAttribute", ['GarbageCollector','$evaluate'],function(GarbageCollector, $evaluate){
+   var TagAttribute =  GarbageCollector.extend({
       initialize : function(opts){
          this.attr = opts.attr;
          this.name = opts.name;
@@ -2234,62 +2336,15 @@ domain.service("$tagAttrs", ['TagAttribute','$evaluate', '$customAttributes'],
    }
 })
 
-domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
+domain.service("TagNode", ['$tagAttrs', 'GarbageCollector'],function($tagAttrs, GarbageCollector){
 
-   return Wires.Class.extend({
+   return GarbageCollector.extend({
       initialize : function(item, scope){
          this.item = item;
          this.scope = scope;
 
          this.children = [];
          var self = this;
-
-         this.detachAllEvents = function() {
-            // Removing all watchers from the attributes
-   			_.each(self.attributes, function(attribute){
-               if( attribute.watcher){
-                  if (_.isArray(attribute.watcher)){
-                     _.each(attribute.watcher, function(w){
-
-                        w.detach();
-                     })
-                  } else {
-   			            attribute.watcher.detach();
-                  }
-               }
-               if ( _.isFunction(attribute.detach) ){
-                  attribute.detach();
-               }
-   			});
-
-            // TextNode should be triggered manually
-            // So we iterate over each text node
-            // And detach watchers manually
-
-            _.each(self.children, function(child){
-
-               if ( child.watchers){
-                  child.watchers.detach();
-                  delete child;
-               }
-               if ( child.onRemove){
-                  child.onRemove();
-               }
-               delete child;
-            });
-            $(self.element).unbind();
-            if ( self.element ){
-               self.element.removeEventListener("DOMNodeRemovedFromDocument", self.detachAllEvents)
-            }
-            // Cleaning up stuff we don't need
-            delete self.attributes;
-            delete self.children;
-            if ( self.element){
-               delete self.element.$scope;
-               delete self.element.$tag;
-            }
-            delete self.element;
-         }
       },
       setElement : function(element){
          this.element = element;
@@ -2308,31 +2363,24 @@ domain.service("TagNode", ['$tagAttrs'],function($tagAttrs){
          $(this.element).append(child.element);
          this.children.push(child);
       },
-      attachGarbageCollector : function(){
-         this.element.addEventListener("DOMNodeRemovedFromDocument", this.detachAllEvents);
-      },
       // Create attributes here
       // Watching if dom Removed
       startWatching : function(){
          var self = this;
          this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
-         this.attachGarbageCollector();
       }
    });
 });
 
 (function(){
-   var counter = 1;
 
-domain.service("TextNode", ['$evaluate'],function($evaluate){
 
-   return Wires.Class.extend({
+domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate, GarbageCollector){
+
+   return GarbageCollector.extend({
       initialize : function(item, scope){
          this.item = item;
          this.scope = scope;
-      },
-      onDetach : function(){
-
       },
       create : function(parent){
          var self = this;
@@ -2341,9 +2389,6 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
          var data = watcher = $evaluate(this.item.d, {
             scope: this.scope,
             changed: function(data) {
-               counter++;
-               
-
                if ( self.firstLoad === false ){
                   self.element.nodeValue = data.str;
                }
@@ -2722,21 +2767,25 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
       var WsClick = TagAttribute.extend({
          // Overriding default method
          // (we don't need to create an attribute for this case)
+         detach : function(){
+            if ( this.element ){
+               this.element.removeEventListener(this.eventName, this.elementClicked);
+            }
+         },
          create : function(){
             var self = this;
-            var elementClicked = function(e){
-               var target = e.originalEvent ? e.originalEvent.target : e.target;
+            this.elementClicked = function(e){
+               var target = e.target;
                var data = $evaluate(self.attr, {
                   scope: self.scope,
                   element : target,
                   target : target.$scope,
                   watchVariables : false
                });
-               delete elementClicked;
                e.preventDefault();
             }
-            var evName = window.isMobile ? "touchend" : "click";
-            $(this.element).bind( evName, elementClicked)
+            this.eventName = window.isMobile ? "touchend" : "click";
+            this.clickListener = this.element.addEventListener(this.eventName, this.elementClicked);
          }
       });
       return WsClick;
@@ -2823,17 +2872,19 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
             create: function() {
                this.watcher = this.startWatching();
             },
+            detach : function(){
+               if ( this.element ){
+                  this.element.removeEventListener("click", this.clickListener);
+               }
+            },
             onValue: function(v) {
-
                if (v && v.str) {
                   var link = v.str;
 
                   if (this.element.nodeName === "A") {
-                     $(this.element)
-                        .attr("href", link)
+                     this.element.setAttribute("href", link);
                   }
-
-                  $(this.element).click(function(event) {
+                  this.clickListener = this.element.addEventListener("click", function(event){
                      event.preventDefault();
                      $history.go(link);
                   })
@@ -2847,10 +2898,14 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
 (function(){
    domain.service("attrs.ws-submit", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate) {
       var WsClick = TagAttribute.extend({
-
+         detach : function(){
+            if ( this.submitListener ){
+               this.element.removeEventListener(this.submitListener);
+            }
+         },
          create: function() {
             var self = this;
-            $(this.element).submit(function(event) {
+            this.submitListener = function(event) {
                try {
                   var e = event.originalEvent;
                   $evaluate(self.attr, {
@@ -2859,18 +2914,17 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
                      target: e.target.$scope,
                      watchVariables: false
                   });
-
                } catch (e) {
                   console.error(e.stack || e)
                }
                e.preventDefault();
-            })
+            }
+            this.element.addEventListener(this.submitListener)
          }
-
       });
       return WsClick;
    })
-   
+
 })();
 
 (function() {
@@ -2880,20 +2934,29 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
          // (we don't need to create an attribute for this case)
          create: function() {
             this.watcher = this.startWatching();
+
+         },
+         // Unbind listeners!!!
+         detach : function(){
+
+            if ( this.keyDownListener ){
+               this.element.removeEventListener("keydown", this.keyDownListener);
+            }
+            if ( this.clickListener ){
+               this.element.removeEventListener("click", this.clickListener);
+            }
          },
          startWatching: function() {
             var self = this;
-            var selfCheck = false;
+            this.selfUpdate = false;
             // Binding variable
             var watcher = $evaluate(this.attr, {
                scope: this.scope,
                changed: function(data) {
-
-                  if (selfCheck === false) {
+                  if (self.selfUpdate === false) {
                      self.setValue(data.str);
                   }
-                  selfCheck = false;
-
+                  self.selfUpdate = false;
                }
             });
 
@@ -2907,15 +2970,13 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
 
             this.bindActions(function(newValue) {
                   if (self.variable) {
-                     selfCheck = true;
-
+                     self.selfUpdate = true;
                      self.variable.value.update(newValue);
                   }
                })
-               // !Important!
-               // Return the watcher!
             return watcher;
          },
+
          setValue: function(v) {
             $(this.element).val(v);
          },
@@ -2941,23 +3002,21 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
                case 'email':
                case 'password':
                case 'textarea':
-                  this.element.addEventListener("keydown", function(evt) {
+                  this.keyDownListener = function(evt) {
                      var _that = this;
                      clearInterval(self.interval);
                      self.interval = setTimeout(function() {
                         cb($(_that).val())
                      }, 50);
-                  }, false);
+                  }
+                  this.element.addEventListener("keydown", this.keyDownListener, false);
                   break;
                case 'checkbox':
-                  this.element.addEventListener("click", function(evt) {
+                  this.clickListener =  function(evt) {
                      var target = this.$checked;
-
                      if ( _.isArray(target.value) ){
-
                         var currValue = self.variable.value.value;
                         var index = target.value.indexOf(currValue);
-
                         if ( this.checked ){
                            if ( index === - 1 ){
                               target.value.push(currValue);
@@ -2968,16 +3027,18 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
                               target.value.splice(index, 1)
                            }
                         }
-
                      } else {
+                        self.selfUpdate = true;
                         self.variable.value.update(this.checked)
                      }
-                  });
+                  }
+                  this.element.addEventListener("click",this.clickListener);
                   break;
                case 'option':
 
                break;
                case 'select':
+                  
                   $(this.element).change(function() {
                      var value = self.detectSelectValue();
                      cb(value);
@@ -2996,6 +3057,7 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
                         // In Any other case
                         // we should update variable with first option
                         var firstValue = self.detectSelectValue(true)
+                        self.selfUpdate = true;
                         self.variable.value.update(firstValue);
                      }
                   });

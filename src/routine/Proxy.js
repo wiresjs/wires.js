@@ -26,8 +26,6 @@
          get : function(key){
 
          }
-      }, {
-         name: 'ss'
       })
    })
 })();

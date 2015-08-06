@@ -62,8 +62,8 @@
                var ctrl = new Ctrl();
                // detach the very first
                if ( target.$tag ){
-                  if ( target.$tag.detachAllEvents){
-                     target.$tag.detachAllEvents();
+                  if ( target.$tag.gc){
+                     target.$tag.gc(true);
                   }
                }
                while (target.firstChild) {

@@ -5,20 +5,29 @@
          // (we don't need to create an attribute for this case)
          create: function() {
             this.watcher = this.startWatching();
+
+         },
+         // Unbind listeners!!!
+         detach : function(){
+
+            if ( this.keyDownListener ){
+               this.element.removeEventListener("keydown", this.keyDownListener);
+            }
+            if ( this.clickListener ){
+               this.element.removeEventListener("click", this.clickListener);
+            }
          },
          startWatching: function() {
             var self = this;
-            var selfCheck = false;
+            this.selfUpdate = false;
             // Binding variable
             var watcher = $evaluate(this.attr, {
                scope: this.scope,
                changed: function(data) {
-
-                  if (selfCheck === false) {
+                  if (self.selfUpdate === false) {
                      self.setValue(data.str);
                   }
-                  selfCheck = false;
-
+                  self.selfUpdate = false;
                }
             });
 
@@ -32,15 +41,13 @@
 
             this.bindActions(function(newValue) {
                   if (self.variable) {
-                     selfCheck = true;
-
+                     self.selfUpdate = true;
                      self.variable.value.update(newValue);
                   }
                })
-               // !Important!
-               // Return the watcher!
             return watcher;
          },
+
          setValue: function(v) {
             $(this.element).val(v);
          },
@@ -66,23 +73,21 @@
                case 'email':
                case 'password':
                case 'textarea':
-                  this.element.addEventListener("keydown", function(evt) {
+                  this.keyDownListener = function(evt) {
                      var _that = this;
                      clearInterval(self.interval);
                      self.interval = setTimeout(function() {
                         cb($(_that).val())
                      }, 50);
-                  }, false);
+                  }
+                  this.element.addEventListener("keydown", this.keyDownListener, false);
                   break;
                case 'checkbox':
-                  this.element.addEventListener("click", function(evt) {
+                  this.clickListener =  function(evt) {
                      var target = this.$checked;
-
                      if ( _.isArray(target.value) ){
-
                         var currValue = self.variable.value.value;
                         var index = target.value.indexOf(currValue);
-
                         if ( this.checked ){
                            if ( index === - 1 ){
                               target.value.push(currValue);
@@ -93,16 +98,18 @@
                               target.value.splice(index, 1)
                            }
                         }
-
                      } else {
+                        self.selfUpdate = true;
                         self.variable.value.update(this.checked)
                      }
-                  });
+                  }
+                  this.element.addEventListener("click",this.clickListener);
                   break;
                case 'option':
 
                break;
                case 'select':
+                  
                   $(this.element).change(function() {
                      var value = self.detectSelectValue();
                      cb(value);
@@ -121,6 +128,7 @@
                         // In Any other case
                         // we should update variable with first option
                         var firstValue = self.detectSelectValue(true)
+                        self.selfUpdate = true;
                         self.variable.value.update(firstValue);
                      }
                   });

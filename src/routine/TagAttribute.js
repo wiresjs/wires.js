@@ -1,5 +1,5 @@
-domain.service("TagAttribute", ['$evaluate'],function($evaluate){
-   var TagAttribute =  Wires.Class.extend({
+domain.service("TagAttribute", ['GarbageCollector','$evaluate'],function(GarbageCollector, $evaluate){
+   var TagAttribute =  GarbageCollector.extend({
       initialize : function(opts){
          this.attr = opts.attr;
          this.name = opts.name;

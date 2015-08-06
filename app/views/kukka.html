@@ -1,7 +1,15 @@
-<div>
+<h1 ws-if="{{$name === 'ivan'}}">
+   <div class="">
+      <b>Some name $name</b>
+   </div>
+   $name
+   <a href="#" ws-click="{{ doSomething() }}">SOME SHIT</a>
+   <a href="#" ws-click="{{ doSomething() }}">SOME SHIT</a>
+   <a href="#" ws-click="{{ doSomething() }}">SOME SHIT</a>
+</h1>
 
-</div>
 <hr>
+<input type="text" ws-value="$name"/>
 <a href="#" ws-href="/test">TEST</a>
 
 

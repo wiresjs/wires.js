@@ -9,17 +9,19 @@
             create: function() {
                this.watcher = this.startWatching();
             },
+            detach : function(){
+               if ( this.element ){
+                  this.element.removeEventListener("click", this.clickListener);
+               }
+            },
             onValue: function(v) {
-
                if (v && v.str) {
                   var link = v.str;
 
                   if (this.element.nodeName === "A") {
-                     $(this.element)
-                        .attr("href", link)
+                     this.element.setAttribute("href", link);
                   }
-
-                  $(this.element).click(function(event) {
+                  this.clickListener = this.element.addEventListener("click", function(event){
                      event.preventDefault();
                      $history.go(link);
                   })

@@ -5,12 +5,12 @@
          //   console.log("init called")
             var self = this;
 
-            setInterval(function(){
-               self.update();
-            },1000)
+//            setInterval(function(){
+   //            self.update();
+      //      },1000)
          },
          get : function(key){
-            //console.log("requested...", new Date().getTime())
+            console.log("requested...", new Date().getTime())
             return "time is " + new Date().getTime();
          }
       })

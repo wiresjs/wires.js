@@ -1,7 +1,8 @@
 (function() {
-   domain.service("Conditional", ['TagNode', '$pathObject', '$array', '$watch', '$evaluate', '$pathObject'], function(TagNode, $pathObject,
-      $array, $watch, $evaluate, $pathObject) {
-      return Wires.Class.extend({
+   domain.service("Conditional", ['TagNode', '$pathObject', '$array', '$watch', '$evaluate', '$pathObject', 'GarbageCollector'],
+   function(TagNode, $pathObject,
+      $array, $watch, $evaluate, $pathObject, GarbageCollector) {
+      return GarbageCollector.extend({
          initialize: function(opts) {
             var self = this;
             this.item = opts.item;
@@ -50,6 +51,7 @@
                            parentNode.create();
                            self.parentElement = parentNode.element;
 
+
                            // Kicking of the run with parent's children
                            self.run({
                               structure   : parentDom.c || [],
@@ -61,7 +63,12 @@
                      } else {
                         // Destroying the element
                         if (  self.parentElement ){
+                           if ( self.parentElement.$tag ){
+                              self.parentElement.$tag.gc();
+                           }
+
                            $(self.parentElement).remove();
+
                            self.parentElement = undefined;
                         }
                      }

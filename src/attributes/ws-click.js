@@ -3,21 +3,25 @@
       var WsClick = TagAttribute.extend({
          // Overriding default method
          // (we don't need to create an attribute for this case)
+         detach : function(){
+            if ( this.element ){
+               this.element.removeEventListener(this.eventName, this.elementClicked);
+            }
+         },
          create : function(){
             var self = this;
-            var elementClicked = function(e){
-               var target = e.originalEvent ? e.originalEvent.target : e.target;
+            this.elementClicked = function(e){
+               var target = e.target;
                var data = $evaluate(self.attr, {
                   scope: self.scope,
                   element : target,
                   target : target.$scope,
                   watchVariables : false
                });
-               delete elementClicked;
                e.preventDefault();
             }
-            var evName = window.isMobile ? "touchend" : "click";
-            $(this.element).bind( evName, elementClicked)
+            this.eventName = window.isMobile ? "touchend" : "click";
+            this.clickListener = this.element.addEventListener(this.eventName, this.elementClicked);
          }
       });
       return WsClick;

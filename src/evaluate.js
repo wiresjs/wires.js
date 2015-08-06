@@ -17,7 +17,7 @@
                var tpl = input.tpl;
                var expressions = [];
                var locals = []
-               
+
                _.each(input.vars, function(variable, k) {
                   var value;
                   // If compile is called with new value we have to take the new value instead
@@ -68,7 +68,6 @@
                   locals: locals,
                   // detach (unwatch)
                   detach: function() {
-
                      _.each(_watchers, function(wt) {
                         wt.remove();
                      });

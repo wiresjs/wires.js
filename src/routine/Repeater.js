@@ -1,6 +1,6 @@
-domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
-   function(TagNode,$pathObject, $array, $watch ){
-   return Wires.Class.extend({
+domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','GarbageCollector'],
+   function(TagNode,$pathObject, $array, $watch, GarbageCollector ){
+   return GarbageCollector.extend({
       initialize : function(opts){
          var self = this;
          this.item = opts.item;
@@ -23,7 +23,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          // This should not happen
          // But just in case we should check this case
          $watch(targetVars.vars.__v1.p, this.scope, function(oldArray, newvalue){
-            
+
             self.array = $array(newvalue);
             if ( !self.element){
                self.element = document.createComment('repeat ' + self.scopeKey);
@@ -56,6 +56,14 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
          _.each(this.array, function(element){
             self.addItem(element);
          })
+      },
+      detach : function(){
+         _.each(this._arrayElements, function(item){
+            if ( item.node.element && item.node.element.$tag){
+               item.node.element.$tag.gc();
+            }
+         });
+         this._arrayElements.splice(0,this._arrayElements.length);
       },
       addItem : function(arrayItem){
 
@@ -101,6 +109,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch'],
             if ( this._arrayElements[i] ){
                 var el = this._arrayElements[i].node.element;
                 // removing the actual dom element
+                el.$tag.gc();
                 $(el).remove();
             }
 			}

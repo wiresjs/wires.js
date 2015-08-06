@@ -1,15 +1,12 @@
 (function(){
-   var counter = 1;
 
-domain.service("TextNode", ['$evaluate'],function($evaluate){
 
-   return Wires.Class.extend({
+domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate, GarbageCollector){
+
+   return GarbageCollector.extend({
       initialize : function(item, scope){
          this.item = item;
          this.scope = scope;
-      },
-      onDetach : function(){
-
       },
       create : function(parent){
          var self = this;
@@ -18,9 +15,6 @@ domain.service("TextNode", ['$evaluate'],function($evaluate){
          var data = watcher = $evaluate(this.item.d, {
             scope: this.scope,
             changed: function(data) {
-               counter++;
-               
-
                if ( self.firstLoad === false ){
                   self.element.nodeValue = data.str;
                }
