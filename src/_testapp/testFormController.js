@@ -9,21 +9,20 @@ domain.service("controllers.Test", function($array, $form, $resource, $restEndPo
       }
       self.form = $form();
 
-      //self.form.age = 2;
-      this.ages = [{
-         value: 1,
-         age: "1 year"
-      }, {
-         value: 2,
-         age: "2 year"
-      }, {
-         value: 3,
-         age: "3 years"
-      }]
+      var TestObject = function(number){
+         this.number = number;
+         this.age = this.number + " year";
+      }
+      var obj1 = new TestObject(1);
+      var obj2 = new TestObject(2);
+      var obj3 = new TestObject(3);
+
+      self.form.age = obj3;
+      this.ages = [obj1, obj2, obj3]
       self.users = $array("/api/user/:_id");
 
 
-      self.form.ids =["id1_trolollo"];
+      self.form.ids =[];
       this.item1 = { id : "num1", title : "num1" };
       this.item2 = { id: "num2", title : "num2"};
       this.item3 = { id :"num3", title : "num3"};

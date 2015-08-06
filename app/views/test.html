@@ -11,7 +11,7 @@
 
 
             <div>
-               Age is $form.age
+               Age is $form.age.number
             </div>
             <select ws-value="$form.age">
                <option ws-repeat="$age in $ages" ws-value="$age.value">$age.age</option>
@@ -30,12 +30,12 @@
             <div ws-repeat="$item in $items">
                <input type="checkbox" ws-value="$item.id" ws-checked="$parent.form.ids"> $item.title
             </div>
-            <!-- <div style="padding:3px; border:1px solid gray">
+            <div style="padding:3px; border:1px solid gray">
                Selected values:
                <ul>
                   <li ws-repeat="$id in $form.ids">$id</li>
                </ul>
-            </div> -->
+            </div>
             <!-- Checkboxes true/false -->
             <hr>
             <div>Checkboxes true/false</div>

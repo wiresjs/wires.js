@@ -110,7 +110,13 @@
                   _.defer(function(){
                      // If we have set the variable beforehand
                      if ( self.variable.value.value !== undefined){
-                        self.setValue(self.variable.value.value);
+                        $(self.element).find("option").each(function(index,i) {
+                           if ( i.$variable){
+                             if ( i.$variable.value.value === self.variable.value.value){
+                                i.selected = true;
+                             }
+                           }
+                        });
                      } else {
                         // In Any other case
                         // we should update variable with first option
