@@ -19,7 +19,7 @@
                var wsBind = parentDom.a["ws-bind"];
                if ( _.values(wsBind.vars).length > 0 ){
                   var newScope =  _.values(wsBind.vars)[0]
-                  delete parentDom.a["ws-bind"];
+               //   delete parentDom.a["ws-bind"];
                   this.attachedScopePath = newScope.p;
                }
             }
