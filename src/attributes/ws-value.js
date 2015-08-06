@@ -109,12 +109,12 @@
 
                break;
                case 'select':
-                  
+
                   $(this.element).change(function() {
                      var value = self.detectSelectValue();
                      cb(value);
                   });
-                  _.defer(function(){
+                  $defered(function(){
                      // If we have set the variable beforehand
                      if ( self.variable.value.value !== undefined){
                         $(self.element).find("option").each(function(index,i) {

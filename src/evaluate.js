@@ -115,7 +115,7 @@
                   // In case of a direct variable
                   var watcher = $watch(variable.p, scope, function(old, value) {
                         // Have to call if after values been actually changed
-                     _.defer(function() {
+                     $defered(function() {
                         compile();
                      });
                   });

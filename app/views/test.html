@@ -1,7 +1,7 @@
 <a href="#" ws-href="/kukka">KUKKA</a>
 <h1>Forms $some.name</h1>
 <input type="text" ws-value="$some.name"/>
-<table ws-if="{{$some.name === 'ivan'}}" width="100%">
+<table width="100%">
    <tr>
       <td valign="top" width="400" style="border:1px solid #ececec;padding:10px">
 
@@ -14,9 +14,9 @@
             <div>
                Age is $form.age.number
             </div>
-            <!-- <select ws-value="$form.age">
-               <option ws-repeat="$age in $ages" ws-value="$age.value">$age.age</option>
-            </select> -->
+            <select ws-value="$form.age">
+               <option ws-repeat="$age in $ages" ws-value="$age">$age.age</option>
+            </select>
             <hr>
             <div>
                <input type="submit" value="add"/>
@@ -45,7 +45,7 @@
             <input type="checkbox" ws-value="$agree" ws-checked="$agree">I agree ($agree)
             <div>
                <span ws-if="{{ !$agree}}" style="color:red">You must agree</span>
-            </div> 
+            </div>
 
 
 
