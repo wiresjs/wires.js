@@ -21,7 +21,7 @@ domain.service("controllers.Test", function($array, $form, $resource, $restEndPo
       this.ages = [obj1, obj2, obj3]
       self.users = $array("/api/user/:_id");
 
-
+      self.form.mySuperDate = new Date();
       self.form.ids =[];
       this.item1 = { id : "num1", title : "num1" };
       this.item2 = { id: "num2", title : "num2"};

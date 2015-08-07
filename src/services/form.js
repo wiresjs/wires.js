@@ -9,7 +9,14 @@
          // _ - private
          form.$normalize = function(data){
             var attrs = {};
+
             if ( _.isString(data) ){
+               return data;
+            }
+            if ( _.isNumber(data) ){
+               return data;
+            }
+            if ( _.isBoolean(data) ){
                return data;
             }
             _.each(data, function(v, k) {
@@ -18,15 +25,18 @@
                      if ( _.isArray(v) ){
                         attrs[k] = [];
                         _.each(v, function(item){
-                           console.log(item, form.$normalize(item))
                            attrs[k].push(form.$normalize(item));
                         })
                      }
-                     else if ( _.isObject(v) ){
+                     else if ( _.isPlainObject(v) ){
                         attrs[k] = form.$normalize(v);
                      }
                      else {
-                        attrs[k] = v;
+                        if (!(v instanceof Date) ){
+                           attrs[k] = form.$normalize(v);
+                        } else {
+                           attrs[k] = v;
+                        }
                      }
                   }
                }
