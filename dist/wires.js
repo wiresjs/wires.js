@@ -2991,12 +2991,12 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
 
          },
          // Unbind listeners!!!
-         detach : function(){
+         detach: function() {
 
-            if ( this.keyDownListener ){
+            if (this.keyDownListener) {
                this.element.removeEventListener("keydown", this.keyDownListener);
             }
-            if ( this.clickListener ){
+            if (this.clickListener) {
                this.element.removeEventListener("click", this.clickListener);
             }
          },
@@ -3023,11 +3023,11 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
             this.element.$variable = this.variable;
 
             this.bindActions(function(newValue) {
-                  if (self.variable) {
-                     self.selfUpdate = true;
-                     self.variable.value.update(newValue);
-                  }
-               })
+               if (self.variable) {
+                  self.selfUpdate = true;
+                  self.variable.value.update(newValue);
+               }
+            })
             return watcher;
          },
 
@@ -3066,18 +3066,18 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                   this.element.addEventListener("keydown", this.keyDownListener, false);
                   break;
                case 'checkbox':
-                  this.clickListener =  function(evt) {
+                  this.clickListener = function(evt) {
                      var target = this.$checked;
-                     if ( _.isArray(target.value) ){
+                     if (_.isArray(target.value)) {
                         var currValue = self.variable.value.value;
                         var index = target.value.indexOf(currValue);
-                        if ( this.checked ){
-                           if ( index === - 1 ){
+                        if (this.checked) {
+                           if (index === -1) {
                               target.value.push(currValue);
                            }
                         } else {
                            // Removing value from an array
-                           if ( index > - 1 ){
+                           if (index > -1) {
                               target.value.splice(index, 1)
                            }
                         }
@@ -3086,25 +3086,25 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                         self.variable.value.update(this.checked)
                      }
                   }
-                  this.element.addEventListener("click",this.clickListener);
+                  this.element.addEventListener("click", this.clickListener);
                   break;
                case 'option':
 
-               break;
+                  break;
                case 'select':
 
                   $(this.element).change(function() {
                      var value = self.detectSelectValue();
                      cb(value);
                   });
-                  $defered(function(){
+                  $defered(function() {
                      // If we have set the variable beforehand
-                     if ( self.variable.value.value !== undefined){
-                        $(self.element).find("option").each(function(index,i) {
-                           if ( i.$variable){
-                             if ( i.$variable.value.value === self.variable.value.value){
-                                i.selected = true;
-                             }
+                     if (self.variable.value.value !== undefined) {
+                        $(self.element).find("option").each(function(index, i) {
+                           if (i.$variable) {
+                              if (_.isEqual(i.$variable.value.value, self.variable.value.value)) {
+                                 i.selected = true;
+                              }
                            }
                         });
                      } else {
@@ -3126,7 +3126,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                var tag = this.$tag;
                // in case of option
                var storedVariable = this.$variable;
-               if ( storedVariable ){
+               if (storedVariable) {
                   value = storedVariable.value.value
                } else {
                   // Checking the value from simple attribute "value"

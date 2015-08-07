@@ -1,7 +1,7 @@
 <a href="#" ws-href="/kukka">KUKKA</a>
 <h1>Forms $some.name</h1>
 <input type="text" ws-value="$some.name"/>
-<table width="100%">
+<table width="100%" ws-if="{{$some.name === 'ivan'}}">
    <tr>
       <td valign="top" width="400" style="border:1px solid #ececec;padding:10px">
 
@@ -14,8 +14,8 @@
             <div>
                Age is $form.age.number
             </div>
-            <select ws-value="$form.age">
-               <option ws-repeat="$age in $ages" ws-value="$age">$age.age</option>
+            <select ws-value="$form.date">
+               <option ws-repeat="$date in $dates" ws-value="$date">$date</option>
             </select>
             <hr>
             <div>

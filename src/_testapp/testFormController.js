@@ -13,12 +13,15 @@ domain.service("controllers.Test", function($array, $form, $resource, $restEndPo
          this.number = number;
          this.age = this.number + " year";
       }
-      var obj1 = new TestObject(1);
-      var obj2 = new TestObject(2);
-      var obj3 = new TestObject(3);
+      var date1 = new Date("12.11.1984")
+      var date2 = new Date("12.12.1984")
+      var date3 = new Date("12.13.1984")
 
-      self.form.age = obj3;
-      this.ages = [obj1, obj2, obj3]
+      self.form.date = date3;
+      this.dates = [date1, date2, date3]
+
+
+
       self.users = $array("/api/user/:_id");
 
       self.form.mySuperDate = new Date();
