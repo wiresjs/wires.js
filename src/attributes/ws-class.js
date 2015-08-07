@@ -6,14 +6,11 @@
          create: function() {
             this.watcher = this.startWatching();
          },
-
          onExpression: function(expression) {
-
             var el = $(this.element);
             if (expression) {
                if (_.isPlainObject(expression.value)) {
                   _.each(expression.value, function(v, cls) {
-
                      if (v) {
                         if (!el.hasClass(cls)) {
                            el.addClass(cls)
@@ -24,7 +21,6 @@
                   });
                }
             }
-
          }
       });
       return WsVisible;
