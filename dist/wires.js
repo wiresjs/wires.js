@@ -1576,15 +1576,34 @@ var Wires = Wires || {};
          // Filter out system and private  objects
          // $ - system
          // _ - private
-         form.$getAttrs = function() {
+         form.$normalize = function(data){
             var attrs = {};
-            _.each(this, function(v, k) {
-               if (!k.match(/^(\$|_)/)) {
-                  attrs[k] = v;
-
+            if ( _.isString(data) ){
+               return data;
+            }
+            _.each(data, function(v, k) {
+               if ( v !== undefined && _.isString(k) ){
+                  if (!k.match(/^(\$|_)/)) {
+                     if ( _.isArray(v) ){
+                        attrs[k] = [];
+                        _.each(v, function(item){
+                           console.log(item, form.$normalize(item))
+                           attrs[k].push(form.$normalize(item));
+                        })
+                     }
+                     else if ( _.isObject(v) ){
+                        attrs[k] = form.$normalize(v);
+                     }
+                     else {
+                        attrs[k] = v;
+                     }
+                  }
                }
-            })
+            });
             return attrs;
+         }
+         form.$getAttrs = function() {
+            return form.$normalize(this);
          }
          form.$reset = function() {
             _.each(this, function(v, k) {
@@ -2766,14 +2785,11 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
          create: function() {
             this.watcher = this.startWatching();
          },
-
          onExpression: function(expression) {
-
             var el = $(this.element);
             if (expression) {
                if (_.isPlainObject(expression.value)) {
                   _.each(expression.value, function(v, cls) {
-
                      if (v) {
                         if (!el.hasClass(cls)) {
                            el.addClass(cls)
@@ -2784,7 +2800,6 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                   });
                }
             }
-
          }
       });
       return WsVisible;
