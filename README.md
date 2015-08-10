@@ -1,3 +1,4 @@
+
 wires.js
 ========
 
@@ -14,6 +15,14 @@ It will install dependencies, that you need to include into your project along w
 
 * Jquery
 * wires-domain
+
+
+## Including external views
+Use ws-include attribute.
+```html
+<div ws-include="myView.html"></div>
+```
+Parent scope will be automatically applied. Children will be ignored. (for now). It's planned to have "section" with inner contents in future.
 
 ## Resource
 Resource, in essense, represents an object with magic methods attached. It can fetch data into the object, as well as reset all defined parameters. 
