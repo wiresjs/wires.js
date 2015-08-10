@@ -1,7 +1,6 @@
 (function() {
-   domain.service("Conditional", ['TagNode', '$pathObject', '$array', '$watch', '$evaluate', '$pathObject', 'GarbageCollector'],
-   function(TagNode, $pathObject,
-      $array, $watch, $evaluate, $pathObject, GarbageCollector) {
+   domain.service("Conditional", ['TagNode',  '$array', '$watch', '$evaluate', '$pathObject', 'GarbageCollector'],
+   function(TagNode, $array, $watch, $evaluate, $pathObject, GarbageCollector) {
       return GarbageCollector.extend({
          initialize: function(opts) {
             var self = this;
@@ -15,18 +14,18 @@
 
             // Checking new scope
             // TODO: move to compiler
-            this.attachedScopePath;
+
             if ( parentDom.a && parentDom.a["ws-bind"] ){
                var wsBind = parentDom.a["ws-bind"];
                if ( _.values(wsBind.vars).length > 0 ){
-                  var newScope =  _.values(wsBind.vars)[0]
+                  var newScope =  _.values(wsBind.vars)[0];
                //   delete parentDom.a["ws-bind"];
                   this.attachedScopePath = newScope.p;
                }
             }
 
             this.element = document.createComment(' if ');
-            this.parent.addChild(this)
+            this.parent.addChild(this);
 
             // Evaluate and watch condition
             this.watchers = $evaluate(this.item.z, {
@@ -45,14 +44,16 @@
                            // check for modified SCOPE
                            var scope = self.scope;
                            if ( self.attachedScopePath ){
-                              scope = $pathObject(self.attachedScopePath, scope).value
+                              scope = $pathObject(self.attachedScopePath, scope).value;
                            }
+                           
                            var parentNode = new TagNode(parentDom, scope);
                            parentNode.create();
                            self.parentElement = parentNode.element;
 
 
                            // Kicking of the run with parent's children
+
                            self.run({
                               structure   : parentDom.c || [],
                               parentNode  : parentNode,
