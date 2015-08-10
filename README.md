@@ -24,7 +24,7 @@ Use ws-include attribute.
 ```
 Parent scope will be automatically applied. Children will be ignored. (for now). It's planned to have "section" with inner contents in future.
 
-Repeaters won't work directly with ws-include. It has to be wrapped.
+Repeaters and Conditional statements won't work directly with ws-include. It has to be wrapped.
 
 For example:
 ```html
