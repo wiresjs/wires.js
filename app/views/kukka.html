@@ -1,27 +1,6 @@
-<h1 ws-if="{{$name === 'ivan'}}">
-   <div class="">
-      <b>Some name $name</b>
+<h1>Hello $name</h1>
+<input type="text" ws-value="$trololo"/>
+<div ws-if="{{ $trololo }}">
+   <div ws-include="pukka.html">
    </div>
-   $name
-   <a href="#" ws-click="{{ doSomething() }}">SOME SHIT</a>
-   <a href="#" ws-click="{{ doSomething() }}">SOME SHIT</a>
-   <a href="#" ws-click="{{ doSomething() }}">SOME SHIT</a>
-</h1>
-
-<hr>
-<input type="text" ws-value="$name"/>
-<a href="#" ws-href="/test">TEST</a>
-
-
-bloody language1 $lng:names.expertName
-
-<!-- <h2>Kukka $lng.name $name</h2>
-<input type="text" ws-value="$name"/>
-<hr>
-<div ws-if="{{ $name === 'ivan' }}" ws-bind="$testData.some">
-   $name
 </div>
-<hr>
-<ul>
-   <li style="color: {{ $parent.name === 'bang' ? 'red' : 'blue' }}" ws-repeat="$user in $users">$user.name ( parent name $parent.name)</li>
-</ul> -->

@@ -1,9 +1,9 @@
 (function() {
-   domain.service("$run", ['TagNode', 'TextNode', 'Repeater', 'Conditional'],
-      function(TagNode, TextNode, Repeater, Conditional) {
+   domain.service("$run", ['TagNode', 'TextNode', 'Repeater', 'Conditional', 'Include'],
+      function(TagNode, TextNode, Repeater, Conditional, Include) {
          var run = function(opts) {
 
-            var opts = opts || {};
+            opts = opts || {};
             var structure = opts.structure || [];
             var target = opts.target || document.querySelector("section");
             var scope = opts.scope || {};
@@ -20,13 +20,12 @@
                   }
                   // type TAG
                   if (item.t === 2) {
-                     node = new TagNode(item, scope)
+                     node = new TagNode(item, scope);
                      var element = node.create(parent);
                      if (item.c) {
                         createElements(item.c, node);
                      }
                   }
-
                   // Type Repeater
                   if (item.t === 3) {
                      var repeater = new Repeater({
@@ -45,15 +44,27 @@
                         scope: scope
                      });
                   }
-               })
-            }
+
+                  // Include
+                  if (item.t === 5) {
+                     var include = new Include({
+                        run : run,
+                        item: item,
+                        parent: parent,
+                        scope: scope,
+                        createElements : createElements
+                     });
+                     include.create(parent);
+                  }
+               });
+            };
 
             var pNode = opts.parentNode || new TagNode(target);
             if ( !pNode.element){
                pNode.setElement(target);
             }
             createElements(structure, pNode);
-         }
+         };
          return run;
       });
 })();

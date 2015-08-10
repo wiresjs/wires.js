@@ -32,7 +32,6 @@
             });
 
             // Extracting the first variable defined
-            this.variable;
             if (watcher.locals && watcher.locals.length === 1) {
                this.variable = watcher.locals[0];
             }
@@ -44,7 +43,7 @@
                   self.selfUpdate = true;
                   self.variable.value.update(newValue);
                }
-            })
+            });
             return watcher;
          },
 
@@ -77,12 +76,13 @@
                      var _that = this;
                      clearInterval(self.interval);
                      self.interval = setTimeout(function() {
-                        cb($(_that).val())
+                        cb($(_that).val());
                      }, 50);
-                  }
+                  };
                   this.element.addEventListener("keydown", this.keyDownListener, false);
                   break;
                case 'checkbox':
+
                   this.clickListener = function(evt) {
                      var target = this.$checked;
                      if (_.isArray(target.value)) {
@@ -95,14 +95,17 @@
                         } else {
                            // Removing value from an array
                            if (index > -1) {
-                              target.value.splice(index, 1)
+                              target.value.splice(index, 1);
                            }
                         }
                      } else {
                         self.selfUpdate = true;
-                        self.variable.value.update(this.checked)
+                        self.variable.value.update(this.checked);
                      }
-                  }
+
+                  };
+
+                  
                   this.element.addEventListener("click", this.clickListener);
                   break;
                case 'option':

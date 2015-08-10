@@ -1381,9 +1381,9 @@ var Wires = Wires || {};
             value : instance[property],
             property : property,
             instance : instance
-         }
-      }
-   })
+         };
+      };
+   });
 })();
 
 (function(){
@@ -1414,11 +1414,11 @@ var Wires = Wires || {};
 })();
 
 (function() {
-   domain.service("$run", ['TagNode', 'TextNode', 'Repeater', 'Conditional'],
-      function(TagNode, TextNode, Repeater, Conditional) {
+   domain.service("$run", ['TagNode', 'TextNode', 'Repeater', 'Conditional', 'Include'],
+      function(TagNode, TextNode, Repeater, Conditional, Include) {
          var run = function(opts) {
 
-            var opts = opts || {};
+            opts = opts || {};
             var structure = opts.structure || [];
             var target = opts.target || document.querySelector("section");
             var scope = opts.scope || {};
@@ -1435,13 +1435,12 @@ var Wires = Wires || {};
                   }
                   // type TAG
                   if (item.t === 2) {
-                     node = new TagNode(item, scope)
+                     node = new TagNode(item, scope);
                      var element = node.create(parent);
                      if (item.c) {
                         createElements(item.c, node);
                      }
                   }
-
                   // Type Repeater
                   if (item.t === 3) {
                      var repeater = new Repeater({
@@ -1460,15 +1459,27 @@ var Wires = Wires || {};
                         scope: scope
                      });
                   }
-               })
-            }
+
+                  // Include
+                  if (item.t === 5) {
+                     var include = new Include({
+                        run : run,
+                        item: item,
+                        parent: parent,
+                        scope: scope,
+                        createElements : createElements
+                     });
+                     include.create(parent);
+                  }
+               });
+            };
 
             var pNode = opts.parentNode || new TagNode(target);
             if ( !pNode.element){
                pNode.setElement(target);
             }
             createElements(structure, pNode);
-         }
+         };
          return run;
       });
 })();
@@ -2015,9 +2026,8 @@ var Wires = Wires || {};
 })();
 
 (function() {
-   domain.service("Conditional", ['TagNode', '$pathObject', '$array', '$watch', '$evaluate', '$pathObject', 'GarbageCollector'],
-   function(TagNode, $pathObject,
-      $array, $watch, $evaluate, $pathObject, GarbageCollector) {
+   domain.service("Conditional", ['TagNode',  '$array', '$watch', '$evaluate', '$pathObject', 'GarbageCollector'],
+   function(TagNode, $array, $watch, $evaluate, $pathObject, GarbageCollector) {
       return GarbageCollector.extend({
          initialize: function(opts) {
             var self = this;
@@ -2031,18 +2041,18 @@ var Wires = Wires || {};
 
             // Checking new scope
             // TODO: move to compiler
-            this.attachedScopePath;
+
             if ( parentDom.a && parentDom.a["ws-bind"] ){
                var wsBind = parentDom.a["ws-bind"];
                if ( _.values(wsBind.vars).length > 0 ){
-                  var newScope =  _.values(wsBind.vars)[0]
+                  var newScope =  _.values(wsBind.vars)[0];
                //   delete parentDom.a["ws-bind"];
                   this.attachedScopePath = newScope.p;
                }
             }
 
             this.element = document.createComment(' if ');
-            this.parent.addChild(this)
+            this.parent.addChild(this);
 
             // Evaluate and watch condition
             this.watchers = $evaluate(this.item.z, {
@@ -2061,14 +2071,16 @@ var Wires = Wires || {};
                            // check for modified SCOPE
                            var scope = self.scope;
                            if ( self.attachedScopePath ){
-                              scope = $pathObject(self.attachedScopePath, scope).value
+                              scope = $pathObject(self.attachedScopePath, scope).value;
                            }
+                           
                            var parentNode = new TagNode(parentDom, scope);
                            parentNode.create();
                            self.parentElement = parentNode.element;
 
 
                            // Kicking of the run with parent's children
+
                            self.run({
                               structure   : parentDom.c || [],
                               parentNode  : parentNode,
@@ -2152,6 +2164,34 @@ var Wires = Wires || {};
 })();
 
 (function() {
+   domain.service("Include", ['TagNode', '$loadView'], function(TagNode, $loadView) {
+      var Include = TagNode.extend({
+         initialize : function(data){
+            Include.__super__.initialize.apply(this, [data.item, data.scope]);
+            this.run = data.run;
+
+         },
+         create : function(){
+            Include.__super__.create.apply(this, arguments);
+            var el = this.element;
+            var scope = this.scope;
+            // getting the data from window.__wires_views__
+            var structure;
+            if ( (structure = window.__wires_views__[this.item.v]) ) {
+
+               this.run({
+                  structure : structure,
+                  target : el,
+                  scope : scope
+               });
+            }
+         }
+      });
+      return Include;
+   });
+})();
+
+(function() {
    domain.service("Proxy", function() {
       return Wires.Class.extend({
          initialize: function() {
@@ -2212,14 +2252,14 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
             self.array = $array(newvalue);
             if ( !self.element){
                self.element = document.createComment('repeat ' + self.scopeKey);
-               self.parent.addChild(self)
+               self.parent.addChild(self);
             }
             self.assign();
-         })
+         });
 
 
          // Getting the target array
-         var arrayPath = $pathObject(targetVars.vars.__v1.p, this.scope)
+         var arrayPath = $pathObject(targetVars.vars.__v1.p, this.scope);
 
          var array = arrayPath.value ? arrayPath.value : arrayPath.update([]);
 
@@ -2240,7 +2280,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
          var self = this;
          _.each(this.array, function(element){
             self.addItem(element);
-         })
+         });
       },
       detach : function(){
          _.each(this._arrayElements, function(item){
@@ -2258,8 +2298,8 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
          var localScope = {
             parent : this.scope,
             index  : this._arrayElements.length
-         }
-         localScope[this.scopeKey] = arrayItem
+         };
+         localScope[this.scopeKey] = arrayItem;
 
          var parentNode = new TagNode(parentDom, localScope);
          parentNode.create();
@@ -2268,7 +2308,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
          var afterElement = this.element;
          var index = this._arrayElements.length;
          if ( index > 0 ){
-            afterElement = this._arrayElements[index-1]
+            afterElement = this._arrayElements[index-1];
          }
 
          // Appending element
@@ -2276,7 +2316,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
          cNode.parentNode.insertBefore(parentNode.element, cNode.nextSibling);
          //$(parentNode.element).insertAfter((afterElement.node ? afterElement.node.element : afterElement ) )
 
-         this._arrayElements.push({ node : parentNode, localScope : localScope} )
+         this._arrayElements.push({ node : parentNode, localScope : localScope} );
          this.element.$scope = localScope;
          this.element.$tag = self;
          //Running children
@@ -2298,7 +2338,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
                 $(el).remove();
             }
 			}
-         this._arrayElements.splice(index, howmany)
+         this._arrayElements.splice(index, howmany);
          // Reset indexes for items
          _.each(this._arrayElements, function(item, index){
             item.localScope.index = index;
@@ -2309,11 +2349,11 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
             this.addItem(target);
          }
          if ( event === 'splice'){
-            this.removeItem(target, howmany)
+            this.removeItem(target, howmany);
          }
       }
-   })
-})
+   });
+});
 
 domain.service("TagAttribute", ['GarbageCollector','$evaluate'],function(GarbageCollector, $evaluate){
    var TagAttribute =  GarbageCollector.extend({
@@ -2723,11 +2763,12 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                   this.currentValue = currentVar.value.value;
                }
                this.watcher = [];
-               this.watcher.push(this.startWatching())
+               this.watcher.push(this.startWatching());
 
                this.arrayWatcher = false;
             },
             onValue: function(v) {
+
                var self = this;
                if ( this.selfUpdate === true){
                   this.selfUpdate = false;
@@ -2751,7 +2792,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                            // Getting spliced objects
 
                            for(var i = start; i<= end; i++){
-                              var modifiedValue = targetValue[i]
+                              var modifiedValue = targetValue[i];
 
                               if ( modifiedValue === self.currentValue){
                                  if ( self.element.checked === true){
@@ -2761,8 +2802,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                            }
                         } else {
                            if ( self.currentValue === start){
-                              var isChecked = targetValue.indexOf(start) > -1;
-                              self.element.checked = isChecked
+                              self.element.checked = targetValue.indexOf(start) > -1;
                            }
                         }
                      });
@@ -2772,19 +2812,19 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                      var isChecked = targetValue.indexOf(this.currentValue) > -1;
                      if ( isChecked ){
                         this.element.checked = true;
-
                      } else {
                         this.element.checked = false;
                      }
                   }
                } else {
                   this.selfUpdate = true;
-                  targetObject.update(!targetValue ? false : true);
+                  this.element.checked = targetValue ? true : false;
+                  targetObject.update(targetValue ? true : false);
                }
             }
          });
          return WsOption;
-      })
+      });
 })();
 
 (function() {
@@ -2966,30 +3006,31 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
       var WsClick = TagAttribute.extend({
          detach : function(){
             if ( this.submitListener ){
-               this.element.removeEventListener(this.submitListener);
+               this.element.removeEventListener("submit",this.submitListener);
             }
          },
          create: function() {
             var self = this;
             this.submitListener = function(event) {
+               console.log("submit");
                try {
-                  var e = event.originalEvent;
+
                   $evaluate(self.attr, {
                      scope: self.scope,
-                     element: e.target,
-                     target: e.target.$scope,
+                     element: event.target,
+                     target: event.target.$scope,
                      watchVariables: false
                   });
                } catch (e) {
-                  console.error(e.stack || e)
+                  console.error(e.stack || e);
                }
-               e.preventDefault();
-            }
-            this.element.addEventListener(this.submitListener)
+               event.preventDefault();
+            };
+            this.element.addEventListener("submit", this.submitListener);
          }
       });
       return WsClick;
-   })
+   });
 
 })();
 
@@ -3027,7 +3068,6 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
             });
 
             // Extracting the first variable defined
-            this.variable;
             if (watcher.locals && watcher.locals.length === 1) {
                this.variable = watcher.locals[0];
             }
@@ -3039,7 +3079,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                   self.selfUpdate = true;
                   self.variable.value.update(newValue);
                }
-            })
+            });
             return watcher;
          },
 
@@ -3072,12 +3112,13 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                      var _that = this;
                      clearInterval(self.interval);
                      self.interval = setTimeout(function() {
-                        cb($(_that).val())
+                        cb($(_that).val());
                      }, 50);
-                  }
+                  };
                   this.element.addEventListener("keydown", this.keyDownListener, false);
                   break;
                case 'checkbox':
+
                   this.clickListener = function(evt) {
                      var target = this.$checked;
                      if (_.isArray(target.value)) {
@@ -3090,14 +3131,17 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                         } else {
                            // Removing value from an array
                            if (index > -1) {
-                              target.value.splice(index, 1)
+                              target.value.splice(index, 1);
                            }
                         }
                      } else {
                         self.selfUpdate = true;
-                        self.variable.value.update(this.checked)
+                        self.variable.value.update(this.checked);
                      }
-                  }
+
+                  };
+
+                  
                   this.element.addEventListener("click", this.clickListener);
                   break;
                case 'option':

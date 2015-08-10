@@ -1,11 +1,11 @@
-var _ = require('lodash')
+var _ = require('lodash');
 
 var preCompile = function(str, opts) {
    var _counter = 0;
 
    var extractVariablesAndFunction = function(input, replaceString) {
       var _out = {};
-      var params = /\$(\{)?(([a-zA-Z-0-9_$.]+)(\([^\)]*\))?)(\})?/g.execAll(input)
+      var params = /\$(\{)?(([a-zA-Z-0-9_$.]+)(\([^\)]*\))?)(\})?/g.execAll(input);
       _.each(params, function(param, index) {
          var key = "__v" + _counter++;
          // Preparing the string with macros
@@ -23,12 +23,12 @@ var preCompile = function(str, opts) {
             // we are not creating custom language parser (like in angular)
             var fSource = param[0];
             if (fSource[0] === "$") {
-               fSource = "$." + fSource.slice(1, fSource.length)
+               fSource = "$." + fSource.slice(1, fSource.length);
             }
             _out.funcs[key] = {
                p: path,
                f: fSource
-            }
+            };
          } else {
             if (!_out.vars) {
                _out.vars = {};
@@ -37,34 +37,34 @@ var preCompile = function(str, opts) {
             // This variable will be watched
             _out.vars[key] = {
                p: path
-            }
+            };
          }
       });
       return _out;
-   }
+   };
 
    var _out = {};
    // Extract proxies
-   var proxies = /\$(\w+):([a-zA-Z-0-9._]+)/g.execAll(str)
+   var proxies = /\$(\w+):([a-zA-Z-0-9._]+)/g.execAll(str);
    _.each(proxies, function(_proxy){
       var key = "__p" + _counter++;
       str = str.split(_proxy[0]).join(key);
       var proxyName = _proxy[1];
       var proxyKey = _proxy[2];
       if (!_out.x){
-          _out.x = {}
+          _out.x = {};
       }
-      _out.x[key] = { n : proxyName, k : proxyKey}
-   })
+      _out.x[key] = { n : proxyName, k : proxyKey};
+   });
    // Expressions within {{  }}
    // ******************************************************
-   var expressions = /\{\{(.+)\}\}/g.execAll(str)
+   var expressions = /\{\{(.+)\}\}/g.execAll(str);
 
    _.each(expressions, function(_expr) {
 
       var stringExpression = _expr[1];
 
-      var exprOut = extractVariablesAndFunction(stringExpression)
+      var exprOut = extractVariablesAndFunction(stringExpression);
       if (!_out.vars) {
          _out.vars = {};
       }
@@ -77,7 +77,7 @@ var preCompile = function(str, opts) {
       _.each(stringExpression, function(symbol) {
 
          if (!ignoreNext && symbol === "$") {
-            replacedExpression.push('this.')
+            replacedExpression.push('this.');
             ignoreNext = false;
          } else {
             replacedExpression.push(symbol);
@@ -86,12 +86,12 @@ var preCompile = function(str, opts) {
          if (symbol === ".") {
             ignoreNext = true;
          }
-      })
+      });
 
       _out.vars[key] = {
          e: replacedExpression.join('').trim(),
          v: exprOut.vars || {}
-      }
+      };
    });
 
    // Variables and functions starting with $
@@ -108,6 +108,6 @@ var preCompile = function(str, opts) {
       delete _out.vars;
    }
    return _out;
-}
+};
 
 module.exports = preCompile;

@@ -1,12 +1,12 @@
 <a href="#" ws-href="/kukka">KUKKA</a>
 <h1>Forms $some.name</h1>
 <input type="text" ws-value="$some.name"/>
-<table width="100%" ws-if="{{$some.name === 'ivan'}}">
+<table width="100%">
    <tr>
       <td valign="top" width="400" style="border:1px solid #ececec;padding:10px">
 
 
-         <form ws-submit="{{ $create() }}" ws-class="{{ { 'ivan' : $form.name === 'ivan' } }}">
+         <form ws-submit="{{ $create() }}">
             <input type="text" ws-value="$form.name"/>
 
 
@@ -42,7 +42,7 @@
             <hr>
             <div>Checkboxes true/false</div>
 
-            <input type="checkbox" ws-value="$agree" ws-checked="$form.agree">I agree ($agree)
+            <input type="checkbox" ws-value="$form.agree" ws-checked="$form.agree">I agree ($agree)
             <div>
                <span ws-if="{{ !$agree}}" style="color:red">You must agree</span>
             </div>

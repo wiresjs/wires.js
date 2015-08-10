@@ -9,11 +9,12 @@
                   this.currentValue = currentVar.value.value;
                }
                this.watcher = [];
-               this.watcher.push(this.startWatching())
+               this.watcher.push(this.startWatching());
 
                this.arrayWatcher = false;
             },
             onValue: function(v) {
+
                var self = this;
                if ( this.selfUpdate === true){
                   this.selfUpdate = false;
@@ -37,7 +38,7 @@
                            // Getting spliced objects
 
                            for(var i = start; i<= end; i++){
-                              var modifiedValue = targetValue[i]
+                              var modifiedValue = targetValue[i];
 
                               if ( modifiedValue === self.currentValue){
                                  if ( self.element.checked === true){
@@ -47,8 +48,7 @@
                            }
                         } else {
                            if ( self.currentValue === start){
-                              var isChecked = targetValue.indexOf(start) > -1;
-                              self.element.checked = isChecked
+                              self.element.checked = targetValue.indexOf(start) > -1;
                            }
                         }
                      });
@@ -58,17 +58,17 @@
                      var isChecked = targetValue.indexOf(this.currentValue) > -1;
                      if ( isChecked ){
                         this.element.checked = true;
-
                      } else {
                         this.element.checked = false;
                      }
                   }
                } else {
                   this.selfUpdate = true;
-                  targetObject.update(!targetValue ? false : true);
+                  this.element.checked = targetValue ? true : false;
+                  targetObject.update(targetValue ? true : false);
                }
             }
          });
          return WsOption;
-      })
+      });
 })();

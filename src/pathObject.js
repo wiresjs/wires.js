@@ -29,7 +29,7 @@
             value : instance[property],
             property : property,
             instance : instance
-         }
-      }
-   })
+         };
+      };
+   });
 })();

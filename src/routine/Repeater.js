@@ -27,14 +27,14 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
             self.array = $array(newvalue);
             if ( !self.element){
                self.element = document.createComment('repeat ' + self.scopeKey);
-               self.parent.addChild(self)
+               self.parent.addChild(self);
             }
             self.assign();
-         })
+         });
 
 
          // Getting the target array
-         var arrayPath = $pathObject(targetVars.vars.__v1.p, this.scope)
+         var arrayPath = $pathObject(targetVars.vars.__v1.p, this.scope);
 
          var array = arrayPath.value ? arrayPath.value : arrayPath.update([]);
 
@@ -55,7 +55,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
          var self = this;
          _.each(this.array, function(element){
             self.addItem(element);
-         })
+         });
       },
       detach : function(){
          _.each(this._arrayElements, function(item){
@@ -73,8 +73,8 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
          var localScope = {
             parent : this.scope,
             index  : this._arrayElements.length
-         }
-         localScope[this.scopeKey] = arrayItem
+         };
+         localScope[this.scopeKey] = arrayItem;
 
          var parentNode = new TagNode(parentDom, localScope);
          parentNode.create();
@@ -83,7 +83,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
          var afterElement = this.element;
          var index = this._arrayElements.length;
          if ( index > 0 ){
-            afterElement = this._arrayElements[index-1]
+            afterElement = this._arrayElements[index-1];
          }
 
          // Appending element
@@ -91,7 +91,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
          cNode.parentNode.insertBefore(parentNode.element, cNode.nextSibling);
          //$(parentNode.element).insertAfter((afterElement.node ? afterElement.node.element : afterElement ) )
 
-         this._arrayElements.push({ node : parentNode, localScope : localScope} )
+         this._arrayElements.push({ node : parentNode, localScope : localScope} );
          this.element.$scope = localScope;
          this.element.$tag = self;
          //Running children
@@ -113,7 +113,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
                 $(el).remove();
             }
 			}
-         this._arrayElements.splice(index, howmany)
+         this._arrayElements.splice(index, howmany);
          // Reset indexes for items
          _.each(this._arrayElements, function(item, index){
             item.localScope.index = index;
@@ -124,8 +124,8 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
             this.addItem(target);
          }
          if ( event === 'splice'){
-            this.removeItem(target, howmany)
+            this.removeItem(target, howmany);
          }
       }
-   })
-})
+   });
+});
