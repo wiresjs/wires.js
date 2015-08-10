@@ -26,7 +26,7 @@ domain.service("controllers.Test", function($array, $form, $resource, $restEndPo
 
       self.form.mySuperDate = new Date();
       self.form.ids =[];
-      self.form.agree = true
+      self.form.agree = true;
       this.item1 = { id : "num1", title : "num1" };
       this.item2 = { id: "num2", title : "num2"};
       this.item3 = { id :"num3", title : "num3"};
