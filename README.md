@@ -24,6 +24,16 @@ Use ws-include attribute.
 ```
 Parent scope will be automatically applied. Children will be ignored. (for now). It's planned to have "section" with inner contents in future.
 
+Repeaters won't work directly with ws-include. It has to be wrapped.
+
+For example:
+```html
+<div ws-repeat="$user in $users">
+   <div ws-include="myView.html"></div>
+</div>
+```
+
+
 ## Resource
 Resource, in essense, represents an object with magic methods attached. It can fetch data into the object, as well as reset all defined parameters. 
 
