@@ -2785,26 +2785,21 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                   // Check if this array is watched
                   if ( !this.arrayWatcher){
                      this.watcherCreated = true;
+                     var validateValues = function(){
+                        var shouldBeChecked = false;
+                        _.each(targetValue, function(item){
+                           if ( _.isEqual(item, self.currentValue )){
+                              shouldBeChecked = true;
+                           }
+                        });
+
+                        self.element.checked = shouldBeChecked;
+
+                     };
                      this.arrayWatcher = targetValue.$watch(function(event, start, end){
-                        var isChecked;
-                        if ( event === "splice"){
-                           var index = v;
-                           // Getting spliced objects
-
-                           for(var i = start; i<= end; i++){
-                              var modifiedValue = targetValue[i];
-
-                              if ( modifiedValue === self.currentValue){
-                                 if ( self.element.checked === true){
-                                    self.element.checked = false;
-                                 }
-                              }
-                           }
-                        } else {
-                           if ( self.currentValue === start){
-                              self.element.checked = targetValue.indexOf(start) > -1;
-                           }
-                        }
+                        $defered(function(){
+                           validateValues();
+                        });
                      });
                      self.watcher.push(self.arrayWatcher);
                   }
