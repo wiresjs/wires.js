@@ -1,6 +1,11 @@
-<h1>Hello $name</h1>
+<h1>Hello $name $trololo</h1>
+<h2>$name</h2>
 <input type="text" ws-value="$trololo"/>
-<div ws-if="{{ $trololo }}">
-   <div ws-include="pukka.html">
-   </div>
+<div ws-if="{{ $trololo }}" ws-bind="$someScope" style="color: $trololo" ws-include="pukka.html">
+
+</div>
+
+<hr>
+<div ws-bind="$someScope" ws-include="pukka.html">
+
 </div>

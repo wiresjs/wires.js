@@ -75,9 +75,12 @@
                   this.keyDownListener = function(evt) {
                      var _that = this;
                      clearInterval(self.interval);
-                     self.interval = setTimeout(function() {
-                        cb($(_that).val());
-                     }, 50);
+                     //  $defered(function(){
+                     //        cb($(_that).val());
+                     //  });
+                      self.interval = setTimeout(function() {
+                         cb($(_that).val());
+                      }, 50);
                   };
                   this.element.addEventListener("keydown", this.keyDownListener, false);
                   break;
@@ -105,7 +108,7 @@
 
                   };
 
-                  
+
                   this.element.addEventListener("click", this.clickListener);
                   break;
                case 'option':

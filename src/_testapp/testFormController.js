@@ -21,7 +21,7 @@ domain.service("controllers.Test", function($array, $form, $resource, $restEndPo
       this.dates = [date1, date2, date3];
 
 
-
+      
       self.users = $array("/api/user/:_id");
 
       self.form.mySuperDate = new Date();

@@ -19,7 +19,6 @@
                var wsBind = parentDom.a["ws-bind"];
                if ( _.values(wsBind.vars).length > 0 ){
                   var newScope =  _.values(wsBind.vars)[0];
-               //   delete parentDom.a["ws-bind"];
                   this.attachedScopePath = newScope.p;
                }
             }
@@ -46,16 +45,25 @@
                            if ( self.attachedScopePath ){
                               scope = $pathObject(self.attachedScopePath, scope).value;
                            }
-                           
+
                            var parentNode = new TagNode(parentDom, scope);
                            parentNode.create();
                            self.parentElement = parentNode.element;
 
-
+                           // check for the include
+                           var includes;
+                           var structure = parentDom.c || [];
+                           if ( parentDom.a && ( includes = parentDom.a["ws-include"]) ){
+                              if ( window.__wires_views__[includes.tpl] ) {
+                                 structure = window.__wires_views__[includes.tpl];
+                              } else {
+                                 console.error(includes.tpl + " was not found");
+                              }
+                           }
                            // Kicking of the run with parent's children
 
                            self.run({
-                              structure   : parentDom.c || [],
+                              structure   : structure,
                               parentNode  : parentNode,
                               scope       : scope
                            });

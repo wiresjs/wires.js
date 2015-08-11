@@ -1428,6 +1428,8 @@ var Wires = Wires || {};
                _.each(children, function(item) {
 
                   var node;
+                  
+
                   // type TEXT
                   if (item.t === 1) {
                      node = new TextNode(item, scope);
@@ -2046,7 +2048,6 @@ var Wires = Wires || {};
                var wsBind = parentDom.a["ws-bind"];
                if ( _.values(wsBind.vars).length > 0 ){
                   var newScope =  _.values(wsBind.vars)[0];
-               //   delete parentDom.a["ws-bind"];
                   this.attachedScopePath = newScope.p;
                }
             }
@@ -2073,16 +2074,25 @@ var Wires = Wires || {};
                            if ( self.attachedScopePath ){
                               scope = $pathObject(self.attachedScopePath, scope).value;
                            }
-                           
+
                            var parentNode = new TagNode(parentDom, scope);
                            parentNode.create();
                            self.parentElement = parentNode.element;
 
-
+                           // check for the include
+                           var includes;
+                           var structure = parentDom.c || [];
+                           if ( parentDom.a && ( includes = parentDom.a["ws-include"]) ){
+                              if ( window.__wires_views__[includes.tpl] ) {
+                                 structure = window.__wires_views__[includes.tpl];
+                              } else {
+                                 console.error(includes.tpl + " was not found");
+                              }
+                           }
                            // Kicking of the run with parent's children
 
                            self.run({
-                              structure   : parentDom.c || [],
+                              structure   : structure,
                               parentNode  : parentNode,
                               scope       : scope
                            });
@@ -2164,7 +2174,7 @@ var Wires = Wires || {};
 })();
 
 (function() {
-   domain.service("Include", ['TagNode', '$loadView'], function(TagNode, $loadView) {
+   domain.service("Include", ['TagNode', '$pathObject'], function(TagNode, $pathObject) {
       var Include = TagNode.extend({
          initialize : function(data){
             Include.__super__.initialize.apply(this, [data.item, data.scope]);
@@ -2174,16 +2184,29 @@ var Wires = Wires || {};
          create : function(){
             Include.__super__.create.apply(this, arguments);
             var el = this.element;
+            var attrs = this.item.a;
             var scope = this.scope;
             // getting the data from window.__wires_views__
             var structure;
             if ( (structure = window.__wires_views__[this.item.v]) ) {
+
+               if ( attrs && attrs["ws-bind"] ){
+                  var wsBind = attrs["ws-bind"];
+
+                  if ( _.values(wsBind.vars).length > 0 ){
+
+                     scope = $pathObject( _.values(wsBind.vars)[0].p, this.scope).value;
+                     
+                  }
+               }
 
                this.run({
                   structure : structure,
                   target : el,
                   scope : scope
                });
+            } else {
+               console.error(this.item.v + " was not found!");
             }
          }
       });
@@ -3106,9 +3129,12 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                   this.keyDownListener = function(evt) {
                      var _that = this;
                      clearInterval(self.interval);
-                     self.interval = setTimeout(function() {
-                        cb($(_that).val());
-                     }, 50);
+                     //  $defered(function(){
+                     //        cb($(_that).val());
+                     //  });
+                      self.interval = setTimeout(function() {
+                         cb($(_that).val());
+                      }, 50);
                   };
                   this.element.addEventListener("keydown", this.keyDownListener, false);
                   break;
@@ -3136,7 +3162,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
 
                   };
 
-                  
+
                   this.element.addEventListener("click", this.clickListener);
                   break;
                case 'option':

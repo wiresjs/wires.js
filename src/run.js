@@ -13,6 +13,8 @@
                _.each(children, function(item) {
 
                   var node;
+                  
+
                   // type TEXT
                   if (item.t === 1) {
                      node = new TextNode(item, scope);
