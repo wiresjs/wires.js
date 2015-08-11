@@ -204,6 +204,11 @@ module.exports = {
                   res.send(js);
                });
             };
+         },
+         source : function(cb){
+            getJavascript(folder, function(js){
+               cb(js);
+            });
          }
       };
    }

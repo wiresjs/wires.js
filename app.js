@@ -21,8 +21,8 @@ app.use('/src', express.static(__dirname + '/src'));
 app.use('/dist', express.static(__dirname + '/dist/'));
 
 
-require('require-all')(__dirname + "/testbackend")
-var includeAll = require("wires-include-all")
+require('require-all')(__dirname + "/testbackend");
+var includeAll = require("wires-include-all");
 
 
 domain.path(new RegExp('\/.*'),
