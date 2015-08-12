@@ -14,7 +14,13 @@ domain.service("TagNode", ['$tagAttrs', 'GarbageCollector'],function($tagAttrs, 
          this.element.$tag = this;
       },
       create : function(parent){
-         this.setElement(document.createElement(this.item.n));
+         var el = document.createElement(this.item.n);
+         
+         // We need to have the element it is has animation property
+         if ( this.item.a && this.item.a["ws-animation"] ) {
+            $(el).hide();
+         }
+         this.setElement(el);
          if ( parent ){
             parent.addChild(this);
          }
@@ -29,6 +35,7 @@ domain.service("TagNode", ['$tagAttrs', 'GarbageCollector'],function($tagAttrs, 
       // Watching if dom Removed
       startWatching : function(){
          var self = this;
+
          this.attributes = $tagAttrs.create(this.item, this.scope, this.element);
       }
    });

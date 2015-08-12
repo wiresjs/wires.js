@@ -15,11 +15,11 @@
                var data = $evaluate(self.attr, {
                   scope: self.scope,
                   element : target,
-                  target : target.$scope,
+                  target : { scope: target.$scope, element : self.element },
                   watchVariables : false
                });
                e.preventDefault();
-            }
+            };
             this.eventName = window.isMobile ? "touchend" : "click";
             this.clickListener = this.element.addEventListener(this.eventName, this.elementClicked);
          }

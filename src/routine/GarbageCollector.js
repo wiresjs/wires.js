@@ -1,7 +1,7 @@
 (function() {
    domain.service("GarbageCollector", function() {
       return Wires.Class.extend({
-         gc: function(recursive) {
+         gc: function(cleanOnly) {
             var self = this;
             if ( this.element ){
                $(this.element).unbind();
@@ -17,7 +17,7 @@
                         _.each(attribute.watcher, function(w) {
 
                            w.detach();
-                        })
+                        });
                      } else {
                         attribute.watcher.detach();
                      }
@@ -27,11 +27,11 @@
                   }
                });
 
-               self.attributes.splice(0, self.attributes.length - 1)
+               self.attributes.splice(0, self.attributes.length - 1);
                delete self.attributes;
             }
             if ( self.watchers ){
-               var collection = [].concat(self.watchers)
+               var collection = [].concat(self.watchers);
                _.each(collection, function(watcher) {
                   watcher.detach();
                });
@@ -40,13 +40,34 @@
             // So we iterate over each text node
             // And detach watchers manually
             //if ( recursive ){
-            if (self.children) {
-               _.each(self.children, function(child) {
-                  child.gc();
-               });
+
+            var removeChildren = function(){
+               if (self.children) {
+                  _.each(self.children, function(child) {
+                     child.gc();
+                  });
+               }
+            };
+            if ( !cleanOnly ){
+               if ( self.element.$destroy ){
+                  var result = self.element.$destroy();
+                  if (result instanceof Promise ){
+                     result.then(function(){
+                        $(self.element).remove();
+                        removeChildren();
+                     });
+                  } else {
+                     $(self.element).remove();
+                     removeChildren();
+                  }
+               } else {
+
+                  $(self.element).remove();
+                  removeChildren();
+               }
             }
 
          }
-      })
-   })
+      });
+   });
 })();

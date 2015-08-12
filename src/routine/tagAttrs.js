@@ -14,10 +14,10 @@ domain.service("$tagAttrs", ['TagAttribute','$evaluate', '$customAttributes'],
                attr : attr,
                name : name,
                element : element
-            }
-            
+            };
             if ( $customAttributes[customPath] ){
-               tagAttribute = new $customAttributes[customPath](opts)
+
+               tagAttribute = new $customAttributes[customPath](opts);
             } else{
                tagAttribute = new TagAttribute(opts);
             }
@@ -26,10 +26,10 @@ domain.service("$tagAttrs", ['TagAttribute','$evaluate', '$customAttributes'],
                tagAttribute.create();
                attributes.push(tagAttribute);
             } else {
-               console.log("no attr", customPath)
+               console.log("no attr", customPath);
             }
          });
          return attributes;
       }
-   }
-})
+   };
+});

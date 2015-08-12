@@ -108,9 +108,7 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
 
             if ( this._arrayElements[i] ){
                 var el = this._arrayElements[i].node.element;
-                // removing the actual dom element
                 el.$tag.gc();
-                $(el).remove();
             }
 			}
          this._arrayElements.splice(index, howmany);

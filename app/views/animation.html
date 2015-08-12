@@ -1,0 +1,14 @@
+<h1>HJello</h1>
+<div>
+   <div class="user" ws-animation="ws-spring" ws-repeat="$user in $users">
+      <div style="height:50px; width:100px; background-color:red">
+
+      </div>
+      $user.name <i  ws-click="{{ $parent.users.$remove($user) }}">delete</i>
+   </div>
+</div>
+<hr>
+<form ws-animation="ws-fade" ws-submit="{{ $create(target) }}">
+   <input type="text" ws-value="$form.name">
+   <input type="button" value="create">
+</form>

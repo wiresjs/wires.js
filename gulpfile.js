@@ -8,7 +8,8 @@ var external = [
    'external/lib/path2regexp.js',
    'external/lib/wires.class.js',
    'external/bower_components/wires-domain/dist/wires-domain.js',
-]
+   'external/bower_components/velocity/velocity.min.js',
+];
 
 var data = { files : [] };
 

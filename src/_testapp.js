@@ -1,8 +1,9 @@
 domain.service("controllers.Base", function() {
    return ['base.html', function() {
 
-   }]
-})
+   }];
+});
+
 
 $(function() {
    domain.require(function($router) {
@@ -11,10 +12,11 @@ $(function() {
       $router.add('/:ctrl?/:action?/:id?', 'Base', [
          $router.state('/calendar', 'Calendar'),
          $router.state('/test', 'Test'),
-         $router.state('/kukka', 'Kukka')
-      ])
+         $router.state('/kukka', 'Kukka'),
+         $router.state('/animation', 'Animation')
+      ]);
 
 
       $router.start();
-   })
-})
+   });
+});

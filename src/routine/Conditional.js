@@ -74,10 +74,9 @@
                         if (  self.parentElement ){
                            if ( self.parentElement.$tag ){
                               self.parentElement.$tag.gc();
+                           } else {
+                              $(self.parentElement).remove();
                            }
-
-                           $(self.parentElement).remove();
-
                            self.parentElement = undefined;
                         }
                      }
@@ -86,7 +85,7 @@
             });
 
          }
-      })
-   })
+      });
+   });
 
 })();
