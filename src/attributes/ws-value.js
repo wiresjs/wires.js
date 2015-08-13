@@ -67,9 +67,16 @@
                elType = 'text';
             }
 
+
             switch (elType) {
                case 'text':
                case 'email':
+               case 'date':
+               case 'datetime':
+               case 'month':
+               case 'search':
+               case 'url':
+               case 'tel':
                case 'password':
                case 'textarea':
                   this.keyDownListener = function(evt) {
