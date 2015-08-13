@@ -1490,60 +1490,61 @@ var Wires = Wires || {};
       });
 })();
 
-(function(){
+(function() {
    var _proxies = {};
-   domain.service("$watch", ['$pathObject', '$array', '$projectProxies'], function($pathObject, $array, $projectProxies){
-      return function(path, scope, cb){
+   domain.service("$watch", ['$pathObject', '$array', '$projectProxies'], function($pathObject, $array,
+      $projectProxies) {
+      return function(path, scope, cb) {
 
          var pathObject = $pathObject(path, scope);
          var instance = pathObject.instance;
          var property = pathObject.property;
 
-         if ( !instance.$watchers ){
+         if (!instance.$watchers) {
             instance.$watchers = {};
          }
          // prototyping array if it was not
-         if ( _.isArray(instance) ){
-            instance = $array(instance)
+         if (_.isArray(instance)) {
+            instance = $array(instance);
          }
 
-         if (!_.isObject(instance) && _.isString(property) )
+         if (!_.isObject(instance) && _.isString(property))
             return;
 
-
          // detecting if property has been requested to be watched
-         if ( !instance.$watchers[property] ){
+         if (!instance.$watchers[property]) {
             instance.$watchers[property] = [];
          }
-         if ( cb ){
+         if (cb) {
             instance.$watchers[property].push(cb);
          }
 
-         if ( instance.$watchers[property].length === 1 ){
+         if (instance.$watchers[property].length === 1) {
 
             instance.watch(property, function(a, b, newvalue) {
-               _.each(instance.$watchers[property], function(_callback){
-               //   console.log("changed")
+               _.each(instance.$watchers[property], function(_callback) {
+                  // Firing up handler if attached
+                  if (instance.$changed) {
+                     instance.$changed(property, b, newvalue);
+                  }
                   _callback(b, newvalue);
                });
                return newvalue;
-   			});
+            });
          }
 
          return {
-            remove : function(){
+            remove: function() {
 
                var index = instance.$watchers[property].indexOf(cb);
-               instance.$watchers[property].splice(index, 1);
 
-               delete cb;
             },
-            removeAll : function(){
+            removeAll: function() {
                instance.unwatch(property);
                delete instance.$watchers;
             }
          };
-      }
+      };
    });
 })();
 
@@ -1593,32 +1594,31 @@ var Wires = Wires || {};
          // Filter out system and private  objects
          // $ - system
          // _ - private
-         form.$normalize = function(data){
+         form.$normalize = function(data) {
             var attrs = {};
 
-            if ( _.isString(data) ){
+            if (_.isString(data)) {
                return data;
             }
-            if ( _.isNumber(data) ){
+            if (_.isNumber(data)) {
                return data;
             }
-            if ( _.isBoolean(data) ){
+            if (_.isBoolean(data)) {
                return data;
             }
+      
             _.each(data, function(v, k) {
-               if ( v !== undefined && _.isString(k) ){
+               if (v !== undefined && _.isString(k)) {
                   if (!k.match(/^(\$|_)/)) {
-                     if ( _.isArray(v) ){
+                     if (_.isArray(v)) {
                         attrs[k] = [];
-                        _.each(v, function(item){
+                        _.each(v, function(item) {
                            attrs[k].push(form.$normalize(item));
-                        })
-                     }
-                     else if ( _.isPlainObject(v) ){
+                        });
+                     } else if (_.isPlainObject(v)) {
                         attrs[k] = form.$normalize(v);
-                     }
-                     else {
-                        if (!(v instanceof Date) ){
+                     } else {
+                        if (!(v instanceof Date)) {
                            attrs[k] = form.$normalize(v);
                         } else {
                            attrs[k] = v;
@@ -1628,10 +1628,11 @@ var Wires = Wires || {};
                }
             });
             return attrs;
-         }
+         };
          form.$getAttrs = function() {
             return form.$normalize(this);
-         }
+         };
+
          form.$reset = function() {
             _.each(this, function(v, k) {
                if (!k.match(/^(\$|_)/)) {
@@ -1642,11 +1643,10 @@ var Wires = Wires || {};
                   }
                }
             }, this);
-         }
+         };
          return form;
       };
-   })
-
+   });
 })();
 
 (function(){
@@ -2594,13 +2594,11 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
             endpoint = a;
          }
 
-
          // Array has been already initialized
          if (array.$watch)
             return array;
 
          var watchers = [];
-
 
          var notify = function() {
             var args = arguments;
@@ -2608,30 +2606,28 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                if (watcher) {
                   watcher.apply(null, args);
                }
-            })
-         }
-
+            });
+         };
 
          array.$watch = function(cb) {
-               watchers.push(cb);
-               return {
-                  // Detaching current callback
-                  detach: function() {
-                     var index = watchers.indexOf(cb);
-                     watchers.splice(index, 1);
-
-                     delete cb;
-                  }
+            watchers.push(cb);
+            return {
+               // Detaching current callback
+               detach: function() {
+                  var index = watchers.indexOf(cb);
+                  watchers.splice(index, 1);
                }
-            }
-            // clean up array
+            };
+         };
+
+         // clean up array
          array.$removeAll = function() {
             array.splice(0, array.length);
-         }
+         };
 
          array.$empty = function() {
             this.$removeAll();
-         }
+         };
 
          // Completely destroys this.array
          // Removes all elements
@@ -2639,11 +2635,10 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
          array.$destroy = function() {
             array.$removeAll();
             _.each(watchers, function(watcher) {
-               delete watcher;
-            })
+               delete watchers[watcher];
+            });
             watchers = undefined;
-            delete array
-         }
+         };
 
          // fetching is rest endpoint is provided
          array.$fetch = function(params) {
@@ -2653,7 +2648,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                if (!endpoint) {
                   throw {
                      message: "Can't fetch without the endpoint!"
-                  }
+                  };
                }
                var url = $restEndPoint(endpoint, params);
 
@@ -2664,13 +2659,12 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                      self.push($resource(item, {
                         endpoint: endpoint,
                         array: self
-                     }))
+                     }));
                   });
-                  return resolve(self)
+                  return resolve(self);
                }).catch(reject);
-            })
-         }
-
+            });
+         };
 
          // Adding new value to array
          array.$add = function() {
@@ -2686,7 +2680,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                   // if api is restull need to perform a request
                   if (endpoint) {
                      var url = $restEndPoint(endpoint, data);
-                     return $http.post(url, data)
+                     return $http.post(url, data);
                   }
                   return item;
                   //array.push(item)
@@ -2708,43 +2702,41 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                   });
                   // Continue here
                   return reject(e);
-               })
-            })
+               });
+            });
 
-         }
-
+         };
 
          // Watching variable size
          array.size = array.length;
 
          // overriding array properties
          array.push = function(target) {
-               var target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
-               var push = Array.prototype.push.apply(this, [target]);
-               notify('push', target)
-               array.size = array.length;
-               return push;
-            }
-            // Splicing (removing)
+            target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
+            var push = Array.prototype.push.apply(this, [target]);
+            notify('push', target);
+            array.size = array.length;
+            return push;
+         };
+
+         // Splicing (removing)
          array.splice = function(index, howmany) {
 
-               notify('splice', index, howmany);
-               var sp = Array.prototype.splice.apply(this, arguments);
-               array.size = array.length;
-               return sp;
-            }
-            // Convinience methods
+            notify('splice', index, howmany);
+            var sp = Array.prototype.splice.apply(this, arguments);
+            array.size = array.length;
+            return sp;
+         };
+
+         // Convinience methods
          array.$remove = function(index) {
             if (_.isObject(index)) {
                index = this.indexOf(index);
             }
             return this.splice(index, 1);
-         }
-
-
-
+         };
          return array;
-      }
+      };
    });
 })();
 
