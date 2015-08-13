@@ -32,7 +32,7 @@
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback) {
                   // Firing up handler if attached
-                  if (instance.$changed) {
+                  if (instance.$changed !== undefined) {
                      instance.$changed(property, b, newvalue);
                   }
                   _callback(b, newvalue);

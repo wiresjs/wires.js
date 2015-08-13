@@ -9,7 +9,7 @@
 </div>
 <hr>
 <form ws-animation="ws-fade" ws-submit="{{ $create(target) }}">
-   <input type="text" ws-value="$form.name">
+   <input type="text" ws-value="$form.name" ws-validate="testEmail()">
 
    <div ws-if="$errors.pukka">
 

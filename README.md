@@ -16,7 +16,7 @@ It will install dependencies, that you need to include into your project along w
 * Jquery
 * wires-domain
 
-## Subscribe to changes
+## Subscribe to data changes
 You can track if variable is changed by defining "$changed" function to an object.
 For example:
 
@@ -27,6 +27,58 @@ this.form.$changed = function(key, oldValue, newValue){
 }
 ```
 Any time value is changed withing the object, you are going to be notified
+
+## Validation
+
+Form validation is powerful mechanism that allows you to create custom validation objects and adjust behaviours.
+Wires.js does not come with defined validation, you have to do it yourself. "ws-validation" attribute takes place in case of defined ws-value attribute.
+In fact it is being processed there. In any other case, attribute will be completely ignored.
+
+
+
+```html
+<input type="text" ws-value="$form.name" ws-validate="testEmail()">
+```
+
+In this version validator just toggles a class name. "testEmail" is a default validator (it is the only one that comes along with this release).
+
+To create you own validator, register a service.
+
+```js
+domain.service("validators.simple", function() {
+   return {
+      cls: "nice-error",
+      validate: function(arg1) {
+         if (this.str === arg1){ // Input string cannot be equal to the first argument
+            return true;
+         }
+      }
+   };
+});
+```
+
+```html
+<input type="text" ws-value="$form.name" ws-validate="simple('hello')">
+```
+In this example, typing hello will add "nice-error" class.  You con't need to specify any arguments if you don't need them.
+Multiple validators are allowed as well.
+
+```html
+<input type="text" ws-value="$form.name" ws-validate="simple, email, minLength(1)">
+```
+
+If a string contains non-valid javascript, validations won't work, and you will get a traceback (in the backend side )
+
+Any response of "validate" function that differs from undefined will be taken is failure.
+
+
+"this.str" - is the actual value.
+
+Validator has 500ms delay. It waits for the user to type something before actually submmiting for validation.
+Let's have some decency and let user to type his own email without being stressed out of red and annoying input.
+
+Syntax is being compiled in the backend using (jsep)[http://jsep.from.so/] library. Therefore be cautious "1omnomo()" will spit out a backend error Nothing to be worried about though, Attribute will be just ignored.
+
 
 
 

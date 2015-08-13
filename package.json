@@ -18,6 +18,7 @@
   "homepage": "https://github.com/wiresjs/wires.js",
   "dependencies": {
     "cheerio": "^0.19.0",
+    "jsep": "^0.3.0",
     "lodash": "^3.10.0",
     "promise": "^7.0.3",
     "tosource": "^0.1.3",

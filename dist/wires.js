@@ -1524,7 +1524,7 @@ var Wires = Wires || {};
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback) {
                   // Firing up handler if attached
-                  if (instance.$changed) {
+                  if (instance.$changed !== undefined) {
                      instance.$changed(property, b, newvalue);
                   }
                   _callback(b, newvalue);
@@ -1548,6 +1548,18 @@ var Wires = Wires || {};
    });
 })();
 
+domain.service("validators.testEmail", function() {
+   return {
+      cls: "ws-failed",
+      validate: function(param) {
+         var isValid = /(.+)@(.+){2,}\.(.+){2,}/.test(this.str);
+         if (!isValid) {
+            return "Email is not valid";
+         }
+      }
+   };
+});
+
 (function(){
    domain.service("$restEndPoint", function(){
       return function(path, params){
@@ -1569,20 +1581,37 @@ var Wires = Wires || {};
    })
 })();
 
-(function(){
-   var _customAttributes;
-   domain.service("$customAttributes", function(){
-      return new Promise(function(resolve, reject){
-         if ( _customAttributes ){
-            return resolve(_customAttributes);
+domain.service("WiresValidation", function() {
+   return Wires.Class.extend({
+      initialize: function() {
+         this.msg = '';
+         this.cls = '';
+      },
+      // Simple email validation
+      email: function(value) {
+         if (!value || value.test(/^([\w._]+)@([\w_]+)\.([a-z]+)$/)) {
+            return {
+               msg: "Invalid email",
+               cls: "ws-invalid"
+            };
          }
-         domain.requirePackage('attrs').then(function(customAttributes){
-            
+      }
+   });
+});
+
+(function() {
+   var _customAttributes;
+   domain.service("$customAttributes", function() {
+      if (_customAttributes) {
+         return _customAttributes;
+      }
+      return new Promise(function(resolve, reject) {
+         domain.requirePackage('attrs').then(function(customAttributes) {
             _customAttributes = customAttributes;
             return resolve(_customAttributes);
-         })
-      })
-   })
+         });
+      });
+   });
 })();
 
 (function() {
@@ -1895,6 +1924,25 @@ var Wires = Wires || {};
          })
       })
    })
+})();
+
+(function() {
+   var _validators;
+   domain.service("$projectValidators", function() {
+      if (_validators) {
+         return _validators;
+      }
+      return new Promise(function(resolve, reject) {
+         domain.requirePackage('validators').then(function(validators) {
+            _validators = {};
+            _.each(validators, function(validator, key) {
+               var name = key.slice(11, key.length);
+               _validators[name] = validator;
+            });
+            return resolve(_validators);
+         });
+      });
+   });
 })();
 
 (function(){
@@ -2420,38 +2468,39 @@ domain.service("Repeater", ['TagNode','$pathObject', '$array', '$watch','Garbage
    });
 });
 
-domain.service("TagAttribute", ['GarbageCollector','$evaluate'],function(GarbageCollector, $evaluate){
-   var TagAttribute =  GarbageCollector.extend({
-      initialize : function(opts){
+domain.service("TagAttribute", ['GarbageCollector', '$evaluate'], function(GarbageCollector, $evaluate) {
+   var TagAttribute = GarbageCollector.extend({
+      initialize: function(opts, item) {
          this.attr = opts.attr;
          this.name = opts.name;
          this.scope = opts.scope;
          this.element = opts.element;
+         this.item = item;
       },
-      create : function(){
+      create: function() {
          this.attribute = document.createAttribute(this.name);
 
          this.element.setAttributeNode(this.attribute);
          this.watcher = this.startWatching();
       },
-      onValue : function(data){
+      onValue: function(data) {
          this.attribute.value = data.str;
       },
-      startWatching : function(){
+      startWatching: function() {
          var self = this;
 
          return $evaluate(this.attr, {
             scope: this.scope,
             changed: function(data) {
                // If we have a custom listener
-               if ( self.onExpression ){
-                  if ( data.expressions &&  data.expressions.length > 0){
-                     self.onExpression.bind(self)( data.expressions[0] )
+               if (self.onExpression) {
+                  if (data.expressions && data.expressions.length > 0) {
+                     self.onExpression.bind(self)(data.expressions[0]);
                   } else {
-                     self.onExpression.bind(self)()
+                     self.onExpression.bind(self)();
                   }
                } else {
-                  if ( self.onValue ){
+                  if (self.onValue) {
                      self.onValue.bind(self)(data);
                   }
                }
@@ -2459,45 +2508,45 @@ domain.service("TagAttribute", ['GarbageCollector','$evaluate'],function(Garbage
 
          });
       }
-   })
+   });
    return TagAttribute;
-})
-
-domain.service("$tagAttrs", ['TagAttribute','$evaluate', '$customAttributes'],
-   function(TagAttribute, $evaluate, $customAttributes){
-   return {
-      create : function(item, scope, element){
-         var attributes = [];
-
-         _.each(item.a, function(attr, name){
-
-            var customPath = "attrs." + name;
-            var tagAttribute;
-
-            var opts = {
-               scope : scope,
-               attr : attr,
-               name : name,
-               element : element
-            };
-            if ( $customAttributes[customPath] ){
-
-               tagAttribute = new $customAttributes[customPath](opts);
-            } else{
-               tagAttribute = new TagAttribute(opts);
-            }
-
-            if ( tagAttribute ){
-               tagAttribute.create();
-               attributes.push(tagAttribute);
-            } else {
-               console.log("no attr", customPath);
-            }
-         });
-         return attributes;
-      }
-   };
 });
+
+domain.service("$tagAttrs", ['TagAttribute', '$evaluate', '$customAttributes'],
+   function(TagAttribute, $evaluate, $customAttributes) {
+      return {
+         create: function(item, scope, element) {
+            var attributes = [];
+
+            _.each(item.a, function(attr, name) {
+
+               var customPath = "attrs." + name;
+               var tagAttribute;
+
+               var opts = {
+                  scope: scope,
+                  attr: attr,
+                  name: name,
+                  element: element
+               };
+               if ($customAttributes[customPath]) {
+
+                  tagAttribute = new $customAttributes[customPath](opts, item);
+               } else {
+                  tagAttribute = new TagAttribute(opts, item);
+               }
+
+               if (tagAttribute) {
+                  tagAttribute.create();
+                  attributes.push(tagAttribute);
+               } else {
+                  console.log("no attr", customPath);
+               }
+            });
+            return attributes;
+         }
+      };
+   });
 
 domain.service("TagNode", ['$tagAttrs', 'GarbageCollector'],function($tagAttrs, GarbageCollector){
 
@@ -3134,185 +3183,220 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
 })();
 
 (function() {
-   domain.service("attrs.ws-value", ['TagAttribute', '$evaluate'], function(TagAttribute, $evaluate) {
-      var WsVisible = TagAttribute.extend({
-         // Overriding default method
-         // (we don't need to create an attribute for this case)
-         create: function() {
-            this.watcher = this.startWatching();
-
-         },
-         // Unbind listeners!!!
-         detach: function() {
-
-            if (this.keyDownListener) {
-               this.element.removeEventListener("keydown", this.keyDownListener);
-            }
-            if (this.clickListener) {
-               this.element.removeEventListener("click", this.clickListener);
-            }
-         },
-         startWatching: function() {
-            var self = this;
-            this.selfUpdate = false;
-            // Binding variable
-            var watcher = $evaluate(this.attr, {
-               scope: this.scope,
-               changed: function(data) {
-                  if (self.selfUpdate === false) {
-                     self.setValue(data.str);
-                  }
-                  self.selfUpdate = false;
+   domain.service("attrs.ws-value", ['TagAttribute', '$evaluate', '$projectValidators'],
+      function(TagAttribute, $evaluate, $projectValidators) {
+         var WsVisible = TagAttribute.extend({
+            // Overriding default method
+            // (we don't need to create an attribute for this case)
+            create: function() {
+               this.watcher = this.startWatching();
+               var validation = this.item.validate;
+               if (validation) {
+                  this.validators = [];
+                  _.each(validation, function(item) {
+                     // if validator is registered
+                     if ($projectValidators[item.n]) {
+                        this.validators.push({
+                           validator: $projectValidators[item.n],
+                           item: item
+                        });
+                     }
+                  }, this);
                }
-            });
-
-            // Extracting the first variable defined
-            if (watcher.locals && watcher.locals.length === 1) {
-               this.variable = watcher.locals[0];
-            }
-            // store variable to the element
-            this.element.$variable = this.variable;
-
-            this.bindActions(function(newValue) {
-               if (self.variable) {
-                  self.selfUpdate = true;
-                  self.variable.value.update(newValue);
+            },
+            // Unbind listeners!!!
+            detach: function() {
+               if (this.keyDownListener) {
+                  this.element.removeEventListener("keydown", this.keyDownListener);
                }
-            });
-            return watcher;
-         },
-
-         setValue: function(v) {
-            $(this.element).val(v);
-         },
-         bindActions: function(cb) {
-            var self = this;
-            var nodeName = this.element.nodeName.toLowerCase();
-            var elType = $(this.element).attr('type');
-            if (nodeName === 'textarea') {
-               elType = nodeName;
-            }
-            if (nodeName === 'select') {
-               elType = nodeName;
-            }
-            if (nodeName === 'option') {
-               elType = nodeName;
-            }
-            if (nodeName === 'input' && !elType) {
-               elType = 'text';
-            }
-
-
-            switch (elType) {
-               case 'text':
-               case 'email':
-               case 'date':
-               case 'datetime':
-               case 'month':
-               case 'search':
-               case 'url':
-               case 'tel':
-               case 'password':
-               case 'textarea':
-                  this.keyDownListener = function(evt) {
-                     var _that = this;
-                     clearInterval(self.interval);
-                     //  $defered(function(){
-                     //        cb($(_that).val());
-                     //  });
-                      self.interval = setTimeout(function() {
-                         cb($(_that).val());
-                      }, 50);
-                  };
-                  this.element.addEventListener("keydown", this.keyDownListener, false);
-                  break;
-               case 'checkbox':
-
-                  this.clickListener = function(evt) {
-                     var target = this.$checked;
-                     if (_.isArray(target.value)) {
-                        var currValue = self.variable.value.value;
-                        var index = target.value.indexOf(currValue);
-                        if (this.checked) {
-                           if (index === -1) {
-                              target.value.push(currValue);
-                           }
-                        } else {
-                           // Removing value from an array
-                           if (index > -1) {
-                              target.value.splice(index, 1);
-                           }
+               if (this.clickListener) {
+                  this.element.removeEventListener("click", this.clickListener);
+               }
+               delete this.validatonDelay;
+            },
+            // Happpens on new value
+            checkValidations: function(data) {
+               var self = this;
+               if (!self.validators) {
+                  return;
+               }
+               // We don't want to apply a check right away
+               // Give a user a bit time to type his bloody email!
+               clearInterval(this.validatonDelay);
+               this.validatonDelay = setTimeout(function() {
+                  _.each(self.validators, function(conf) {
+                     var args = conf.item.a ? conf.item.a : [];
+                     var clsName = conf.validator.cls;
+                     var errorMessage = conf.validator.validate.apply(data, args);
+                     if (errorMessage !== undefined) {
+                        if (!$(self.element).hasClass(clsName)) {
+                           $(self.element).addClass(clsName);
                         }
                      } else {
-                        self.selfUpdate = true;
-                        self.variable.value.update(this.checked);
-                     }
-
-                  };
-
-
-                  this.element.addEventListener("click", this.clickListener);
-                  break;
-               case 'option':
-
-                  break;
-               case 'select':
-
-                  $(this.element).change(function() {
-                     var value = self.detectSelectValue();
-                     cb(value);
-                  });
-                  $defered(function() {
-                     // If we have set the variable beforehand
-                     if (self.variable.value.value !== undefined) {
-                        $(self.element).find("option").each(function(index, i) {
-                           if (i.$variable) {
-                              if (_.isEqual(i.$variable.value.value, self.variable.value.value)) {
-                                 i.selected = true;
-                              }
-                           }
-                        });
-                     } else {
-                        // In Any other case
-                        // we should update variable with first option
-                        var firstValue = self.detectSelectValue(true)
-                        self.selfUpdate = true;
-                        self.variable.value.update(firstValue);
+                        if ($(self.element).hasClass(clsName)) {
+                           $(self.element).removeClass(clsName);
+                        }
                      }
                   });
-                  break;
-            }
-         },
-         detectSelectValue: function(first) {
-            var value;
-            $(this.element).find(first ? "option:first" : "option:selected").each(function() {
+               }, 500);
 
-               var el = this;
-               var tag = this.$tag;
-               // in case of option
-               var storedVariable = this.$variable;
-               if (storedVariable) {
-                  value = storedVariable.value.value
-               } else {
-                  // Checking the value from simple attribute "value"
-                  _.each(tag.attributes, function(attr) {
-                     if (attr.name === "value") {
-                        value = $(el).val();
+            },
+            startWatching: function() {
+               var self = this;
+               this.selfUpdate = false;
+
+               // Binding variable
+               var watcher = $evaluate(this.attr, {
+                  scope: this.scope,
+                  changed: function(data) {
+                     self.checkValidations(data);
+                     if (self.selfUpdate === false) {
+                        self.setValue(data.str);
                      }
-                  });
-                  // if value is stil undefined
-                  // try to get it from html
-                  if (value === undefined) {
-                     value = $(el).html();
+                     self.selfUpdate = false;
                   }
+               });
+
+               // Extracting the first variable defined
+               if (watcher.locals && watcher.locals.length === 1) {
+                  this.variable = watcher.locals[0];
+               }
+               // store variable to the element
+               this.element.$variable = this.variable;
+
+               this.bindActions(function(newValue) {
+                  if (self.variable) {
+                     self.selfUpdate = true;
+                     self.variable.value.update(newValue);
+                  }
+               });
+               return watcher;
+            },
+
+            setValue: function(v) {
+               $(this.element).val(v);
+            },
+            bindActions: function(cb) {
+               var self = this;
+               var nodeName = this.element.nodeName.toLowerCase();
+               var elType = $(this.element).attr('type');
+               if (nodeName === 'textarea') {
+                  elType = nodeName;
+               }
+               if (nodeName === 'select') {
+                  elType = nodeName;
+               }
+               if (nodeName === 'option') {
+                  elType = nodeName;
+               }
+               if (nodeName === 'input' && !elType) {
+                  elType = 'text';
                }
 
-            });
-            return value;
-         },
+               switch (elType) {
+                  case 'text':
+                  case 'email':
+                  case 'date':
+                  case 'datetime':
+                  case 'month':
+                  case 'search':
+                  case 'url':
+                  case 'tel':
+                  case 'password':
+                  case 'textarea':
+                     this.keyDownListener = function(evt) {
+                        var _that = this;
+                        clearInterval(self.interval);
+                        self.interval = setTimeout(function() {
+                           cb($(_that).val());
+                        }, 50);
+                     };
+                     this.element.addEventListener("keydown", this.keyDownListener, false);
+                     break;
+                  case 'checkbox':
+
+                     this.clickListener = function(evt) {
+                        var target = this.$checked;
+                        if (_.isArray(target.value)) {
+                           var currValue = self.variable.value.value;
+                           var index = target.value.indexOf(currValue);
+                           if (this.checked) {
+                              if (index === -1) {
+                                 target.value.push(currValue);
+                              }
+                           } else {
+                              // Removing value from an array
+                              if (index > -1) {
+                                 target.value.splice(index, 1);
+                              }
+                           }
+                        } else {
+                           self.selfUpdate = true;
+                           self.variable.value.update(this.checked);
+                        }
+                     };
+                     this.element.addEventListener("click", this.clickListener);
+                     break;
+                  case 'option':
+
+                     break;
+                  case 'select':
+
+                     $(this.element).change(function() {
+                        var value = self.detectSelectValue();
+                        cb(value);
+                     });
+                     $defered(function() {
+                        // If we have set the variable beforehand
+                        if (self.variable.value.value !== undefined) {
+                           $(self.element).find("option").each(function(index, i) {
+                              if (i.$variable) {
+                                 if (_.isEqual(i.$variable.value.value, self.variable.value.value)) {
+                                    i.selected = true;
+                                 }
+                              }
+                           });
+                        } else {
+                           // In Any other case
+                           // we should update variable with first option
+                           var firstValue = self.detectSelectValue(true);
+                           self.selfUpdate = true;
+                           self.variable.value.update(firstValue);
+                        }
+                     });
+                     break;
+               }
+            },
+            detectSelectValue: function(first) {
+               var value;
+               $(this.element).find(first ? "option:first" : "option:selected").each(function() {
+
+                  var el = this;
+                  var tag = this.$tag;
+                  // in case of option
+                  var storedVariable = this.$variable;
+                  if (storedVariable) {
+                     value = storedVariable.value.value;
+                  } else {
+                     // Checking the value from simple attribute "value"
+                     _.each(tag.attributes, function(attr) {
+                        if (attr.name === "value") {
+                           value = $(el).val();
+                        }
+                     });
+                     // if value is stil undefined
+                     // try to get it from html
+                     if (value === undefined) {
+                        value = $(el).html();
+                     }
+                  }
+
+               });
+               return value;
+            },
+         });
+         return WsVisible;
       });
-      return WsVisible;
-   })
 
 })();
 
