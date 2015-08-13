@@ -15,13 +15,11 @@
             endpoint = a;
          }
 
-
          // Array has been already initialized
          if (array.$watch)
             return array;
 
          var watchers = [];
-
 
          var notify = function() {
             var args = arguments;
@@ -29,30 +27,28 @@
                if (watcher) {
                   watcher.apply(null, args);
                }
-            })
-         }
-
+            });
+         };
 
          array.$watch = function(cb) {
-               watchers.push(cb);
-               return {
-                  // Detaching current callback
-                  detach: function() {
-                     var index = watchers.indexOf(cb);
-                     watchers.splice(index, 1);
-
-                     delete cb;
-                  }
+            watchers.push(cb);
+            return {
+               // Detaching current callback
+               detach: function() {
+                  var index = watchers.indexOf(cb);
+                  watchers.splice(index, 1);
                }
-            }
-            // clean up array
+            };
+         };
+
+         // clean up array
          array.$removeAll = function() {
             array.splice(0, array.length);
-         }
+         };
 
          array.$empty = function() {
             this.$removeAll();
-         }
+         };
 
          // Completely destroys this.array
          // Removes all elements
@@ -60,11 +56,10 @@
          array.$destroy = function() {
             array.$removeAll();
             _.each(watchers, function(watcher) {
-               delete watcher;
-            })
+               delete watchers[watcher];
+            });
             watchers = undefined;
-            delete array
-         }
+         };
 
          // fetching is rest endpoint is provided
          array.$fetch = function(params) {
@@ -74,7 +69,7 @@
                if (!endpoint) {
                   throw {
                      message: "Can't fetch without the endpoint!"
-                  }
+                  };
                }
                var url = $restEndPoint(endpoint, params);
 
@@ -85,13 +80,12 @@
                      self.push($resource(item, {
                         endpoint: endpoint,
                         array: self
-                     }))
+                     }));
                   });
-                  return resolve(self)
+                  return resolve(self);
                }).catch(reject);
-            })
-         }
-
+            });
+         };
 
          // Adding new value to array
          array.$add = function() {
@@ -107,7 +101,7 @@
                   // if api is restull need to perform a request
                   if (endpoint) {
                      var url = $restEndPoint(endpoint, data);
-                     return $http.post(url, data)
+                     return $http.post(url, data);
                   }
                   return item;
                   //array.push(item)
@@ -129,42 +123,40 @@
                   });
                   // Continue here
                   return reject(e);
-               })
-            })
+               });
+            });
 
-         }
-
+         };
 
          // Watching variable size
          array.size = array.length;
 
          // overriding array properties
          array.push = function(target) {
-               var target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
-               var push = Array.prototype.push.apply(this, [target]);
-               notify('push', target)
-               array.size = array.length;
-               return push;
-            }
-            // Splicing (removing)
+            target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
+            var push = Array.prototype.push.apply(this, [target]);
+            notify('push', target);
+            array.size = array.length;
+            return push;
+         };
+
+         // Splicing (removing)
          array.splice = function(index, howmany) {
 
-               notify('splice', index, howmany);
-               var sp = Array.prototype.splice.apply(this, arguments);
-               array.size = array.length;
-               return sp;
-            }
-            // Convinience methods
+            notify('splice', index, howmany);
+            var sp = Array.prototype.splice.apply(this, arguments);
+            array.size = array.length;
+            return sp;
+         };
+
+         // Convinience methods
          array.$remove = function(index) {
             if (_.isObject(index)) {
                index = this.indexOf(index);
             }
             return this.splice(index, 1);
-         }
-
-
-
+         };
          return array;
-      }
+      };
    });
 })();

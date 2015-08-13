@@ -16,6 +16,19 @@ It will install dependencies, that you need to include into your project along w
 * Jquery
 * wires-domain
 
+## Subscribe to changes
+You can track if variable is changed by defining "$changed" function to an object.
+For example:
+
+```js
+this.form = {};
+this.form.$changed = function(key, oldValue, newValue){
+
+}
+```
+Any time value is changed withing the object, you are going to be notified
+
+
 
 ## Including external views
 Use ws-include attribute.
@@ -35,7 +48,7 @@ For example:
 
 
 ## Resource
-Resource, in essense, represents an object with magic methods attached. It can fetch data into the object, as well as reset all defined parameters. 
+Resource, in essense, represents an object with magic methods attached. It can fetch data into the object, as well as reset all defined parameters.
 
 You can initialize resource 2 different ways:
 
@@ -61,7 +74,7 @@ Let's load some data into resource
 this.user.$fetch({id : 1})
 ```
 
-Makes a GET request to /api/user/1, Imagine if you don't supply $fetch with request parameters. :_id will be just ignored, and the GET request is going to look like /api/user. 
+Makes a GET request to /api/user/1, Imagine if you don't supply $fetch with request parameters. :_id will be just ignored, and the GET request is going to look like /api/user.
 
 Fetch  automatically fulfills the array and returns a promise.
 
@@ -91,7 +104,7 @@ this.user.$remove()
 ## Arrays
 
 Arrays are the most smartest objects in entire framework. They automate data interaction with RESTful service.
-Any array passed to the template will be converted to $array object. 
+Any array passed to the template will be converted to $array object.
 
 ```js
 var user1 = {name : "user1"}

@@ -10,5 +10,9 @@
 <hr>
 <form ws-animation="ws-fade" ws-submit="{{ $create(target) }}">
    <input type="text" ws-value="$form.name">
+
+   <div ws-if="$errors.pukka">
+
+   </div>
    <input type="button" value="create">
 </form>

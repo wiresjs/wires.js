@@ -1,56 +1,57 @@
-(function(){
+(function() {
    var _proxies = {};
-   domain.service("$watch", ['$pathObject', '$array', '$projectProxies'], function($pathObject, $array, $projectProxies){
-      return function(path, scope, cb){
+   domain.service("$watch", ['$pathObject', '$array', '$projectProxies'], function($pathObject, $array,
+      $projectProxies) {
+      return function(path, scope, cb) {
 
          var pathObject = $pathObject(path, scope);
          var instance = pathObject.instance;
          var property = pathObject.property;
 
-         if ( !instance.$watchers ){
+         if (!instance.$watchers) {
             instance.$watchers = {};
          }
          // prototyping array if it was not
-         if ( _.isArray(instance) ){
-            instance = $array(instance)
+         if (_.isArray(instance)) {
+            instance = $array(instance);
          }
 
-         if (!_.isObject(instance) && _.isString(property) )
+         if (!_.isObject(instance) && _.isString(property))
             return;
 
-
          // detecting if property has been requested to be watched
-         if ( !instance.$watchers[property] ){
+         if (!instance.$watchers[property]) {
             instance.$watchers[property] = [];
          }
-         if ( cb ){
+         if (cb) {
             instance.$watchers[property].push(cb);
          }
 
-         if ( instance.$watchers[property].length === 1 ){
+         if (instance.$watchers[property].length === 1) {
 
             instance.watch(property, function(a, b, newvalue) {
-               _.each(instance.$watchers[property], function(_callback){
-               //   console.log("changed")
+               _.each(instance.$watchers[property], function(_callback) {
+                  // Firing up handler if attached
+                  if (instance.$changed) {
+                     instance.$changed(property, b, newvalue);
+                  }
                   _callback(b, newvalue);
                });
                return newvalue;
-   			});
+            });
          }
 
          return {
-            remove : function(){
+            remove: function() {
 
                var index = instance.$watchers[property].indexOf(cb);
-               instance.$watchers[property].splice(index, 1);
 
-               delete cb;
             },
-            removeAll : function(){
+            removeAll: function() {
                instance.unwatch(property);
                delete instance.$watchers;
             }
          };
-      }
+      };
    });
 })();
