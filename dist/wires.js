@@ -2904,14 +2904,14 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
    });
 })();
 
-(function(){
+(function() {
    domain.service("attrs.ws-checked", ['TagAttribute', '$array'],
       function(TagAttribute, $array) {
          var WsOption = TagAttribute.extend({
             create: function() {
 
                var currentVar = this.element.$variable;
-               if ( currentVar){
+               if (currentVar) {
                   this.currentValue = currentVar.value.value;
                }
                this.watcher = [];
@@ -2922,25 +2922,25 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
             onValue: function(v) {
 
                var self = this;
-               if ( this.selfUpdate === true){
+               if (this.selfUpdate === true) {
                   this.selfUpdate = false;
                   return;
                }
                var targetObject = v.locals[0].value;
                var targetValue = v.locals[0].value.value;
-               this.element.$checked =  targetObject;
+               this.element.$checked = targetObject;
 
-               if ( _.isArray(targetValue) ){
+               if (_.isArray(targetValue)) {
                   // Convert to $array object just in case
                   targetValue = $array(targetValue);
 
                   // Check if this array is watched
-                  if ( !this.arrayWatcher){
+                  if (!this.arrayWatcher) {
                      this.watcherCreated = true;
-                     var validateValues = function(){
+                     var validateValues = function() {
                         var shouldBeChecked = false;
-                        _.each(targetValue, function(item){
-                           if ( _.isEqual(item, self.currentValue )){
+                        _.each(targetValue, function(item) {
+                           if (_.isEqual(item, self.currentValue)) {
                               shouldBeChecked = true;
                            }
                         });
@@ -2948,16 +2948,16 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                         self.element.checked = shouldBeChecked;
 
                      };
-                     this.arrayWatcher = targetValue.$watch(function(event, start, end){
-                        $defered(function(){
+                     this.arrayWatcher = targetValue.$watch(function(event, start, end) {
+                        $defered(function() {
                            validateValues();
                         });
                      });
                      self.watcher.push(self.arrayWatcher);
                   }
-                  if ( this.currentValue ){
+                  if (this.currentValue) {
                      var isChecked = targetValue.indexOf(this.currentValue) > -1;
-                     if ( isChecked ){
+                     if (isChecked) {
                         this.element.checked = true;
                      } else {
                         this.element.checked = false;
@@ -2966,7 +2966,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                } else {
                   this.selfUpdate = true;
                   this.element.checked = targetValue ? true : false;
-                  targetObject.update(targetValue ? true : false);
+                  //targetObject.update(targetValue ? true : false);
                }
             }
          });
@@ -3309,7 +3309,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
                         clearInterval(self.interval);
                         self.interval = setTimeout(function() {
                            cb($(_that).val());
-                        }, 50);
+                        }, 200);
                      };
                      this.element.addEventListener("keydown", this.keyDownListener, false);
                      break;

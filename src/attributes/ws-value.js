@@ -125,7 +125,7 @@
                         clearInterval(self.interval);
                         self.interval = setTimeout(function() {
                            cb($(_that).val());
-                        }, 50);
+                        }, 200);
                      };
                      this.element.addEventListener("keydown", this.keyDownListener, false);
                      break;

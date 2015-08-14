@@ -3,3 +3,7 @@
    background-color: #ececec;
    margin-bottom: 4px;
 }
+.ws-failed {
+   border: 1px solid red;
+   color:red;
+}

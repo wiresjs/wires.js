@@ -1,6 +1,6 @@
 <a href="#" ws-href="/kukka">KUKKA</a>
 <h1>Forms $some.name</h1>
-<input type="text" ws-value="$some.name"/>
+<input type="text" ws-validate="testEmail()" ws-value="$some.name"/>
 <table width="100%">
    <tr>
       <td valign="top" width="400" style="border:1px solid #ececec;padding:10px">
@@ -9,8 +9,8 @@
          <form ws-submit="{{ $create() }}">
             <input type="text" ws-value="$form.name"/>
             <hr>
-            Phone:
-            <input type="tel" ws-value="$form.phone"/>
+            Email
+            <input type="text"  ws-value="$form.phone"/>
 
             <h1>$form.mySuperDate</h1>
             <div>
