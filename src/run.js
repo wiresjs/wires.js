@@ -13,7 +13,6 @@
                _.each(children, function(item) {
 
                   var node;
-                  
 
                   // type TEXT
                   if (item.t === 1) {
@@ -31,7 +30,7 @@
                   // Type Repeater
                   if (item.t === 3) {
                      var repeater = new Repeater({
-                        run : run,
+                        run: run,
                         item: item,
                         parent: parent,
                         scope: scope
@@ -40,7 +39,7 @@
                   // If statement
                   if (item.t === 4) {
                      var conditional = new Conditional({
-                        run : run,
+                        run: run,
                         item: item,
                         parent: parent,
                         scope: scope
@@ -50,11 +49,11 @@
                   // Include
                   if (item.t === 5) {
                      var include = new Include({
-                        run : run,
+                        run: run,
                         item: item,
                         parent: parent,
                         scope: scope,
-                        createElements : createElements
+                        createElements: createElements
                      });
                      include.create(parent);
                   }
@@ -62,10 +61,11 @@
             };
 
             var pNode = opts.parentNode || new TagNode(target);
-            if ( !pNode.element){
+            if (!pNode.element) {
                pNode.setElement(target);
             }
             createElements(structure, pNode);
+            return pNode;
          };
          return run;
       });

@@ -3,10 +3,10 @@
       return Wires.Class.extend({
          gc: function(cleanOnly) {
             var self = this;
-            if ( this.element ){
+            if (this.element) {
                $(this.element).unbind();
             }
-            if ( self.detach ){
+            if (self.detach) {
                self.detach();
             }
             // Removing all watchers from the attributes
@@ -30,7 +30,7 @@
                self.attributes.splice(0, self.attributes.length - 1);
                delete self.attributes;
             }
-            if ( self.watchers ){
+            if (self.watchers) {
                var collection = [].concat(self.watchers);
                _.each(collection, function(watcher) {
                   watcher.detach();
@@ -41,18 +41,18 @@
             // And detach watchers manually
             //if ( recursive ){
 
-            var removeChildren = function(){
+            var removeChildren = function() {
                if (self.children) {
                   _.each(self.children, function(child) {
                      child.gc();
                   });
                }
             };
-            if ( !cleanOnly ){
-               if ( self.element.$destroy ){
+            if (!cleanOnly) {
+               if (self.element.$destroy) {
                   var result = self.element.$destroy();
-                  if (result instanceof Promise ){
-                     result.then(function(){
+                  if (result instanceof Promise) {
+                     result.then(function() {
                         $(self.element).remove();
                         removeChildren();
                      });

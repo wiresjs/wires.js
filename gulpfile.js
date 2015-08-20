@@ -1,7 +1,7 @@
 var gulp = require("gulp")
 var concat = require('gulp-concat');
 var includeAll = require("wires-include-all")
-var _ = require('lodash')
+var _ = require('lodash');
 var uglify = require('gulp-uglify');
 
 var external = [
@@ -11,28 +11,35 @@ var external = [
    'external/bower_components/velocity/velocity.min.js',
 ];
 
-var data = { files : [] };
+var data = {
+   files: []
+};
 
-
-gulp.task('default',['getFiles'], function () {
+gulp.task('default', ['getFiles'], function() {
    return gulp.src(data.files)
-      .pipe( concat('wires.js') )
-      .pipe( gulp.dest('./dist/') )
+      .pipe(concat('wires.js'))
+      .pipe(gulp.dest('./dist/'))
 
-      .pipe(uglify())
+   .pipe(uglify())
       .pipe(gulp.dest('./dist/min/'));
 });
 
 gulp.task('getFiles', function(done) {
-   includeAll( "./src", {
+   includeAll("./src", {
       order: ['essential/'],
-      ignore : ['test', '_testapp'],
-      rootPath : "./src/",
-   }).then(function(list){
-      data.files = _.union(external, list)
-      console.log(data.files)
+      rootPath: "./src/",
+   }).then(function(list) {
+      var newlist = [];
+      _.each(list, function(item) {
+
+         if (item.indexOf("test") === -1) {
+            newlist.push(item);
+         }
+      });
+      data.files = _.union(external, newlist);
+      console.log(data.files);
       done();
-   }).catch(function(e){
-      console.log(e.stack)
-   })
+   }).catch(function(e) {
+      console.log(e.stack);
+   });
 });

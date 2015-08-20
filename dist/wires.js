@@ -1432,7 +1432,6 @@ var Wires = Wires || {};
                _.each(children, function(item) {
 
                   var node;
-                  
 
                   // type TEXT
                   if (item.t === 1) {
@@ -1450,7 +1449,7 @@ var Wires = Wires || {};
                   // Type Repeater
                   if (item.t === 3) {
                      var repeater = new Repeater({
-                        run : run,
+                        run: run,
                         item: item,
                         parent: parent,
                         scope: scope
@@ -1459,7 +1458,7 @@ var Wires = Wires || {};
                   // If statement
                   if (item.t === 4) {
                      var conditional = new Conditional({
-                        run : run,
+                        run: run,
                         item: item,
                         parent: parent,
                         scope: scope
@@ -1469,11 +1468,11 @@ var Wires = Wires || {};
                   // Include
                   if (item.t === 5) {
                      var include = new Include({
-                        run : run,
+                        run: run,
                         item: item,
                         parent: parent,
                         scope: scope,
-                        createElements : createElements
+                        createElements: createElements
                      });
                      include.create(parent);
                   }
@@ -1481,10 +1480,11 @@ var Wires = Wires || {};
             };
 
             var pNode = opts.parentNode || new TagNode(target);
-            if ( !pNode.element){
+            if (!pNode.element) {
                pNode.setElement(target);
             }
             createElements(structure, pNode);
+            return pNode;
          };
          return run;
       });
@@ -1803,85 +1803,103 @@ domain.service("WiresValidation", function() {
    var _loaded = {};
    var counter = 0;
    domain.service("$load", ['$queryString', '$loadView', '$run'],
-      function( $queryString, $loadView, $run) {
-      return {
-         component: function(component, opts) {
+      function($queryString, $loadView, $run) {
+         return {
+            component: function(component, opts) {
 
-         },
-         controller: function(controller, opts) {
-            var _url = window.location.url;
-            var opts = opts || {};
-            var parent = opts.parent;
+            },
+            extractViewAndTarget: function(str) {
+               var opts = str.match(/^([^\s]+)(\s*->\s*([^\s]+))?/i);
+               return {
+                  view: opts[1],
+                  targetSelector: opts[3] || "section"
+               };
+            },
+            controller: function(controller, opts) {
+               var self = this;
+               var _url = window.location.url;
+               opts = opts || {};
+               var parent = opts.parent;
 
-            var params = $queryString();
+               var params = $queryString();
 
-            if (opts.params) {
-               params = _.merge(params, opts.params);
-            }
-            var injections = {
-               $params: {
-                  target: params
+               if (opts.params) {
+                  params = _.merge(params, opts.params);
                }
-            };
-
-            // Check if controller has custom injections
-            if (opts.injections) {
-               _.each(opts.injections, function(value, key) {
-                  injections[key] = {
-                     target: value
+               var injections = {
+                  $params: {
+                     target: params
                   }
-               })
-            }
-            return domain.require([controller], injections, function(list) {
-               counter++;
-               // Basic validation on list
-               if (!_.isArray(list)) {
-                  return;
-               }
-               if (list.length < 2) {
-                  return;
-               }
-               var loadOpts = list[0].match(/^([^\s]+)(\s*->\s*([^\s]+))?/i)
-               var Ctrl = list[1];
-               if (!loadOpts) {
-                  return;
-               }
-               var view = loadOpts[1];
-               var targetSelector = loadOpts[3] || "section";
-               var target = null;
+               };
 
-               if ( parent && parent.element){
-                  target = $(parent.element).find(targetSelector)[0]
-               } else {
-                  target = document.querySelector(targetSelector)
-               }
-
-               if ( !target  ){
-                  throw { message : "Can't find a target "}
-               }
-
-               var ctrl = new Ctrl();
-               // detach the very first
-               if ( target.$tag ){
-                  if ( target.$tag.gc){
-                     target.$tag.gc(true);
-                  }
-               }
-               while (target.firstChild) {
-                  target.removeChild(target.firstChild);
-               }
-               return $loadView(view).then(function(structure){
-                  $run({
-                     structure : structure,
-                     target : target,
-                     scope : ctrl
+               // Check if controller has custom injections
+               if (opts.injections) {
+                  _.each(opts.injections, function(value, key) {
+                     injections[key] = {
+                        target: value
+                     };
                   });
-                  return {scope : ctrl, element : target};
+               }
+               return domain.require([controller], injections, function(data) {
+                  counter++;
+                  var view, Ctrl, targetSelector;
+
+                  // Basic validation on list
+                  if (_.isArray(data)) {
+                     var loadOpts = self.extractViewAndTarget(data[0]);
+                     Ctrl = data[1];
+                     view = loadOpts.view;
+                     targetSelector = loadOpts.targetSelector;
+                  } else if (_.isObject(data)) {
+                     if (data.prototype && data.prototype._view) {
+                        var ctrlOpts = self.extractViewAndTarget(data.prototype._view);
+                        view = ctrlOpts.view;
+                        Ctrl = data;
+                        targetSelector = ctrlOpts.targetSelector;
+                     }
+                  }
+
+                  var target = null;
+
+                  if (parent && parent.element) {
+                     target = $(parent.element).find(targetSelector)[0];
+                  } else {
+                     target = document.querySelector(targetSelector);
+                  }
+
+                  if (!target) {
+                     throw {
+                        message: "Can't find a target "
+                     };
+                  }
+
+                  var ctrl = new Ctrl();
+                  // detach the very first
+                  if (target.$tag) {
+                     if (target.$tag.gc) {
+                        target.$tag.gc(true);
+                     }
+                  }
+                  while (target.firstChild) {
+                     if (target.firstChild.$tag) {
+                        target.firstChild.$tag.gc();
+                     }
+                  }
+                  return $loadView(view).then(function(structure) {
+                     $run({
+                        structure: structure,
+                        target: target,
+                        scope: ctrl
+                     });
+                     return {
+                        scope: ctrl,
+                        element: target
+                     };
+                  });
                });
-            })
-         }
-      }
-   })
+            }
+         };
+      });
 })();
 
 (function(){
@@ -2196,10 +2214,10 @@ domain.service("WiresValidation", function() {
       return Wires.Class.extend({
          gc: function(cleanOnly) {
             var self = this;
-            if ( this.element ){
+            if (this.element) {
                $(this.element).unbind();
             }
-            if ( self.detach ){
+            if (self.detach) {
                self.detach();
             }
             // Removing all watchers from the attributes
@@ -2223,7 +2241,7 @@ domain.service("WiresValidation", function() {
                self.attributes.splice(0, self.attributes.length - 1);
                delete self.attributes;
             }
-            if ( self.watchers ){
+            if (self.watchers) {
                var collection = [].concat(self.watchers);
                _.each(collection, function(watcher) {
                   watcher.detach();
@@ -2234,18 +2252,18 @@ domain.service("WiresValidation", function() {
             // And detach watchers manually
             //if ( recursive ){
 
-            var removeChildren = function(){
+            var removeChildren = function() {
                if (self.children) {
                   _.each(self.children, function(child) {
                      child.gc();
                   });
                }
             };
-            if ( !cleanOnly ){
-               if ( self.element.$destroy ){
+            if (!cleanOnly) {
+               if (self.element.$destroy) {
                   var result = self.element.$destroy();
-                  if (result instanceof Promise ){
-                     result.then(function(){
+                  if (result instanceof Promise) {
+                     result.then(function() {
                         $(self.element).remove();
                         removeChildren();
                      });
@@ -2788,6 +2806,52 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
       };
    });
 })();
+
+domain.service("Controller", ['$run'], function($run) {
+   return Wires.Class.extend({
+      initialize: function() {
+
+      },
+      // Render Controller manually
+      render: function() {
+         if (!this._view) {
+            return;
+         }
+         // Extracting params
+         // e.g myview.html -> body
+         var opts = this._view.match(/^([^\s]+)(\s*->\s*([^\s]+))?/i);
+         var view = opts[1];
+         var selector = opts[3] || "section";
+         var target = document.querySelector(selector);
+         if (!target) {
+            throw {
+               message: "Can't run. Selector " + selector + " for " + view + " in controller + " + this +
+                  " was not found "
+            };
+         }
+         // Storing target to this instance
+         this.__target = target;
+         if (!window.__wires_views__[view]) {
+            throw {
+               message: "'" + view + "' has not been compiled!"
+            };
+         }
+         this.stack = $run({
+            structure: window.__wires_views__[view],
+            target: target,
+            scope: this
+         });
+
+      },
+      // Destroying this target
+      destroy: function() {
+         _.each(this.stack.children, function(item) {
+            item.gc();
+         });
+
+      }
+   });
+});
 
 (function(){
    domain.service("$resource", ['$restEndPoint', '$http'], function($restEndPoint, $http){
@@ -3464,13 +3528,4 @@ domain.service("animations.ws-spring", function() {
          });
       }
    };
-});
-
-domain.service("controllers.Kukka", function($array, $form, $resource, $restEndPoint) {
-   return ['kukka.html', function() {
-      this.users = [{name : "ivan"}, {name : "bang"}];
-      this.someScope = {
-         name : "Name from another scope"
-      };
-   }];
 });

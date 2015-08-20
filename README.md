@@ -16,6 +16,70 @@ It will install dependencies, that you need to include into your project along w
 * Jquery
 * wires-domain
 
+## Controllers
+Controllers can be initialized manually or automatically through a router.
+If you want a controller to be called through a router, package name "controllers" needs to be added.
+
+### Through Router
+```js
+domain.service("controllers.MainController", function(Controller) {
+   return Controller.extend({
+      _view: 'main.html',
+      initialize: function() {
+
+      }
+   });
+});
+```
+
+User it in a router
+
+```js
+$router.add('/', 'MainController');
+```
+
+
+### Manual call
+You can controllers naturally by injecting them and calling "render()" method
+
+```js
+domain.service("Alert", function(Controller) {
+   return Controller.extend({
+      _view: "alert.html -> body",
+      initialize: function(msg) {
+         this.msg = msg;
+      }
+   });
+});
+```
+
+
+```js
+var alert = new Alert();
+alert.render();
+```
+
+The content of alert.html it going to be appended to the corresponding element.
+
+```html
+<div class="alert">
+   $msg
+   <hr>
+   <div ws-click="{{ $destroy() }}" class="close">
+      x
+   </div>
+</div>
+```
+User "destroy()" method to remove elements from the DOM.
+
+```js
+var alert = new Alert();
+alert.render();
+setTimeout(function(){
+   alert.destroy();
+},2000);
+```
+
 ## Subscribe to data changes
 You can track if variable is changed by defining "$changed" function to an object.
 For example:
