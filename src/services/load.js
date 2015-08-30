@@ -79,6 +79,7 @@
                         target.$tag.gc(true);
                      }
                   }
+                  $(target).empty();
                   // while (target.firstChild) {
                   //    if (target.firstChild.$tag) {
                   //       target.firstChild.$tag.gc();
