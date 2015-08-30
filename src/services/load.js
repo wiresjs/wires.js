@@ -79,11 +79,11 @@
                         target.$tag.gc(true);
                      }
                   }
-                  while (target.firstChild) {
-                     if (target.firstChild.$tag) {
-                        target.firstChild.$tag.gc();
-                     }
-                  }
+                  // while (target.firstChild) {
+                  //    if (target.firstChild.$tag) {
+                  //       target.firstChild.$tag.gc();
+                  //    }
+                  // }
                   return $loadView(view).then(function(structure) {
                      $run({
                         structure: structure,
