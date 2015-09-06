@@ -4,7 +4,7 @@ domain.service("Controller", ['$run'], function($run) {
 
       },
       // Render Controller manually
-      render: function() {
+      render: function(_customTargetSelector) {
          if (!this._view) {
             return;
          }
@@ -12,7 +12,7 @@ domain.service("Controller", ['$run'], function($run) {
          // e.g myview.html -> body
          var opts = this._view.match(/^([^\s]+)(\s*->\s*([^\s]+))?/i);
          var view = opts[1];
-         var selector = opts[3] || "section";
+         var selector = _customTargetSelector ? _customTargetSelector : (opts[3] || "section");
          var target = document.querySelector(selector);
          if (!target) {
             throw {
