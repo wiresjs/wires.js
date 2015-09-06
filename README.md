@@ -144,6 +144,38 @@ Let's have some decency and let user to type his own email without being stresse
 Syntax is being compiled in the backend using (jsep)[http://jsep.from.so/] library. Therefore be cautious "1omnomo()" will spit out a backend error Nothing to be worried about though, Attribute will be just ignored.
 
 
+## Dynamic Watchers
+A function in a template that returns object with $watch key will silently try to watch the given variables.
+For example
+
+```html
+<h1>{{  $someThingHere('myDynamicVariable') }}</h1>
+<input type="text" ws-value="{{ $someThingHere('myDynamicVariable') }}"/><br>
+<input type="text" ws-value="$myDynamicVariable"/>
+```
+
+According controller's function
+
+```js
+this.myDynamicVariable = "Hello";
+this.someThingHere = function(path) {
+     return {
+        $watch: [path],
+        $scope: this
+    };
+};
+```
+$watch should return an array with object's path. In this case it is going to be myDynamicVariable of "this" scope.
+
+$scope is an optional parameter. Parent scope of a template is inhereted by default.
+
+After running this template, the output should be like
+
+```html
+<h1>Hello</h1>
+```
+
+myDynamicVariable is now watched in all 3 preset nodes ( Header and 2 inputs, which are initialized through a macro and an expression accordingly ).
 
 
 ## Including external views
