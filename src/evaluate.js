@@ -107,7 +107,7 @@
                   locals: locals,
                   // detach (unwatch)
                   detach: function() {
-                     _.each(injectedWatchers, function(key, wt) {
+                     _.each(injectedWatchers, function(wt) {
                         wt.remove();
                      });
                      _.each(_watchers, function(wt) {

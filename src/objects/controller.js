@@ -1,4 +1,9 @@
-domain.service("Controller", ['$run'], function($run) {
+domain.service("Controller", function() {
+   if (!window.WiresEngineStart) {
+      throw {
+         message: "WiresEngineStart was not found. Please initialize the router!"
+      };
+   }
    return Wires.Class.extend({
       initialize: function() {
 
@@ -27,7 +32,7 @@ domain.service("Controller", ['$run'], function($run) {
                message: "'" + view + "' has not been compiled!"
             };
          }
-         this.stack = $run({
+         this.stack = WiresEngineStart({
             structure: window.__wires_views__[view],
             target: target,
             scope: this

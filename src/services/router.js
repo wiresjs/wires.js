@@ -1,7 +1,5 @@
 (function() {
 
-
-
    // Router State
    var RouterState = Wires.Class.extend({
       initialize: function() {
@@ -20,7 +18,7 @@
          var url = window.location.pathname;
 
          var keys = [];
-         var re = pathToRegexp(this.route, keys)
+         var re = pathToRegexp(this.route, keys);
          var result;
          var params = {};
          if ((result = re.exec(url))) {
@@ -36,7 +34,8 @@
 
    domain.register("$router", ['$load', '$queryString', '$loadView', '$run', '$history'],
       function($load, $queryString, $loadView, $run, $history) {
-
+         // Storing "run" to windows object
+         window.WiresEngineStart = $run;
          return {
 
             add: function() {
@@ -58,7 +57,7 @@
                      // Check if we have nested controllers
                      if (state.states) {
 
-                        self._start(state)
+                        self._start(state);
                      }
                      return false;
                   }
@@ -82,7 +81,7 @@
                         // We need to check if it's been changed
                         if (hs.route === routeState.route) {
                            // W don't need to trigger it
-                           parent = routeState.parent
+                           parent = routeState.parent;
                            return;
                         }
                      }
@@ -94,32 +93,32 @@
                      routeState.loaded = true;
                      routeState.parent = current;
                      parent = current;
-                  })
+                  });
                }).then(function(scope) {
 
                   self.historyStack = [];
                   // Reset the controller stack
                   _.each(self.stack, function(s) {
                      self.historyStack.push(s);
-                  })
+                  });
                   self.stack = [];
-               }).catch(function(e){
-                  console.error(e || e.stack)
-               })
+               }).catch(function(e) {
+                  console.error(e || e.stack);
+               });
 
             },
             start: function() {
                var self = this;
                self.stack = [];
                self._start(rootState);
-               self.loadStates(self.stack)
+               self.loadStates(self.stack);
 
                $history.on("change", function(e) {
                   self.stack = [];
                   self._start(rootState);
-                  self.loadStates(self.stack)
+                  self.loadStates(self.stack);
                });
             }
-         }
-      })
+         };
+      });
 })();

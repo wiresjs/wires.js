@@ -1249,7 +1249,7 @@ var Wires = Wires || {};
                   locals: locals,
                   // detach (unwatch)
                   detach: function() {
-                     _.each(injectedWatchers, function(key, wt) {
+                     _.each(injectedWatchers, function(wt) {
                         wt.remove();
                      });
                      _.each(_watchers, function(wt) {
@@ -2035,8 +2035,6 @@ domain.service("WiresValidation", function() {
 
 (function() {
 
-
-
    // Router State
    var RouterState = Wires.Class.extend({
       initialize: function() {
@@ -2055,7 +2053,7 @@ domain.service("WiresValidation", function() {
          var url = window.location.pathname;
 
          var keys = [];
-         var re = pathToRegexp(this.route, keys)
+         var re = pathToRegexp(this.route, keys);
          var result;
          var params = {};
          if ((result = re.exec(url))) {
@@ -2071,7 +2069,8 @@ domain.service("WiresValidation", function() {
 
    domain.register("$router", ['$load', '$queryString', '$loadView', '$run', '$history'],
       function($load, $queryString, $loadView, $run, $history) {
-
+         // Storing "run" to windows object
+         window.WiresEngineStart = $run;
          return {
 
             add: function() {
@@ -2093,7 +2092,7 @@ domain.service("WiresValidation", function() {
                      // Check if we have nested controllers
                      if (state.states) {
 
-                        self._start(state)
+                        self._start(state);
                      }
                      return false;
                   }
@@ -2117,7 +2116,7 @@ domain.service("WiresValidation", function() {
                         // We need to check if it's been changed
                         if (hs.route === routeState.route) {
                            // W don't need to trigger it
-                           parent = routeState.parent
+                           parent = routeState.parent;
                            return;
                         }
                      }
@@ -2129,34 +2128,34 @@ domain.service("WiresValidation", function() {
                      routeState.loaded = true;
                      routeState.parent = current;
                      parent = current;
-                  })
+                  });
                }).then(function(scope) {
 
                   self.historyStack = [];
                   // Reset the controller stack
                   _.each(self.stack, function(s) {
                      self.historyStack.push(s);
-                  })
+                  });
                   self.stack = [];
-               }).catch(function(e){
-                  console.error(e || e.stack)
-               })
+               }).catch(function(e) {
+                  console.error(e || e.stack);
+               });
 
             },
             start: function() {
                var self = this;
                self.stack = [];
                self._start(rootState);
-               self.loadStates(self.stack)
+               self.loadStates(self.stack);
 
                $history.on("change", function(e) {
                   self.stack = [];
                   self._start(rootState);
-                  self.loadStates(self.stack)
+                  self.loadStates(self.stack);
                });
             }
-         }
-      })
+         };
+      });
 })();
 
 (function() {
@@ -2849,7 +2848,12 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
    });
 })();
 
-domain.service("Controller", ['$run'], function($run) {
+domain.service("Controller", function() {
+   if (!window.WiresEngineStart) {
+      throw {
+         message: "WiresEngineStart was not found. Please initialize the router!"
+      };
+   }
    return Wires.Class.extend({
       initialize: function() {
 
@@ -2878,7 +2882,7 @@ domain.service("Controller", ['$run'], function($run) {
                message: "'" + view + "' has not been compiled!"
             };
          }
-         this.stack = $run({
+         this.stack = WiresEngineStart({
             structure: window.__wires_views__[view],
             target: target,
             scope: this
