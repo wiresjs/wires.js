@@ -72,7 +72,6 @@
                      self.selfUpdate = false;
                   }
                });
-
                // Extracting the first variable defined
                if (watcher.locals && watcher.locals.length === 1) {
                   this.variable = watcher.locals[0];
@@ -125,7 +124,7 @@
                         clearInterval(self.interval);
                         self.interval = setTimeout(function() {
                            cb($(_that).val());
-                        }, 200);
+                        }, 50);
                      };
                      this.element.addEventListener("keydown", this.keyDownListener, false);
                      break;

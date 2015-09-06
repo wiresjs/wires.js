@@ -1,6 +1,19 @@
 domain.service("controllers.Base", function(Alert) {
    return ['base.html', function() {
+      this.runka = "hello";
+      var self = this;
+      this.some = 'runka';
+      this.ololo = function(path) {
+         return {
+            $watch: [path],
+            $scope: self
+         };
+      };
+      this.shit = function() {
+         return "sdfsdf";
+      };
       this.showAlert = function() {
+
          var alert = new Alert("Hello");
          alert.render();
       };
