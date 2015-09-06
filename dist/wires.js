@@ -1625,6 +1625,43 @@ domain.service("validators.testEmail", function() {
    })
 })();
 
+domain.service("$sanitize", function() {
+   var sanitize = function(data) {
+      var attrs = {};
+      if (_.isString(data)) {
+         return data;
+      }
+      if (_.isNumber(data)) {
+         return data;
+      }
+      if (_.isBoolean(data)) {
+         return data;
+      }
+      _.each(data, function(v, k) {
+         if (v !== undefined && _.isString(k)) {
+            if (!k.match(/^(\$|_)/)) {
+               if (_.isArray(v)) {
+                  attrs[k] = [];
+                  _.each(v, function(item) {
+                     attrs[k].push(sanitize(item));
+                  });
+               } else if (_.isPlainObject(v)) {
+                  attrs[k] = sanitize(v);
+               } else {
+                  if (!(v instanceof Date)) {
+                     attrs[k] = sanitize(v);
+                  } else {
+                     attrs[k] = v;
+                  }
+               }
+            }
+         }
+      });
+      return attrs;
+   };
+   return sanitize;
+});
+
 domain.service("WiresValidation", function() {
    return Wires.Class.extend({
       initialize: function() {
@@ -1659,53 +1696,13 @@ domain.service("WiresValidation", function() {
 })();
 
 (function() {
-   domain.service("$form", function() {
+   domain.service("$form", ['$sanitize'], function($sanitize) {
 
       return function() {
          var form = {};
-
-         // Filter out system and private  objects
-         // $ - system
-         // _ - private
-         form.$normalize = function(data) {
-            var attrs = {};
-
-            if (_.isString(data)) {
-               return data;
-            }
-            if (_.isNumber(data)) {
-               return data;
-            }
-            if (_.isBoolean(data)) {
-               return data;
-            }
-      
-            _.each(data, function(v, k) {
-               if (v !== undefined && _.isString(k)) {
-                  if (!k.match(/^(\$|_)/)) {
-                     if (_.isArray(v)) {
-                        attrs[k] = [];
-                        _.each(v, function(item) {
-                           attrs[k].push(form.$normalize(item));
-                        });
-                     } else if (_.isPlainObject(v)) {
-                        attrs[k] = form.$normalize(v);
-                     } else {
-                        if (!(v instanceof Date)) {
-                           attrs[k] = form.$normalize(v);
-                        } else {
-                           attrs[k] = v;
-                        }
-                     }
-                  }
-               }
-            });
-            return attrs;
-         };
          form.$getAttrs = function() {
-            return form.$normalize(this);
+            return $sanitize(this);
          };
-
          form.$reset = function() {
             _.each(this, function(v, k) {
                if (!k.match(/^(\$|_)/)) {
@@ -2898,79 +2895,88 @@ domain.service("Controller", ['$run'], function($run) {
    });
 });
 
-(function(){
-   domain.service("$resource", ['$restEndPoint', '$http'], function($restEndPoint, $http){
-      return function(a, b){
+(function() {
+   domain.service("$resource", ['$restEndPoint', '$http', '$sanitize'], function($restEndPoint, $http, $sanitize) {
+      return function(a, b) {
          var opts = {};
          var obj;
          var endpoint;
 
-         if ( _.isObject(a) ){
+         if (_.isObject(a)) {
             obj = a || {};
             opts = b || {};
             endpoint = opts.endpoint;
          }
-         if (_.isString(a)){
+         if (_.isString(a)) {
             endpoint = a;
             obj = {};
          }
 
          var array = opts.array;
 
-         obj.$reset = function(){
-            _.each(this, function(v, k){
-               if ( !k.match(/^(\$|_)/)){
-                 this[k] = undefined;
+         obj.$reset = function() {
+            _.each(this, function(v, k) {
+               if (!k.match(/^(\$|_)/)) {
+                  this[k] = undefined;
                }
             }, this);
-         }
+         };
 
+         obj.$fetch = function(o) {
 
-         obj.$fetch = function(o){
-
-            return new Promise(function(resolve, reject){
-               if (endpoint){
+            return new Promise(function(resolve, reject) {
+               if (endpoint) {
                   var pm = o || {};
                   var url = $restEndPoint(endpoint, pm);
-                  $http.get(url, pm).then(function(data){
-                     _.each(data, function(v, k){
+                  $http.get(url, pm).then(function(data) {
+                     _.each(data, function(v, k) {
                         obj[k] = v;
-                     })
-                     return resolve(obj)
-                  }).catch(function(e){
-                     return reject(e)
-                  })
+                     });
+                     return resolve(obj);
+                  }).catch(function(e) {
+                     return reject(e);
+                  });
 
                }
-            })
-         }
+            });
+         };
 
-         obj.$remove = function(){
-            return new Promise(function(resolve, reject){
-               // Removing from the parent array
-               if (endpoint){
+         obj.$update = function() {
+            return new Promise(function(resolve, reject) {
+               if (endpoint) {
                   var url = $restEndPoint(endpoint, obj);
-                  $http.delete(url).then(function(){
-                     if ( array ){
+                  return $http.put(url, $sanitize(obj)).then(resolve).catch(reject);
+               } else {
+                  return resolve();
+               }
+            });
+         };
+
+         obj.$remove = function() {
+            return new Promise(function(resolve, reject) {
+               // Removing from the parent array
+               if (endpoint) {
+                  var url = $restEndPoint(endpoint, obj);
+                  $http.delete(url).then(function() {
+                     if (array) {
                         array.$remove(obj);
                      }
                      obj.$reset();
-                     return resolve()
-                  }).catch(function(){
-                     return reject(e)
-                  })
+                     return resolve();
+                  }).catch(function() {
+                     return reject(e);
+                  });
                } else {
-                  if ( array ){
+                  if (array) {
                      array.$remove(obj);
                      return resolve();
                   }
                }
-            })
-         }
-
-         return obj
-      }
-   })
+            });
+         };
+         return obj;
+      };
+   });
 
 })();
 
