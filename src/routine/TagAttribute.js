@@ -13,13 +13,19 @@ domain.service("TagAttribute", ['GarbageCollector', '$evaluate'], function(Garba
          this.element.setAttributeNode(this.attribute);
          this.watcher = this.startWatching();
       },
+      getVariableValue: function() {
+         if (this.initialValue && this.initialValue.locals[0]) {
+            return this.initialValue.locals[0].value.value;
+         }
+         return this.initialValue;
+      },
       onValue: function(data) {
          this.attribute.value = data.str;
       },
       startWatching: function() {
          var self = this;
 
-         return $evaluate(this.attr, {
+         this.initialValue = $evaluate(this.attr, {
             scope: this.scope,
             changed: function(data) {
                // If we have a custom listener
@@ -37,6 +43,7 @@ domain.service("TagAttribute", ['GarbageCollector', '$evaluate'], function(Garba
             }
 
          });
+         return this.initialValue;
       }
    });
    return TagAttribute;

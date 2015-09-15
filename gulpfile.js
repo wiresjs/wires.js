@@ -1,6 +1,6 @@
-var gulp = require("gulp")
+var gulp = require("gulp");
 var concat = require('gulp-concat');
-var includeAll = require("wires-include-all")
+var includeAll = require("wires-include-all");
 var _ = require('lodash');
 var uglify = require('gulp-uglify');
 
@@ -8,7 +8,6 @@ var external = [
    'external/lib/path2regexp.js',
    'external/lib/wires.class.js',
    'external/bower_components/wires-domain/dist/wires-domain.js',
-   'external/bower_components/velocity/velocity.min.js',
 ];
 
 var data = {

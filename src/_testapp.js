@@ -3,6 +3,9 @@ domain.service("controllers.Base", function(Alert) {
       this.runka = "hello";
       var self = this;
       this.some = 'runka';
+      this.myStuff = {
+         name: "ivan"
+      };
       this.ololo = function(path) {
          return {
             $watch: [path],

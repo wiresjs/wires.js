@@ -1,9 +1,5 @@
 domain.service("Controller", function() {
-   if (!window.WiresEngineStart) {
-      throw {
-         message: "WiresEngineStart was not found. Please initialize the router!"
-      };
-   }
+
    return Wires.Class.extend({
       initialize: function() {
 
@@ -18,7 +14,7 @@ domain.service("Controller", function() {
          var opts = this._view.match(/^([^\s]+)(\s*->\s*([^\s]+))?/i);
          var view = opts[1];
          var selector = _customTargetSelector ? _customTargetSelector : (opts[3] || "section");
-         var target = document.querySelector(selector);
+         var target = selector instanceof HTMLElement ? selector : document.querySelector(selector);
          if (!target) {
             throw {
                message: "Can't run. Selector " + selector + " for " + view + " in controller + " + this +
@@ -32,7 +28,12 @@ domain.service("Controller", function() {
                message: "'" + view + "' has not been compiled!"
             };
          }
-         this.stack = WiresEngineStart({
+         if (!window.WiresEngineStart) {
+            throw {
+               message: "WiresEngineStart was not found. Please initialize the router!"
+            };
+         }
+         this.stack = window.WiresEngineStart({
             structure: window.__wires_views__[view],
             target: target,
             scope: this
