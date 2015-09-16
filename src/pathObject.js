@@ -1,4 +1,4 @@
-(function(){
+(function() {
    domain.service("$pathObject", function() {
       return function(path, scope) {
          // just in case converting it
@@ -22,13 +22,27 @@
             }
          });
          return {
-            update : function(newValue){
-               instance[property] = newValue;
+            update: function(newValue) {
+               // If the target is object
+               if (_.isPlainObject(instance[property])) {
+                  // and we are trying to attach an object
+                  // it's obvious we need to update values
+                  // without overrides
+                  if (_.isPlainObject(newValue)) {
+                     _.each(newValue, function(v, k) {
+                        if (k[0] !== "$") {
+                           instance[property][k] = v;
+                        }
+                     });
+                  }
+               } else {
+                  instance[property] = newValue;
+               }
                return newValue;
             },
-            value : instance[property],
-            property : property,
-            instance : instance
+            value: instance[property],
+            property: property,
+            instance: instance
          };
       };
    });
