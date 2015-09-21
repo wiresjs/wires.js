@@ -3,6 +3,7 @@
    var counter = 0;
    domain.service("$load", ['$queryString', '$loadView', '$run'],
       function($queryString, $loadView, $run) {
+         window.WiresEngineStart = $run;
          return {
             component: function(component, opts) {
 

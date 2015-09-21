@@ -1855,6 +1855,7 @@ domain.service("WiresValidation", function() {
    var counter = 0;
    domain.service("$load", ['$queryString', '$loadView', '$run'],
       function($queryString, $loadView, $run) {
+         window.WiresEngineStart = $run;
          return {
             component: function(component, opts) {
 
@@ -2096,8 +2097,8 @@ domain.service("WiresValidation", function() {
    // Defining the root router state
    var rootState = new RouterState();
 
-   domain.register("$router", ['$load', '$queryString', '$loadView', '$run', '$history'],
-      function($load, $queryString, $loadView, $run, $history) {
+   domain.register("$router", ['$run', '$load', '$queryString', '$loadView', '$history'],
+      function($run, $load, $queryString, $loadView, $history) {
          // Storing "run" to windows object
          window.WiresEngineStart = $run;
          return {

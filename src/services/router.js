@@ -32,8 +32,8 @@
    // Defining the root router state
    var rootState = new RouterState();
 
-   domain.register("$router", ['$load', '$queryString', '$loadView', '$run', '$history'],
-      function($load, $queryString, $loadView, $run, $history) {
+   domain.register("$router", ['$run', '$load', '$queryString', '$loadView', '$history'],
+      function($run, $load, $queryString, $loadView, $history) {
          // Storing "run" to windows object
          window.WiresEngineStart = $run;
          return {
