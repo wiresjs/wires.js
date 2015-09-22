@@ -14,8 +14,34 @@
             endpoint = a;
             obj = {};
          }
-
          var array = opts.array;
+
+         obj.$apply = function(target) {
+            var iterate = function(t, o) {
+               _.each(t, function(value, key) {
+                  if (_.isPlainObject(value)) {
+                     if (_.isPlainObject(o[key])) {
+                        iterate(value, o[key]);
+                     } else {
+                        o[key] = value;
+                     }
+                  } else if (_.isArray(value)) {
+                     var currentArray = o[key];
+                     if (_.isArray(currentArray)) {
+                        currentArray.splice(0, currentArray.length);
+                        _.each(value, function(v) {
+                           currentArray.push(v);
+                        });
+                     } else {
+                        o[key] = value;
+                     }
+                  } else {
+                     o[key] = value;
+                  }
+               });
+            };
+            iterate(target, obj);
+         };
 
          obj.$reset = function() {
             _.each(this, function(v, k) {

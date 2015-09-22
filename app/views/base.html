@@ -1,7 +1,8 @@
 
 <section style="margin-top:50px">
    <a href="#" ws-href="/animation">TEST</a>
-<input type="text" ws-value="$myStuff">
-<ui-dropdown data="$myStuff"></ui-dropdown>
-
+   <h1>$data.name ($data)</h1>
+   <input type="text" ws-value="$data.name"/>
+   <hr>
+   <input type="button" value="change" ws-click="{{ $change() }}">
 </section>

@@ -28,8 +28,8 @@
          }
 
          if (instance.$watchers[property].length === 1) {
-
             instance.watch(property, function(a, b, newvalue) {
+               console.log(instance[property]);
                _.each(instance.$watchers[property], function(_callback) {
                   // Firing up handler if attached
                   if (instance.$changed !== undefined) {

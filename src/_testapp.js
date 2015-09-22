@@ -2,23 +2,14 @@ domain.service("controllers.Base", function(Alert) {
    return ['base.html', function() {
       this.runka = "hello";
       var self = this;
-      this.some = 'runka';
-      this.myStuff = {
-         name: "ivan"
+      self.data = {
+         name: "sukka"
       };
-      this.ololo = function(path) {
-         return {
-            $watch: [path],
-            $scope: self
-         };
-      };
-      this.shit = function() {
-         return "sdfsdf";
-      };
-      this.showAlert = function() {
+      this.change = function() {
+         self.data = {
+            name: "PUKKA"
+         }
 
-         var alert = new Alert("Hello");
-         alert.render();
       };
    }];
 });
