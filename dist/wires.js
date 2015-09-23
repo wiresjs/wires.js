@@ -1557,6 +1557,7 @@ var Wires = Wires || {};
          if (!instance.$watchers) {
             instance.$watchers = {};
          }
+
          // prototyping array if it was not
          if (_.isArray(instance)) {
             instance = $array(instance);
@@ -1572,7 +1573,11 @@ var Wires = Wires || {};
          if (cb) {
             instance.$watchers[property].push(cb);
          }
-
+         if ( !instance.$subscribe ){
+            instance.$subscribe = function(__cb){
+               instance.$watchers[property].push(__cb);
+            };
+         }
          if (instance.$watchers[property].length === 1) {
             instance.watch(property, function(a, b, newvalue) {
                _.each(instance.$watchers[property], function(_callback) {
@@ -1588,9 +1593,7 @@ var Wires = Wires || {};
 
          return {
             remove: function() {
-
                var index = instance.$watchers[property].indexOf(cb);
-
             },
             removeAll: function() {
                instance.unwatch(property);
