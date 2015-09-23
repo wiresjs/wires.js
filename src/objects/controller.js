@@ -38,7 +38,9 @@ domain.service("Controller", function() {
             target: target,
             scope: this
          });
-
+         if ( _.isFunction(this.onRender) ){
+            this.onRender();
+         }
       },
       // Destroying this target
       destroy: function() {
