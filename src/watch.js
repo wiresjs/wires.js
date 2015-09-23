@@ -28,8 +28,11 @@
             instance.$watchers[property].push(cb);
          }
          if ( !instance.$subscribe ){
-            instance.$subscribe = function(__cb){
-               instance.$watchers[property].push(__cb);
+            instance.$subscribe = function(_prop, __cb){
+               if ( !instance.$watchers[_prop] ){
+                  instance.$watchers[_prop] = [];
+               }
+               instance.$watchers[_prop].push(__cb);
             };
          }
          if (instance.$watchers[property].length === 1) {
