@@ -58,6 +58,7 @@
                      }
                   }
                } else {
+
                   this.selfUpdate = true;
                   this.element.checked = targetValue ? true : false;
                   //targetObject.update(targetValue ? true : false);

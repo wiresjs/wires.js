@@ -132,6 +132,7 @@
 
                      this.clickListener = function(evt) {
                         var target = this.$checked;
+
                         if (_.isArray(target.value)) {
                            var currValue = self.variable.value.value;
                            var index = target.value.indexOf(currValue);
@@ -147,9 +148,11 @@
                            }
                         } else {
                            self.selfUpdate = true;
+                           console.log("update");
                            self.variable.value.update(this.checked);
                         }
                      };
+
                      this.element.addEventListener("click", this.clickListener);
                      break;
                   case 'option':

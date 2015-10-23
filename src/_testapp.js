@@ -5,10 +5,22 @@ domain.service("controllers.Base", function(Alert) {
       self.data = {
          name: "sukka"
       };
+      window.a = this;
+      //   self.satana = false;
+      self.data.selected = "";
+      self.dates = [{
+         value: "hello item1"
+      }, {
+         value: "hello item2"
+      }];
+
+      self.data.$changed = function(key, old, n) {
+         console.log(key, old, n);
+      };
       this.change = function() {
          self.data = {
             name: "PUKKA"
-         }
+         };
 
       };
    }];

@@ -93,7 +93,7 @@
             var items = _.flatten(arguments);
             return new Promise(function(resolve, reject) {
                return domain.each(items, function(item) {
-                  var data = _.isFunction(item.$getAttrs) ? item.$getAttrs() : data;
+                  var data = _.isFunction(item.$getAttrs) ? item.$getAttrs() : item;
                   // Reset errors
                   if (item.$err) {
                      item.$err = undefined;
