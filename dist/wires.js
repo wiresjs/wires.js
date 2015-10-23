@@ -2833,7 +2833,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
             var items = _.flatten(arguments);
             return new Promise(function(resolve, reject) {
                return domain.each(items, function(item) {
-                  var data = _.isFunction(item.$getAttrs) ? item.$getAttrs() : data;
+                  var data = _.isFunction(item.$getAttrs) ? item.$getAttrs() : item;
                   // Reset errors
                   if (item.$err) {
                      item.$err = undefined;
@@ -3169,6 +3169,7 @@ domain.service("Controller", function() {
                      }
                   }
                } else {
+
                   this.selfUpdate = true;
                   this.element.checked = targetValue ? true : false;
                   //targetObject.update(targetValue ? true : false);
@@ -3521,6 +3522,7 @@ domain.service("Controller", function() {
 
                      this.clickListener = function(evt) {
                         var target = this.$checked;
+
                         if (_.isArray(target.value)) {
                            var currValue = self.variable.value.value;
                            var index = target.value.indexOf(currValue);
@@ -3536,9 +3538,11 @@ domain.service("Controller", function() {
                            }
                         } else {
                            self.selfUpdate = true;
+                           console.log("update");
                            self.variable.value.update(this.checked);
                         }
                      };
+
                      this.element.addEventListener("click", this.clickListener);
                      break;
                   case 'option':
