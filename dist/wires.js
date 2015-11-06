@@ -2805,7 +2805,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
          array.$fetch = function(params) {
             var self = this;
             return new Promise(function(resolve, reject) {
-               var params = params || {};
+               params = params || {};
                if (!endpoint) {
                   throw {
                      message: "Can't fetch without the endpoint!"
