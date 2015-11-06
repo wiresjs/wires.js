@@ -14,7 +14,15 @@
 
    <input ws-checked="$data.myCheckbox" ws-value="$data.myCheckbox" type="checkbox" />
 
+   <div ws-click="{{ $forceParams() }}" style="width:100px; height:100px; background-color:red">
+      forceParams
+   </div>
 
+   <BR>
+
+   <div ws-click="{{ $mergeParams() }}" style="width:100px; height:100px; background-color:red">
+      mergeParams
+   </div>
 
 
  <input type="button" value="change" ws-click="{{ $change() }}">

@@ -10,7 +10,11 @@
             var pair = vars[i].split("=");
             // If first entry with this name
             if (typeof query_string[pair[0]] === "undefined") {
-               query_string[pair[0]] = decodeURIComponent(pair[1]);
+               
+               if ( pair[0] ){
+                  query_string[pair[0]] = decodeURIComponent(pair[1]);
+               }
+
                // If second entry with this name
             } else if (typeof query_string[pair[0]] === "string") {
                var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];

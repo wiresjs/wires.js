@@ -1,4 +1,4 @@
-domain.service("controllers.Base", function(Alert) {
+domain.service("controllers.Base",  function(Alert, $pushState) {
    return ['base.html', function() {
       this.runka = "hello";
       var self = this;
@@ -23,6 +23,12 @@ domain.service("controllers.Base", function(Alert) {
          };
 
       };
+      self.forceParams  = function(){
+          $pushState.force({hello : "world"})
+      }
+      self.mergeParams  = function(){
+          $pushState.merge({ololo : "trololo"})
+      }
    }];
 });
 
