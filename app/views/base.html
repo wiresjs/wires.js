@@ -4,26 +4,8 @@
    <input type="text" ws-value="$data.name"/>
    <hr>
 
-   <select  ws-value="$data.selected">
-      <option ws-repeat="$item in $dates" ws-value="$item.value">$item.value</option>
-   </select>
-   <hr>
-   <h1>SELECTED $data.selected</h1>
-   <h1>$data.myCheckbox</h1>
 
-
-   <input ws-checked="$data.myCheckbox" ws-value="$data.myCheckbox" type="checkbox" />
-
-   <div ws-click="{{ $forceParams() }}" style="width:100px; height:100px; background-color:red">
-      forceParams
-   </div>
-
-   <BR>
-
-   <div ws-click="{{ $mergeParams() }}" style="width:100px; height:100px; background-color:red">
-      mergeParams
-   </div>
-
-
+      <li ws-repeat="$item in $items">$item.name</li>
+   </ul>
  <input type="button" value="change" ws-click="{{ $change() }}">
 </section>

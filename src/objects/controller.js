@@ -23,7 +23,8 @@ domain.service("Controller", function() {
          }
          // Storing target to this instance
          this.__target = target;
-         if (!window.__wires_views__[view]) {
+         var structure = window.__wires_views__[view];
+         if (!structure) {
             throw {
                message: "'" + view + "' has not been compiled!"
             };
@@ -34,11 +35,11 @@ domain.service("Controller", function() {
             };
          }
          this.stack = window.WiresEngineStart({
-            structure: window.__wires_views__[view],
+            structure: structure,
             target: target,
             scope: this
          });
-         if ( _.isFunction(this.onRender) ){
+         if (_.isFunction(this.onRender)) {
             this.onRender();
          }
       },
@@ -47,7 +48,6 @@ domain.service("Controller", function() {
          _.each(this.stack.children, function(item) {
             item.gc();
          });
-
       }
    });
 });

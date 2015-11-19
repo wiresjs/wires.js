@@ -58,9 +58,7 @@
                   var pm = o || {};
                   var url = $restEndPoint(endpoint, pm);
                   $http.get(url, pm).then(function(data) {
-                     _.each(data, function(v, k) {
-                        obj[k] = v;
-                     });
+                     obj.$apply(data);
                      return resolve(obj);
                   }).catch(function(e) {
                      return reject(e);
