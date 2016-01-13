@@ -1,5 +1,5 @@
 (function() {
-   domain.register("$http", function() {
+   domain.register("$http", ['$sanitize'],function($sanitize) {
       return {
          _request: function(method, url, data, ok, fail) {
             var opts = {
@@ -60,7 +60,7 @@
          post: function(url, data) {
             var self = this;
             return new Promise(function(resolve, reject) {
-               self._request("POST", url, data, function(res) {
+               self._request("POST", url, $sanitize(data || {}), function(res) {
                   resolve(res);
                }, function(err) {
                   reject(err)
@@ -70,7 +70,7 @@
          put: function(url, data) {
             var self = this;
             return new Promise(function(resolve, reject) {
-               self._request("PUT", url, data, function(res) {
+               self._request("PUT", url, $sanitize(data || {}), function(res) {
                   resolve(res);
                }, function(err) {
                   reject(err)

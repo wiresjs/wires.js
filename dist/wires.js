@@ -1823,7 +1823,7 @@ domain.service("WiresValidation", function() {
 })();
 
 (function() {
-   domain.register("$http", function() {
+   domain.register("$http", ['$sanitize'],function($sanitize) {
       return {
          _request: function(method, url, data, ok, fail) {
             var opts = {
@@ -1884,7 +1884,7 @@ domain.service("WiresValidation", function() {
          post: function(url, data) {
             var self = this;
             return new Promise(function(resolve, reject) {
-               self._request("POST", url, data, function(res) {
+               self._request("POST", url, $sanitize(data || {}), function(res) {
                   resolve(res);
                }, function(err) {
                   reject(err)
@@ -1894,7 +1894,7 @@ domain.service("WiresValidation", function() {
          put: function(url, data) {
             var self = this;
             return new Promise(function(resolve, reject) {
-               self._request("PUT", url, data, function(res) {
+               self._request("PUT", url, $sanitize(data || {}), function(res) {
                   resolve(res);
                }, function(err) {
                   reject(err)
@@ -3102,7 +3102,7 @@ domain.service("Controller", function() {
             return new Promise(function(resolve, reject) {
                if (endpoint) {
                   var url = $restEndPoint(endpoint, obj);
-                  return $http.put(url, $sanitize(obj)).then(resolve).catch(function(e) {
+                  return $http.put(url, obj).then(resolve).catch(function(e) {
                      obj.$err = e.message && e.message.message ? e.message.message : e;
                      return reject(e);
                   });

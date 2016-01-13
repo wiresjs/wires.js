@@ -73,7 +73,7 @@
             return new Promise(function(resolve, reject) {
                if (endpoint) {
                   var url = $restEndPoint(endpoint, obj);
-                  return $http.put(url, $sanitize(obj)).then(resolve).catch(function(e) {
+                  return $http.put(url, obj).then(resolve).catch(function(e) {
                      obj.$err = e.message && e.message.message ? e.message.message : e;
                      return reject(e);
                   });
