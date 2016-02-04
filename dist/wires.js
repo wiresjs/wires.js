@@ -1296,6 +1296,7 @@ var Wires = Wires || {};
                   // In case of a direct variable
 
                   var watcher = $watch(variable.p, scope, function(old, value) {
+
                      // Have to call if after values been actually changed
                      $defered(function() {
                         compile();
@@ -2568,7 +2569,7 @@ domain.service("Repeater", ['TagNode', '$pathObject', '$array', '$watch', 'Garba
             });
             this._arrayElements.splice(0, this._arrayElements.length);
          },
-         addItem: function(arrayItem) {
+         addItem: function(arrayItem, prepend) {
 
             var parentDom = this.item.i[0];
 
@@ -2588,16 +2589,27 @@ domain.service("Repeater", ['TagNode', '$pathObject', '$array', '$watch', 'Garba
             if (index > 0) {
                afterElement = this._arrayElements[index - 1];
             }
+            if (prepend) {
+               afterElement = this.element;
+            }
 
             // Appending element
             var cNode = afterElement.node ? afterElement.node.element : afterElement;
+
             cNode.parentNode.insertBefore(parentNode.element, cNode.nextSibling);
             //$(parentNode.element).insertAfter((afterElement.node ? afterElement.node.element : afterElement ) )
+            if (prepend) {
+               this._arrayElements.unshift({
+                  node: parentNode,
+                  localScope: localScope
+               });
+            } else {
+               this._arrayElements.push({
+                  node: parentNode,
+                  localScope: localScope
+               });
+            }
 
-            this._arrayElements.push({
-               node: parentNode,
-               localScope: localScope
-            });
             this.element.$scope = localScope;
             this.element.$tag = self;
             //Running children
@@ -2626,6 +2638,9 @@ domain.service("Repeater", ['TagNode', '$pathObject', '$array', '$watch', 'Garba
          onEvent: function(event, target, howmany) {
             if (event === 'push') {
                this.addItem(target);
+            }
+            if (event === 'unshift') {
+               this.addItem(target, true);
             }
             if (event === 'splice') {
                this.removeItem(target, howmany);
@@ -2857,7 +2872,9 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
          array.$removeAll = function() {
             array.splice(0, array.length);
          };
-
+         array.$prepend = function() {
+            this.unshift.apply(array, arguments);
+         }
          array.$empty = function() {
             this.$removeAll();
          };
@@ -2951,6 +2968,14 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
             array.size = array.length;
             return push;
          };
+
+         array.unshift = function(target) {
+            target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
+            var push = Array.prototype.push.apply(this, [target]);
+            notify('unshift', target);
+            array.size = array.length;
+            return push;
+         }
 
          // Splicing (removing)
          array.splice = function(index, howmany) {
