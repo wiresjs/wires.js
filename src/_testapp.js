@@ -1,40 +1,22 @@
-domain.service("controllers.Base", function(Alert, $pushState, WiresAlert) {
+domain.service("controllers.Base", function(Alert, $pushState, $array) {
    return ['base.html', function() {
       this.runka = "hello";
       var self = this;
       self.data = {
-         name: "sukka"
+         text: "hello"
       };
-      window.a = this;
-      //   self.satana = false;
-      self.data.selected = "";
-      self.dates = [{
-         value: "hello item1"
+
+      self.items = $array([{
+         name: "hello"
       }, {
-         value: "hello item2"
-      }];
+         name: "world"
+      }]);
 
-      self.data.$changed = function(key, old, n) {
-         console.log(key, old, n);
-      };
-      this.change = function() {
-         self.data = {
-            name: "PUKKA"
-         };
-
-      };
-      self.forceParams = function() {
-         $pushState.force({
-            hello: "world"
+      this.add = function() {
+         self.items.$prepend({
+            name: "pukka"
          })
       }
-      self.mergeParams = function() {
-         $pushState.merge({
-            ololo: "trololo"
-         })
-      }
-
-      WiresAlert("Hello")
 
    }];
 });

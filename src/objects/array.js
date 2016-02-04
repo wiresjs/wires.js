@@ -45,7 +45,9 @@
          array.$removeAll = function() {
             array.splice(0, array.length);
          };
-
+         array.$prepend = function() {
+            this.unshift.apply(array, arguments);
+         }
          array.$empty = function() {
             this.$removeAll();
          };
@@ -139,6 +141,14 @@
             array.size = array.length;
             return push;
          };
+
+         array.unshift = function(target) {
+            target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
+            var push = Array.prototype.push.apply(this, [target]);
+            notify('unshift', target);
+            array.size = array.length;
+            return push;
+         }
 
          // Splicing (removing)
          array.splice = function(index, howmany) {

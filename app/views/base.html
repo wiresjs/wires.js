@@ -1,11 +1,13 @@
 <section style="margin-top:50px">
-   <a href="#" ws-href="/animation">TEST</a>
-   <h1>$data.name ($data)</h1>
-   <input type="text" ws-value="$data.name"/>
-   <hr>
+   <h1>$data.text</h1>
+   <input type="text" name="name" ws-value="$data.text">
+
+<ul>
+   <li ws-repeat="$item in $items" ws-click="{{console.log($item)}}">$item.name</li>
+</ul>
+
+ <input type="button" value="change" ws-click="{{ $add() }}">
 
 
-      <li ws-repeat="$item in $items">$item.name</li>
-   </ul>
- <input type="button" value="change" ws-click="{{ $change() }}">
+
 </section>
