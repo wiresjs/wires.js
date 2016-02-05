@@ -144,7 +144,7 @@
 
          array.unshift = function(target) {
             target = _.isFunction(target.$getAttrs) ? target.$getAttrs() : target;
-            var push = Array.prototype.push.apply(this, [target]);
+            var push = Array.prototype.unshift.apply(this, [target]);
             notify('unshift', target);
             array.size = array.length;
             return push;
