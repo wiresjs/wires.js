@@ -1686,7 +1686,7 @@ domain.service("$sanitize", function() {
       }
       _.each(data, function(v, k) {
          if (v !== undefined && _.isString(k)) {
-            if (!k.match(/^(\$|_)/)) {
+            if (!k.match(/^(\$)/)) {
                if (_.isArray(v)) {
                   attrs[k] = [];
                   _.each(v, function(item) {
