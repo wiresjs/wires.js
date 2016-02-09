@@ -52,6 +52,12 @@
             this.$removeAll();
          };
 
+         array.$apply = function(data) {
+            _.each(data, function(v) {
+               array.push(v);
+            });
+         }
+
          // Completely destroys this.array
          // Removes all elements
          // Detaches all watchers

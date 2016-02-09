@@ -1,7 +1,7 @@
 {
    "name": "wires.js",
    "main": "index.js",
-   "version": "0.5.73",
+   "version": "0.5.74",
    "homepage": "https://github.com/wiresjs/wires.js",
    "authors": [
       "Ivan.Orlov <ivan@morrr.com>"
