@@ -53,6 +53,7 @@
          };
 
          array.$apply = function(data) {
+            array.$removeAll();
             _.each(data, function(v) {
                array.push(v);
             });

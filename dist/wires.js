@@ -2880,6 +2880,7 @@ domain.service("TextNode", ['$evaluate', 'GarbageCollector'],function($evaluate,
          };
 
          array.$apply = function(data) {
+            array.$removeAll();
             _.each(data, function(v) {
                array.push(v);
             });
