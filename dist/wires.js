@@ -2603,6 +2603,10 @@ domain.service("Repeater", ['TagNode', '$pathObject', '$array', '$watch', 'Garba
                   node: parentNode,
                   localScope: localScope
                });
+               // Reset indexes for items
+               _.each(this._arrayElements, function(item, index) {
+                  item.localScope.index = index;
+               });
             } else {
                this._arrayElements.push({
                   node: parentNode,

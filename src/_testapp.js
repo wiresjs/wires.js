@@ -14,8 +14,9 @@ domain.service("controllers.Base", function(Alert, $pushState, $array) {
 
       this.add = function() {
          self.items.$prepend({
-            name: "pukka"
-         })
+            name: self.data.text
+         });
+         self.data.text = '';
       }
 
    }];

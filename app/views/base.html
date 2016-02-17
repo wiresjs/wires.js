@@ -3,7 +3,7 @@
    <input type="text" name="name" ws-value="$data.text">
 
 <ul>
-   <li ws-repeat="$item in $items" ws-click="{{console.log($item)}}">$item.name</li>
+   <li ws-repeat="$item in $items" ws-click="{{console.log($item)}}">$item.name $index</li>
 </ul>
 
  <input type="button" value="change" ws-click="{{ $add() }}">
