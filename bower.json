@@ -1,20 +1,24 @@
 {
-   "name": "wires.js",
-   "main": "index.js",
-   "version": "0.5.76",
-   "homepage": "https://github.com/wiresjs/wires.js",
-   "authors": [
-      "Ivan.Orlov <ivan@morrr.com>"
-   ],
-   "license": "MIT",
-   "ignore": [
-      "**/.*",
-      "node_modules",
-      "bower_components",
-      "src",
-      "external",
-      "app",
-      "test",
-      "tests"
-   ]
+  "name": "wires.js",
+  "main": "index.js",
+  "version": "0.5.76",
+  "homepage": "https://github.com/wiresjs/wires.js",
+  "authors": [
+    "Ivan.Orlov <ivan@morrr.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src",
+    "external",
+    "app",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "async-watch": "^1.1.13",
+    "wires-domain": "ws-domain#^1.6.6"
+  }
 }
