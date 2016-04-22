@@ -1,3 +1,0 @@
-module ViewCompiler
-
-export {};

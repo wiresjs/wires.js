@@ -21,101 +21,43 @@ domain.module("wires.AsyncWatch", function () {
 domain.module("AsyncTransaction", function () {
 	return isNode ? nodeAsyncLib.AsyncTransaction : window.AsyncTransaction;
 });
-domain.module("Directive", ["_"], function (_) {
-	var Directive = function () {
-		_createClass(Directive, null, [{
-			key: "type",
-			get: function get() {
-				return "attribute";
+domain.module("wires.compiler.ViewCompiler", ["wires.utils.UniversalQuery"], function (UniversalQuery) {
+	var ViewCompiler = function () {
+		function ViewCompiler() {
+			_classCallCheck(this, ViewCompiler);
+
+			this.json = [];
+		}
+		/**
+   * iterateChildren - a recursive function (private)
+   *  Generates JSON
+   * @return {type}  description
+   */
+
+
+		_createClass(ViewCompiler, [{
+			key: "iterateChildren",
+			value: function iterateChildren() {}
+			/**
+    * htmlString - convert raw html into a JSON
+    *
+    * @param  {type} html description
+    * @return {type}      description
+    */
+
+		}], [{
+			key: "htmlString",
+			value: function htmlString(html) {
+				var $ = UniversalQuery.init(html);
+				var compiler = new ViewCompiler();
+				var result = compiler.iterateChildren($.children);
+				return result;
 			}
 		}]);
 
-		function Directive() {
-			_classCallCheck(this, Directive);
-		}
-
-		return Directive;
+		return ViewCompiler;
 	}();
-	return function (_Directive) {
-		_inherits(SuperTest, _Directive);
-
-		function SuperTest() {
-			_classCallCheck(this, SuperTest);
-
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(SuperTest).apply(this, arguments));
-		}
-
-		_createClass(SuperTest, null, [{
-			key: "type",
-			get: function get() {
-				return "pukka";
-			}
-		}]);
-
-		return SuperTest;
-	}(Directive);
-});
-domain.module("wires.utils.DotNotation", ["wires.AsyncWatch"], function (AsyncWatch) {
-	var DotNotation = {
-		nextTick: function nextTick(cb) {
-			return isNode ? process.nextTick(cb) : window.requestAnimationFrame(cb);
-		},
-		dotNotation: function dotNotation(path) {
-			if (path instanceof Array) {
-				return {
-					path: path,
-					str: path.join('.')
-				};
-			}
-			if (typeof path !== 'string') {
-				return;
-			}
-			return {
-				path: path.split('\.'),
-				str: path
-			};
-		},
-		hasProperty: function hasProperty(obj, path) {
-			if (path.length === 0 || obj === undefined) {
-				return false;
-			}
-			var notation = this.dotNotation(path);
-			if (!notation) {
-				return false;
-			}
-			path = notation.path;
-			var validNext = true;
-			for (var i = 0; i < path.length; i++) {
-				if (validNext && obj.hasOwnProperty(path[i])) {
-					obj = obj[path[i]];
-					if (obj === undefined) {
-						validNext = false;
-					}
-				} else {
-					return false;
-				}
-			}
-			return true;
-		},
-		getPropertyValue: function getPropertyValue(obj, path) {
-			if (path.length === 0 || obj === undefined) {
-				return undefined;
-			}
-			var notation = this.dotNotation(path);
-			if (!notation) {
-				return;
-			}
-			path = notation.path;
-			for (var i = 0; i < path.length; i++) {
-				obj = obj[path[i]];
-				if (obj === undefined) {
-					return undefined;
-				}
-			}
-			return obj;
-		}
-	};
-	return DotNotation;
+	return ViewCompiler;
 });
 domain.module("wires.expressions.AngularExpressionParser", [], function () {
 	// We don't want to lint angular's code...
@@ -1232,7 +1174,130 @@ domain.module("wires.expressions.WatchBatch", ["_", "wires.AsyncWatch", "wires.u
 		return AsyncWatch.subscribe(watchers, cb);
 	};
 });
-domain.module("ViewCompiler", [], function () {
-	return {};
+domain.module("Directive", ["_"], function (_) {
+	var Directive = function () {
+		_createClass(Directive, null, [{
+			key: "type",
+			get: function get() {
+				return "attribute";
+			}
+		}]);
+
+		function Directive() {
+			_classCallCheck(this, Directive);
+		}
+
+		return Directive;
+	}();
+	return function (_Directive) {
+		_inherits(SuperTest, _Directive);
+
+		function SuperTest() {
+			_classCallCheck(this, SuperTest);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(SuperTest).apply(this, arguments));
+		}
+
+		_createClass(SuperTest, null, [{
+			key: "type",
+			get: function get() {
+				return "pukka";
+			}
+		}]);
+
+		return SuperTest;
+	}(Directive);
+});
+domain.module("wires.utils.DotNotation", ["wires.AsyncWatch"], function (AsyncWatch) {
+	var DotNotation = {
+		nextTick: function nextTick(cb) {
+			return isNode ? process.nextTick(cb) : window.requestAnimationFrame(cb);
+		},
+		dotNotation: function dotNotation(path) {
+			if (path instanceof Array) {
+				return {
+					path: path,
+					str: path.join('.')
+				};
+			}
+			if (typeof path !== 'string') {
+				return;
+			}
+			return {
+				path: path.split('\.'),
+				str: path
+			};
+		},
+		hasProperty: function hasProperty(obj, path) {
+			if (path.length === 0 || obj === undefined) {
+				return false;
+			}
+			var notation = this.dotNotation(path);
+			if (!notation) {
+				return false;
+			}
+			path = notation.path;
+			var validNext = true;
+			for (var i = 0; i < path.length; i++) {
+				if (validNext && obj.hasOwnProperty(path[i])) {
+					obj = obj[path[i]];
+					if (obj === undefined) {
+						validNext = false;
+					}
+				} else {
+					return false;
+				}
+			}
+			return true;
+		},
+		getPropertyValue: function getPropertyValue(obj, path) {
+			if (path.length === 0 || obj === undefined) {
+				return undefined;
+			}
+			var notation = this.dotNotation(path);
+			if (!notation) {
+				return;
+			}
+			path = notation.path;
+			for (var i = 0; i < path.length; i++) {
+				obj = obj[path[i]];
+				if (obj === undefined) {
+					return undefined;
+				}
+			}
+			return obj;
+		}
+	};
+	return DotNotation;
+});
+domain.module("wires.utils.UniversalQuery", [], function () {
+	/**
+  * Universal "jQuery"
+  * For backend we use cheerio
+  * For Browser jQuery to Zepto
+  */
+	return function () {
+		function _class() {
+			_classCallCheck(this, _class);
+		}
+
+		_createClass(_class, null, [{
+			key: "init",
+			value: function init(html) {
+				html = "<div>" + html + "</div>";
+				if (isNode) {
+					var cheerio = require("cheerio");
+					var $ = cheerio.load(html);
+					return $("div").first();
+				}
+				if (!window.$) {
+					console.error("jQuery or Zepto is required!");
+				}
+				return $(html).find("div").first();
+			}
+		}]);
+
+		return _class;
+	}();
 });
 })(typeof exports !== 'undefined', typeof exports !== 'undefined' ? require('wires-domain') : window.domain)
