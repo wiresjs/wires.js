@@ -1,11 +1,11 @@
-require('require-all')(__dirname + "/../src");
+require(__dirname + "/../dist/build.js");
 var domain = require('wires-domain');
 var should = require('should');
 
 describe('WiresUtils', function() {
    var utils;
    before(function(done) {
-      return domain.require(function(WiresUtils) {
+      return domain.require(['wires.utils.DotNotation'], function(WiresUtils) {
          utils = WiresUtils;
          done();
       }).catch(done)

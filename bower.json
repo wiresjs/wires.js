@@ -19,6 +19,9 @@
   ],
   "dependencies": {
     "async-watch": "^1.1.13",
-    "wires-domain": "ws-domain#^1.6.6"
+    "wires-domain": "ws-domain#^1.6.7"
+  },
+  "resolutions": {
+    "lodash": "^4.11.1"
   }
 }

@@ -1,11 +1,11 @@
-require('require-all')(__dirname + "/../src");
+require(__dirname + "/../dist/build.js");
 var domain = require('wires-domain');
 var should = require('should');
 var _ = require("lodash")
 describe('StringInterpolation', function() {
    var $watch, $interpolate;
    before(function(done) {
-      return domain.require(function(WatchBatch, StringInterpolation) {
+      return domain.require(['wires.expressions.WatchBatch', 'wires.expressions.StringInterpolation'], function(WatchBatch, StringInterpolation) {
          $watch = WatchBatch;
          $interpolate = StringInterpolation;
          done();
