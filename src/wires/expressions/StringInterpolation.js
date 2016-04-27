@@ -1,11 +1,11 @@
 module wires.expressions.StringInterpolation;
 
-import _
+import lodash as _ from utils;
 import AngularExpressions, WatchBatch from wires.expressions;
 import DotNotation from wires.utils;
 
 var StringInterpolation = {
-   /** 
+   /**
     * compile - Compile a string
     * var model = parser.compile('Hello {{name}}');
     * model({ name : "John" }, function(str){
@@ -19,28 +19,28 @@ var StringInterpolation = {
       if (!_.isArray(lines)) {
          lines = this.parse(lines);
       }
-      return function() {
-         var $scope = typeof arguments[0] === "object" ? arguments[0] : {};
-         var $locals = !_.isFunction(arguments[1]) && _.isObject(arguments[1]) ? arguments[1] : {};
-
-         var cb = _.isFunction(arguments[1]) ? arguments[1] : (_.isFunction(arguments[2]) ? arguments[2] : undefined);
-         var trigged = false;
-         var changed = function(changes) {
-            var strings = _.map(lines, function(item) {
-               return item.e ? AngularExpressions.compile(item.e)($scope, $locals) : item;
-            });
-            cb ? cb(strings.join('')) : undefined;
-         }
+      return function(arg1, arg2, arg3) {
+         var $scope = arg1 || {};
+         var $locals = arg3 ? arg2 : {};
+         var cb = arguments.length === 3 ? arg3 : arg2;
 
          var watchable = _.chain(lines).map(function(item) {
             return item.v || false;
          }).compact().value();
+         if (watchable.length === 0) {
+            return cb(lines.join(''));
+         }
 
          return WatchBatch({
             locals: $locals,
             scope: $scope,
             batch: watchable
-         }, changed);
+         }, () => {
+            var strings = _.map(lines, function(item) {
+               return item.e ? AngularExpressions.compile(item.e)($scope, $locals) : item;
+            });
+            cb ? cb(strings.join('')) : undefined;
+         });
       }
    },
 

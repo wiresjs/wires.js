@@ -6,7 +6,7 @@ var concatUtil = require('gulp-concat-util');
 var stream = require('stream');
 var es = require('event-stream');
 var _ = require('lodash')
-var wiresDomain = require('wires-domain');
+var realm = require('realm-js');
 
 gulp.task('watch', function() {
    gulp.watch(['src/**/*.js'], ['build']);
@@ -16,7 +16,7 @@ gulp.task("build", function() {
    return gulp.src("src/**/*.js")
       //.pipe(sourcemaps.init())
 
-   .pipe(wiresDomain.transpile.importify())
+   .pipe(realm.transpiler.importify())
       .pipe(concat("build.js"))
       .pipe(babel())
       .on('error', function(e) {
@@ -24,7 +24,6 @@ gulp.task("build", function() {
          // emit here
          this.emit('end');
       })
-      .pipe(concatUtil.header(wiresDomain.transpile.header()))
-      .pipe(concatUtil.footer(wiresDomain.transpile.footer()))
+      .pipe(realm.transpiler.universalWrap())
       .pipe(gulp.dest("dist/"))
 });

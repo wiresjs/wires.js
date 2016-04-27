@@ -1,7 +1,7 @@
 module wires.expressions.AngularExpressions;
 
 import AngularExpressionParser from wires.expressions;
-
+import lodash as _ from utils;
 var parse = AngularExpressionParser;
 var filters = {};
 var Lexer = parse.Lexer;
@@ -48,7 +48,9 @@ function extract(src) {
    var latest;
    for (var i in tokens) {
       var item = tokens[i];
-      if (item.text.match(/[a-z0-9\.$]+/i)) {
+
+      if (_.isString(item.text) && item.text.match(/[a-z0-9\.$]+/i)) {
+
          if (nested) {
             if (latest) {
                if (item.string) {
@@ -61,7 +63,10 @@ function extract(src) {
                nested = false;
             }
          } else {
-            latest = variables[item.text] = {};
+            if (!item.json) {
+               latest = variables[item.text] = {};
+            }
+
          }
       }
       if (item.text === "[") {

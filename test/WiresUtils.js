@@ -1,11 +1,11 @@
 require(__dirname + "/../dist/build.js");
-var domain = require('wires-domain');
+var realm = require('realm-js');
 var should = require('should');
 
 describe('WiresUtils', function() {
    var utils;
    before(function(done) {
-      return domain.require(['wires.utils.DotNotation'], function(WiresUtils) {
+      return realm.require(['wires.utils.DotNotation'], function(WiresUtils) {
          utils = WiresUtils;
          done();
       }).catch(done)

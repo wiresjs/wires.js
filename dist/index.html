@@ -11,48 +11,97 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta name="keywords" content="">
    <meta name="description" content="">
-
+   <script src="/bower_components/jquery/dist/jquery.min.js"></script>
    <script src="/bower_components/lodash/dist/lodash.min.js"></script>
-   <script src="/bower_components/wires-domain/dist/wires-domain.js"></script>
-   <script src="/bower_components/async-watch/dist/async-watch.min.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+   <script src="/realm.js"></script>
+   <script src="/bower_components/async-watch/dist/async-watch.js"></script>
 
    <script src="/build.js"></script>
 
-   <script>
-   domain.require(function(StringInterpolation, ViewCompiler, Directive){
-         console.log(Directive.type)
-         var start = performance.now()
-         var myStrings = [];
-         for(var i = 0;i<=1000; i++){
-            myStrings.push(StringInterpolation.compile('Hello, i am {{user.name}}, {user.name}} {user.name}} {user.name}} {user.name}} {user.name}} {{ pukka.sukka.kukka }} I am {{user.age}} years old ' + i));
-         }
-         //var str = 'Hello, i am {{user.name}}, I am {{user.age}} years old';
-         //var model = StringInterpolation.compile(str);
-         // var scope = {
-         //    user : {
-         //       name : "John",
-         //       age : 20
-         //    }
-         // }
-         // scope.user.name = "Jose"
-         // scope.user.name = "Bob"
-         // scope.user.name = "Juan"
-         console.log(performance.now() - start);
-         // setTimeout(function(){
-         //    scope.user.name = "Peter"
-         // },0);
-         // model(scope, function(cm){
-         //    console.log(cm);
-         // });
-   });
 
-
-
-   </script>
 </head>
 
 <body >
-   <div id="big-loader" class="spinner"></div>
-   <div class="application" ng-app="myApp" ui-view></div>
+   <script id="tpl" type="text/template">
+      <div style="color: rgb(33, 186, {{index}})">
+         <h1 ng-class="{hello : user.name == 1}">Hello {{user.name}} i am {{user.age}} years old INDEX:{{index}}</h1>
+         <h2>Age: {{user.age}}</h2>
+
+         <div style="width:{{width}}px; background-color: red;height:{{height}}px;">
+            df
+         </div>
+         <div style="color:blue" ng-if="index % 2 === 0">YEEEAH INDEX {{ index }}</div>
+
+
+      </div>
+   </script>
+   <div id="application"></div>
+
+   <!--
+   <div style="color:blue" ng-if="index % 2 === 0">YEEEAH INDEX {{ index }}</div>
+   <div style="color:red" ng-if="index % 3 === 0">RED {{ index }}</div>
+   <div style="color:PINK" ng-if="index % 4 === 0">PINK {{ index }}</div>
+-->
+   <script>
+
+
+      realm.require(['wires.compiler.JSONifier', 'wires.core.Universe'], function(ViewCompiler, Universe){
+            //ViewCompiler.htmlString('<div><my-directive></my-directive><h1>Hello {{user.name}}</h1><ul><li>1</li><li></li></ul></div>')
+            // console.log()
+            //
+            $(function(){
+
+               var Scope = function(){
+                  var self = this;
+                  this.index = 2;
+                  this.width = 10;
+                  this.height=10;
+                  this.user = {
+                     name : "Pekka",
+                     age : 20
+                  }
+                  var a = 0;
+               }
+               var $scope = new Scope();
+               $('body').mousemove(function(e){
+
+                  $scope.pos = e.clientX;
+
+               })
+               var contents = ViewCompiler.htmlString($("#tpl").html());
+
+
+
+               Universe.inflate(contents, $scope, {}, document.querySelector('#application'));
+
+               var increment = function(){
+                  if($scope.width > 500){
+                     $scope.width = 20;
+                     $scope.height = 20;
+                  }
+                  $scope.width++;
+                  $scope.height++;
+
+               }
+               var c = function(){
+                  requestAnimationFrame(function(){
+                     increment();
+                     c();
+                  });
+               }
+               c();
+
+
+               // setInterval(function(){
+               //    $scope.index++;
+               // },1000)
+            });
+
+
+      });
+
+   </script>
 </body>
 </html>

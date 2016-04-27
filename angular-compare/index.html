@@ -1,0 +1,32 @@
+
+<!doctype html>
+<html lang="en" ng-app="phonecatApp">
+<head>
+  <meta charset="utf-8">
+  <title>Google Phone Gallery</title>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js"></script>
+      <script src="/angular/app.js"></script>
+</head>
+<body ng-controller="PhoneListCtrl">
+
+
+   <div style="color: rgb(33, 186, {{index}})">
+      <h1 ng-class="{hello : user.name == 1}">Hello {{user.name}} i am {{user.age}} years old INDEX:{{index}}</h1>
+      <h2>Age: {{user.age}}</h2>
+      <div style="color:blue" ng-if="index % 2 === 0">YEEEAH INDEX {{ index }}</div>
+      
+
+      <div style="width:{{width}}px; background-color: red;height:{{height}}px;">
+         df
+      </div>
+   </div>
+<!--   <div style="color:red" ng-if="index % 3 === 0">RED {{ index }}</div>
+   <div style="color:PINK" ng-if="index % 4 === 0">PINK {{ index }}</div> -->
+
+
+
+
+</body>
+</html>

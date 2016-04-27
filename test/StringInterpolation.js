@@ -1,21 +1,24 @@
 require(__dirname + "/../dist/build.js");
-var domain = require('wires-domain');
+var realm = require('realm-js');
 var should = require('should');
 
 describe('StringInterpolation', function() {
    var parser;
    before(function(done) {
-      return domain.require(['wires.expressions.StringInterpolation'], function(StringInterpolation) {
+      return realm.require(['wires.expressions.StringInterpolation'], function(StringInterpolation) {
          parser = StringInterpolation;
          done();
       }).catch(done)
    });
+
    it('Should parse a string', function() {
       var results = parser.parse("Hello {{ user.name }}");
       results.should.be.lengthOf(2);
+
       results[0].should.equal("Hello ");
       results[1].e.should.equal("user.name");
    });
+
    it('Should not give an error with wrong object', function() {
       var results = parser.parse({});
       results.should.be.lengthOf(0);
@@ -24,6 +27,25 @@ describe('StringInterpolation', function() {
    it('Should not give an error with empty string', function() {
       var results = parser.parse('');
       results.should.be.lengthOf(0);
+   });
+
+   it('Should parse a string and watch a simple string', function(done) {
+      var parsed = parser.parse("INDEX {{ index }}");
+
+      var model = parser.compile(parsed)
+      var $scope = {
+         index: 500
+      }
+
+      model($scope, {}, function(value) {
+
+         value.should.equal("INDEX 500");
+         done();
+      })
+
+      // results.should.be.lengthOf(2);
+      // results[0].should.equal("Hello ");
+      // results[1].e.should.equal("user.name");
    });
 
    it('Should compile and watch a string', function(done) {
@@ -129,5 +151,15 @@ describe('StringInterpolation', function() {
          done();
       }, 0)
    })
+
+   it('Should yield without variables', function(done) {
+      var tpl = parser.compile('Hello');
+      var a = {}
+      tpl(a, function(s) {
+         s.should.equal("Hello");
+
+         done();
+      });
+   });
 
 });

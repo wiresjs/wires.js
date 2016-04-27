@@ -7,7 +7,7 @@ module wires.utils.UniversalQuery;
  */
 export class {
    static init(html) {
-      html = "<div>" + html + "</div>";
+      html = "<div><div>" + html + "</div></div>";
       if (isNode) {
          var cheerio = require("cheerio");
          var $ = cheerio.load(html)
@@ -16,6 +16,6 @@ export class {
       if (!window.$) {
          console.error("jQuery or Zepto is required!");
       }
-      return $(html).find("div").first();
+      return window.$(html).find("div").first();
    }
 }

@@ -630,8 +630,9 @@ Parser.prototype = {
    statements: function() {
       var statements = [];
       while (true) {
-         if (this.tokens.length > 0 && !this.peek('}', ')', ';', ']'))
+         if (this.tokens.length > 0 && !this.peek('}', ')', ';', ']')) {
             statements.push(this.filterChain());
+         }
          if (!this.expect(';')) {
             // optimize for the common case where there is only one statement.
             // TODO(size): maybe we should not support multiple statements?
@@ -639,6 +640,7 @@ Parser.prototype = {
                var value;
                for (var i = 0; i < statements.length; i++) {
                   var statement = statements[i];
+
                   if (statement) {
                      value = statement(self, locals);
                   }
@@ -849,6 +851,7 @@ Parser.prototype = {
          for (var i = 0; i < argsFn.length; i++) {
             args.push(argsFn[i](scope, locals));
          }
+
          var fnPtr = fn(scope, locals, context) || noop;
 
          ensureSafeObject(context, parser.text);
