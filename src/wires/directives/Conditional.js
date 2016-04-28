@@ -6,42 +6,33 @@ class Conditional extends Directive {
    static get compiler() {
       return {
          name: 'ng-if',
+         type: 'attribute',
          placeholder: true
       }
    }
-   initialize() {
+   initialize(attr) {
       var self = this;
       var el = this.element;
-      var attr = el.attrs['ng-if'];
       this.clone = this.element.clone();
       this.clone.schema.detachAttribute("ng-if");
 
-      attr.watchExpression(function(value, oldValue, changes) {
+      attr.watchExpression((value) => {
 
-         if (value !== oldValue || oldValue === undefined) {
-            if (value) { // diplaying underlying elements
-               self.createNodes();
-            } else {
-               self.removeNodes();
-            }
-         }
+         value ? self.createNodes() : self.removeNodes();
       }, true);
    }
+
    removeNodes() {
-      //   console.log("REMOVE")
       if (this.clone) {
          this.clone.remove();
       }
    }
    createNodes() {
       var self = this;
-      //console.log("CREATE")
       this.clone.initialize();
       self.clone.inflate();
       self.element.original.parentNode
          .insertBefore(self.clone.original, self.element.original.nextSibling);
-
    }
-
 }
 export Conditional;

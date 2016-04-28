@@ -1,4 +1,4 @@
-require(__dirname + "/../dist/build.js");
+require(__dirname + "/../../dist/build.js");
 var realm = require('realm-js');
 var should = require('should');
 

@@ -12,15 +12,17 @@
 <body ng-controller="PhoneListCtrl">
 
 
+
+
    <div style="color: rgb(33, 186, {{index}})">
       <h1 ng-class="{hello : user.name == 1}">Hello {{user.name}} i am {{user.age}} years old INDEX:{{index}}</h1>
       <h2>Age: {{user.age}}</h2>
-      <div style="color:blue" ng-if="index % 2 === 0">YEEEAH INDEX {{ index }}</div>
       
 
-      <div style="width:{{width}}px; background-color: red;height:{{height}}px;">
-         df
+      <div ng-include="'hello.html'">
+
       </div>
+
    </div>
 <!--   <div style="color:red" ng-if="index % 3 === 0">RED {{ index }}</div>
    <div style="color:PINK" ng-if="index % 4 === 0">PINK {{ index }}</div> -->

@@ -12,11 +12,14 @@
    <meta name="keywords" content="">
    <meta name="description" content="">
    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+
+   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
    <script src="/bower_components/lodash/dist/lodash.min.js"></script>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-   <script src="/realm.js"></script>
    <script src="/bower_components/async-watch/dist/async-watch.js"></script>
+   <script src="/realm.js"></script>
+   <script src="/views.js"></script>
+
 
    <script src="/build.js"></script>
 
@@ -25,14 +28,16 @@
 
 <body >
    <script id="tpl" type="text/template">
-      <div style="color: rgb(33, 186, {{index}})">
+      <div>
          <h1 ng-class="{hello : user.name == 1}">Hello {{user.name}} i am {{user.age}} years old INDEX:{{index}}</h1>
-         <h2>Age: {{user.age}}</h2>
+         <h2 ng-if="user.age > 21">Age: {{user.age}}</h2>
 
          <div style="width:{{width}}px; background-color: red;height:{{height}}px;">
             df
          </div>
-         <div style="color:blue" ng-if="index % 2 === 0">YEEEAH INDEX {{ index }}</div>
+
+         <div ng-include="hello.html"/>
+
 
 
       </div>
@@ -71,32 +76,17 @@
 
                })
                var contents = ViewCompiler.htmlString($("#tpl").html());
-
-
-
                Universe.inflate(contents, $scope, {}, document.querySelector('#application'));
 
-               var increment = function(){
-                  if($scope.width > 500){
-                     $scope.width = 20;
-                     $scope.height = 20;
-                  }
-                  $scope.width++;
-                  $scope.height++;
 
-               }
-               var c = function(){
-                  requestAnimationFrame(function(){
-                     increment();
-                     c();
-                  });
-               }
-               c();
+               setInterval(function(){
+                  $scope.index++;
+                  $scope.user.name = "Pekka " + $scope.index;
 
+                  $scope.user.age++;
+                  
 
-               // setInterval(function(){
-               //    $scope.index++;
-               // },1000)
+               },500)
             });
 
 

@@ -10,8 +10,13 @@ var realm = require('realm-js');
 
 gulp.task('watch', function() {
    gulp.watch(['src/**/*.js'], ['build']);
-});
 
+   //gulp.watch(['views/**/*.html'], ['build-views']);
+});
+gulp.task("build-views", function() {
+   return gulp.src("views/**/*.html")
+
+});
 gulp.task("build", function() {
    return gulp.src("src/**/*.js")
       //.pipe(sourcemaps.init())
@@ -25,5 +30,5 @@ gulp.task("build", function() {
          this.emit('end');
       })
       .pipe(realm.transpiler.universalWrap())
-      .pipe(gulp.dest("dist/"))
+      .pipe(gulp.dest("dist/")).pipe(gulp.dest("tests/browser/lib/"))
 });

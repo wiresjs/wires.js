@@ -2,10 +2,14 @@ module wires.core.Directive;
 
 class Directive {
 
-   constructor(element, scope, locals) {
+   constructor(element, name, value) {
       this.element = element;
-      this.scope = scope;
-      this.locals = locals;
+      this.name = name;
+      this.value = value;
+   }
+
+   detach() {
+
    }
 }
 

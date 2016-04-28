@@ -27,14 +27,25 @@ class Attribute extends Watchable {
       }));
    }
    watchExpression(cb, instant) {
-      this.registerWatcher(Watch({
+      var watcher = Watch({
          locals: this.element.locals,
          scope: this.element.scope
-      }, this.value, cb, instant));
+      }, this.value, function(value, oldValue, changes) {
+         if (value !== oldValue || oldValue === undefined) {
+            return cb(value, oldValue, changes);
+         }
+      }, instant);
+
+      this.registerWatcher(watcher);
    }
-   watchString(cb) {
+   watchString(cb, instant) {
       var model = StringInterpolation.compile(this.value);
-      this.registerWatcher(model(this.element.scope, this.element.locals, cb));
+      var watcher = model(this.element.scope, this.element.locals, function(value, oldValue) {
+         if (value !== oldValue || oldValue === undefined) {
+            return cb(value, oldValue);
+         }
+      }, instant)
+      this.registerWatcher(watcher);
    }
 }
 export Attribute;

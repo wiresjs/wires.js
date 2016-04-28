@@ -30,7 +30,8 @@ class JSONifier {
       _.each(elAttrs, function(attr, key) {
          var name = isNode ? key : attr.nodeName;
          var attrDirective = self.directives[name]
-         var stringValue = isNode ? key : attr.nodeValue;
+         var stringValue = isNode ? attr : attr.nodeValue;
+
          attrs[name] = {};
          if (attrDirective) {
             attrs[name].value = stringValue;

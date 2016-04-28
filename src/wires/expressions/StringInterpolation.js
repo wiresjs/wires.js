@@ -19,10 +19,10 @@ var StringInterpolation = {
       if (!_.isArray(lines)) {
          lines = this.parse(lines);
       }
-      return function(arg1, arg2, arg3) {
+      return function(arg1, arg2, arg3, instant) {
          var $scope = arg1 || {};
          var $locals = arg3 ? arg2 : {};
-         var cb = arguments.length === 3 ? arg3 : arg2;
+         var cb = arguments.length >= 3 ? arg3 : arg2;
 
          var watchable = _.chain(lines).map(function(item) {
             return item.v || false;
@@ -30,17 +30,23 @@ var StringInterpolation = {
          if (watchable.length === 0) {
             return cb(lines.join(''));
          }
-
+         var oldValue;
+         var trigger = function() {
+            var strings = _.map(lines, function(item) {
+               return item.e ? AngularExpressions.compile(item.e)($scope, $locals) : item;
+            });
+            var value = strings.join('');
+            cb(value, oldValue);
+            oldValue = value;
+         }
+         if (instant) {
+            trigger();
+         }
          return WatchBatch({
             locals: $locals,
             scope: $scope,
             batch: watchable
-         }, () => {
-            var strings = _.map(lines, function(item) {
-               return item.e ? AngularExpressions.compile(item.e)($scope, $locals) : item;
-            });
-            cb ? cb(strings.join('')) : undefined;
-         });
+         }, trigger);
       }
    },
 
