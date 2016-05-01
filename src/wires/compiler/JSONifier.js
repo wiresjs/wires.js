@@ -46,6 +46,7 @@ class JSONifier {
       tag.type = "tag";
       if (directive) {
          tag.type = 'directive';
+         tag.name = name;
          tag.requires = directive.path;
       } else {
          tag.name = name;

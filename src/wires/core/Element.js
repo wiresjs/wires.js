@@ -1,6 +1,6 @@
 module wires.core.Element;
 
-import Attribute, Watchable, TextNode, Schema from wires.core;
+import Attribute, Watchable from wires.core;
 import lodash as _ from utils;
 import StringInterpolation from wires.expressions;
 import Packer from wires.compiler;
@@ -11,11 +11,32 @@ class Element extends Watchable {
       super();
       this.scope = scope;
       this.locals = locals;
-      this.claimed = false;
       this.children = [];
       this.schema = schema;
       this.attrs = {};
       this.directives = {};
+   }
+
+   /**
+    * createElement
+    * Depending on schema type and directives we could create
+    * either element or a placeholder
+    *
+    * @return {type}  description
+    */
+   create(children) {
+      this.filterAttrs();
+      var element;
+      if (this.controllingDirective) {
+         element = document.createComment('');
+      } else {
+         element = document.createElement(this.schema.name);
+      }
+      this.original = element;
+      if (children) {
+         this.inflate();
+      }
+      return element;
    }
 
    /**
@@ -29,13 +50,7 @@ class Element extends Watchable {
       if (!this.schema) {
          throw "Cannot initialize an element without a schema!"
       }
-      this.filterAttrs();
 
-      if (this.schema instanceof Schema) {
-         this.original = this.createElement();
-      } else {
-         this.original = this.schema;
-      }
       if (parent) {
          parent.append(this)
       }
@@ -59,6 +74,10 @@ class Element extends Watchable {
       _.each(this.attrs, function(attr, name) {
          attr.initialize();
       });
+   }
+
+   registerDirective(name, directive) {
+      this.directives[name] = directive;
    }
 
    /**
@@ -85,11 +104,13 @@ class Element extends Watchable {
 
       // Go through attributes and check for directives' properties
       _.each(self.schema.attrs, function(item) {
-         var attr = new Attribute(self, item.name, item.value);;
+         var attr = new Attribute(self, item.name, item.value);
+
          if (item.requires) {
             // If we have a custom directive here
             var Dir = appDirectives[item.requires];
-            if (Dir.compiler.placeholder) {
+            var opts = Dir.compiler;
+            if (opts.attribute && opts.attribute.placeholder) {
                self.controllingDirective = new Dir(self, item.name, item.value);
                attr.directive = self.controllingDirective;
             } else {
@@ -103,26 +124,14 @@ class Element extends Watchable {
       });
    }
 
-   /**
-    * createElement
-    * Depending on schema type and directives we could create
-    * either element or a placeholder
-    *
-    * @return {type}  description
-    */
-   createElement() {
-      var element;
-      if (this.controllingDirective) {
-         element = document.createComment('');
-      } else {
-         element = document.createElement(this.schema.name);
-      }
-      return element;
-   }
+   inflate(schema, scope, locals) {
 
-   inflate(schema) {
-      schema = schema || this.schema;
-      this.inflateChildren(schema.children);
+      this.schema.inflate({
+         target: this,
+         schema: schema || this.schema.children,
+         scope: scope || this.scope,
+         locals: locals || this.locals
+      });
    }
 
    /**
@@ -167,51 +176,17 @@ class Element extends Watchable {
       return new Element(this.schema.clone(), scope || this.scope, locals || this.locals);;
    }
 
-   /**
-    * inflateNode - description
-    *
-    * @param  {type} item description
-    * @return {type}      description
-    */
-   inflateNode(item) {
-      var self = this;
-      if (item.type === "tag") {
-         var element = new Element(item, self.scope, self.locals);
+   newInstance(schema, scope, locals) {
+      return new Element(schema, scope, locals);
+   }
 
-         element.initialize(self);
-
-         if (item.children.length > 0 && !element.claimed) {
-            element.inflateChildren(item.children)
-         }
-      }
-      if (item.type === "text") {
-         var textNode = new TextNode(item, self.scope, self.locals);
-
-         self.append(textNode);
-      }
+   setControllingDirective(directive) {
+      this.controllingDirective = directive;
    }
 
    removeChildren() {
       _.each(this.children, function(child) {
          child.remove();
-      });
-
-   }
-
-   /**
-    * inflateChildren - description
-    *
-    * @param  {type} children description
-    * @return {type}          description
-    */
-   inflateChildren(children) {
-      if (this.controllingDirective) {
-         return;
-      }
-      var self = this;
-      children = children || this.schema.children;
-      _.each(children, function(item) {
-         self.inflateNode(new Schema(item));
       });
    }
 
@@ -227,6 +202,23 @@ class Element extends Watchable {
    append(target) {
       this.children.push(target);
       this.original.appendChild(target.original);
+   }
+
+   appendTo(target) {
+      if (target instanceof window.Element) {
+         target.appendChild(this.original);
+      } else {
+         target.append(this);
+      }
+   }
+
+   insertAfter(target) {
+      target.original.parentNode
+         .insertBefore(this.original, target.original.nextSibling);
+   }
+
+   setChildren(children) {
+      this.children = children;
    }
 
    /**

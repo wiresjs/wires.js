@@ -12,6 +12,7 @@ class Show extends Directive {
       var self = this;
       var el = this.element;
       var attr = el.attrs['ng-show'];
+
       attr.watchExpression(function(value, oldValue, changes) {
          if (value !== oldValue || oldValue === undefined) {
             if (value) { // diplaying underlying elements

@@ -32,7 +32,8 @@ class Packer {
    static pack(opts) {
       opts = opts || {};
       var type = opts.type;
-      var name = opts.name || opts.requires;
+      var name = opts.name
+      var requires = opts.requires;
       var attrs = [];
       var children = opts.children || [];
       _.each(opts.attrs, function(item, key) {
@@ -45,7 +46,12 @@ class Packer {
       if (type === "text") {
          return [tags.pack(type), opts.text]
       }
-      return [tags.pack(type), name, attrs, children];
+
+      var data = [tags.pack(type), requires || 0, name, attrs];
+      if (children) {
+         data.push(children)
+      }
+      return data;
    }
 
    // Unpacking
@@ -57,7 +63,9 @@ class Packer {
             text: item[1]
          }
       }
-      var _attrs = item[2];
+
+      var _attrs = item[3];
+
       var attrs = [];
       _.each(_attrs, function(attr) {
          var a = {
@@ -69,12 +77,16 @@ class Packer {
          }
          attrs.push(a)
       });
-      return {
+      var data = {
          type: type,
-         name: item[1],
+         name: item[2],
          attrs: attrs,
-         children: item[3]
+         children: item[4] || []
       }
+      if (item[1]) {
+         data.requires = item[1]
+      }
+      return data;
    }
 }
 

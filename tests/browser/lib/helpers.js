@@ -3,20 +3,31 @@
       initView: function(tpl, scope) {
          return function(done) {
             $('#root').empty();
-            realm.require(['wires.compiler.JSONifier', 'wires.core.Universe'], function(ViewCompiler, Universe) {
+            realm.require(['wires.compiler.JSONifier', 'wires.core.Schema'], function(ViewCompiler, Schema) {
                var contents = ViewCompiler.htmlString(document.querySelector(tpl).innerHTML);
-               Universe.inflate(contents, scope, {}, document.querySelector('#root'));
+
+               Schema.inflate({
+                  target: document.querySelector('#root'),
+                  scope: scope,
+                  locals: {},
+                  schema: contents
+               });
 
                done();
             }).catch(done)
          }
       },
-      init: function(tpl, done) {
+      init: function(tpl, scope) {
          return function(done) {
             $('#root').empty();
-            realm.require(['wires.compiler.JSONifier', 'wires.core.Universe'], function(ViewCompiler, Universe) {
+            realm.require(['wires.compiler.JSONifier', 'wires.core.Schema'], function(ViewCompiler, Schema) {
                var contents = ViewCompiler.htmlString(tpl);
-               Universe.inflate(contents, scope, {}, document.querySelector('#root'));
+               Schema.inflate({
+                  target: document.querySelector('#root'),
+                  scope: scope,
+                  locals: {},
+                  schema: contents
+               });
 
                done();
             }).catch(done)

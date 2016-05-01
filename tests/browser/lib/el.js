@@ -25,9 +25,25 @@
                   if (!shouldBeThere && !isUndefined) {
                      return assert("Element should not exist")
                   }
+               },
+               hidden: function(shouldBeHidden) {
+                  var isVisible = element[0].style.display !== "none";
+                  if (shouldBeHidden && isVisible) {
+                     return assert("Element should be hidden")
+                  }
+                  if (!shouldBeHidden && !isVisible) {
+                     return assert("Element should not be hidden")
+                  }
+               },
+               attr: function(name, expected) {
+                  var got = element.attr(name);
+
+                  if (expected !== got) {
+                     assert("Expected", expected, " got:", got)
+                  }
                }
             })
-         }, 50);
+         }, 30);
       })
    }
    scope.check = check;

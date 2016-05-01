@@ -23,14 +23,17 @@ class Attribute extends Watchable {
       this.element.original.setAttributeNode(original);
       var self = this;
       this.registerWatcher(this.watchString(function(value) {
+
          self.original.value = value;
       }));
    }
    watchExpression(cb, instant) {
+
       var watcher = Watch({
          locals: this.element.locals,
          scope: this.element.scope
       }, this.value, function(value, oldValue, changes) {
+
          if (value !== oldValue || oldValue === undefined) {
             return cb(value, oldValue, changes);
          }

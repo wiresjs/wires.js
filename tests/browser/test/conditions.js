@@ -1,14 +1,16 @@
 describe("Conditions", function() {
-   var cls = function() {}
+   var cls = function() {
+
+   }
    var $scope = new cls();
 
-   before(Helpers.init('<h1 id="a" ng-if="user.age > 50">{{user.name}}</h1><h1>Hello</h1>', $scope));
+   before(Helpers.init('<div><h1 id="c" ng-if="user.age > 50">{{user.name}} is {{user.age}}</h1><h1>Hello with name {{user.name}}</h1></div>', $scope));
 
    it("Should not be there (variable is absent)", function(done) {
       $scope.user = {
          name: "John"
       }
-      check("#a").then(function(el) {
+      check("#c").then(function(el) {
          el.exists(false);
 
          done();
@@ -20,7 +22,7 @@ describe("Conditions", function() {
          name: "John",
          age: 49
       }
-      check("#a").then(function(el) {
+      check("#c").then(function(el) {
          el.exists(false);
 
          done();
@@ -30,22 +32,18 @@ describe("Conditions", function() {
    it("Should be there", function(done) {
       $scope.user = {
          name: "John",
-         age: 55
+         age: 49
       }
       $scope.user.age++;
-      $scope.user.age++;
-
       setTimeout(function() {
-         Helpers.takeScreenshot();
-         done()
-      }, 100);
+         $scope.user.age++;
+      }, 1)
 
-      // check("#a").then(function(el) {
-      //    Helpers.takeScreenshot()
-      //    el.exists(true);
-      //
-      //    done();
-      // }).catch(done);
+      check("#c").then(function(el) {
+         el.exists(true);
+         el.html('John is 51')
+         done();
+      }).catch(done);
    });
 
 })

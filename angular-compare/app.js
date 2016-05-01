@@ -13,9 +13,17 @@ phonecatApp.controller('PhoneListCtrl', function($scope, $interval) {
    }
    $scope.width = 20;
    $scope.height = 20;
-   setInterval(function() {
-      $scope.index++;
-      $scope.$apply();
-   }, 500)
+
+   var b = function() {
+      window.requestAnimationFrame(function() {
+         $scope.index++;
+
+         $scope.$apply();
+
+         b()
+
+      })
+   }
+   b();
 
 });

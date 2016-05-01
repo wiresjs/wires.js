@@ -22,13 +22,12 @@
     </div>
     <script src="lib/promise.js"></script>
     <script src="lib/requestAnimationFrame.js"></script>
-    <script src="lib/es5-sham.js"></script>
     <script src="../../bower_components/lodash/dist/lodash.min.js"></script>
     <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
     <script src="../../bower_components/async-watch/dist/async-watch.js"></script>
     <script src="../../node_modules/realm-js/src/realm.js"></script>
 
-    <script src="lib/build.js"></script>
+    <script src="../../dist/build.js"></script>
     <script src="lib/helpers.js"></script>
     <script src="lib/el.js"></script>
 
@@ -38,11 +37,12 @@
 
 
     <script>
-      mocha.ui('bdd')
-
+      mocha.ui('bdd');
     </script>
     <script src="test/watchers.js"></script>
     <script src="test/conditions.js"></script>
+    <script src="test/show.js"></script>
+    <script src="test/attributes.js"></script>
     <script>
       mocha.run()
     </script>

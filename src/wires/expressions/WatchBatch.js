@@ -32,9 +32,10 @@ export function(opts, cb) {
          watchers.push(AsyncWatch($locals, path, anyValueChanged));
       } else {
          watchers.push(AsyncWatch($scope, path, anyValueChanged));
-
       }
    });
-   return AsyncWatch.subscribe(watchers, cb);
+   watchers = _.compact(watchers);
+
+   return watchers.length && cb ? AsyncWatch.subscribe(watchers, cb) : {} //
 
 }

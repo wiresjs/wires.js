@@ -22,7 +22,7 @@ var DotNotation = {
       }
    },
    hasProperty: function(obj, path) {
-      if (path.length === 0 || obj === undefined) {
+      if (path && path.length === 0 || obj === undefined) {
          return false;
       }
       var notation = this.dotNotation(path);

@@ -7,7 +7,9 @@ class Conditional extends Directive {
       return {
          name: 'ng-if',
          type: 'attribute',
-         placeholder: true
+         attribute: {
+            placeholder: true
+         }
       }
    }
    initialize(attr) {
@@ -29,10 +31,11 @@ class Conditional extends Directive {
    }
    createNodes() {
       var self = this;
+
+      this.clone.create(this.clone.schema.children)
+      this.clone.insertAfter(this.element);
       this.clone.initialize();
-      self.clone.inflate();
-      self.element.original.parentNode
-         .insertBefore(self.clone.original, self.element.original.nextSibling);
+
    }
 }
 export Conditional;

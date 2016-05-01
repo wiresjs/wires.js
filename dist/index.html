@@ -28,31 +28,37 @@
 
 <body >
    <script id="tpl" type="text/template">
-      <div>
-         <h1 ng-class="{hello : user.name == 1}">Hello {{user.name}} i am {{user.age}} years old INDEX:{{index}}</h1>
-         <h2 ng-if="user.age > 21">Age: {{user.age}}</h2>
 
-         <div style="width:{{width}}px; background-color: red;height:{{height}}px;">
-            df
+         <h2 ng-show="index % 2 === 0">Index is here {{ index}}</h2>
+         <div>
+            {{index % 2 === 0}}
          </div>
+         <my-directive ng-show="index % 2 === 0">
+            <h1>SOME SHIT INSIDE</h1>
+         </my-directive>
 
-         <div ng-include="hello.html"/>
+         <my-directive ng-show="index % 2 === 0">
+            <h1>SOME SHIT INSIDE2</h1>
+         </my-directive>
+
+         <my-directive ng-show="index % 2 === 0">
+            <h1>SOME SHIT INSIDE3</h1>
+         </my-directive>
+
+         <my-directive ng-show="index % 2 === 0">
+            <h1>SOME SHIT INSIDE4</h1>
+         </my-directive>
 
 
-
-      </div>
    </script>
+   <!--  <h1 ng-class="{hello : user.name == 1}">Hello {{user.name}} i am {{user.age}} years old INDEX:{{index}}</h1>  -->
    <div id="application"></div>
 
-   <!--
-   <div style="color:blue" ng-if="index % 2 === 0">YEEEAH INDEX {{ index }}</div>
-   <div style="color:red" ng-if="index % 3 === 0">RED {{ index }}</div>
-   <div style="color:PINK" ng-if="index % 4 === 0">PINK {{ index }}</div>
--->
+
    <script>
 
 
-      realm.require(['wires.compiler.JSONifier', 'wires.core.Universe'], function(ViewCompiler, Universe){
+      realm.require(['wires.compiler.JSONifier', 'wires.core.Schema'], function(ViewCompiler, Schema){
             //ViewCompiler.htmlString('<div><my-directive></my-directive><h1>Hello {{user.name}}</h1><ul><li>1</li><li></li></ul></div>')
             // console.log()
             //
@@ -76,17 +82,36 @@
 
                })
                var contents = ViewCompiler.htmlString($("#tpl").html());
-               Universe.inflate(contents, $scope, {}, document.querySelector('#application'));
+
+               Schema.inflate({
+                  scope : $scope,
+                  target : document.querySelector('#application'),
+                  schema : contents
+               })
 
 
-               setInterval(function(){
-                  $scope.index++;
-                  $scope.user.name = "Pekka " + $scope.index;
+               $scope.my = {
+                  age : 10
+               }
+               var b =  function(){
+                  window.requestAnimationFrame(function(){
+                     $scope.index++;
+                     $scope.user.name = "Pekka " + $scope.index;
 
-                  $scope.user.age++;
-                  
+                     $scope.user.age++;
+                     $scope.my.age++;
 
-               },500)
+                           b()
+
+
+                  })
+               }
+              //b();
+
+
+
+
+
             });
 
 
