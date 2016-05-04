@@ -1,5 +1,5 @@
 module wires.compiler.SchemaGenerator;
-import fs, walk, path from nodejs.utils;
+import fs, walk, path, stream from nodejs.utils;
 import JSONifier from wires.compiler;
 import lodash as _, Promise from utils;
 import realm;
@@ -9,7 +9,7 @@ class SchemaGenerator {
    static service(dir, _package) {
 
       return SchemaGenerator.walkDirectory(dir).then(function(items) {
-         var fn = ['realm.module("' + (_package || 'wires.sample.schema') + '", function(){'];
+         var fn = ['realm.module("' + (_package || 'wires.schema.sample') + '", function(){'];
          fn.push('\n\treturn {\n')
          var views = [];
          _.each(items, function(item, key) {
@@ -21,17 +21,27 @@ class SchemaGenerator {
       });
    }
 
-   static gulp() {
-
+   static compact(dir, _package, dest) {
+      return new Promise(function(resolve, reject) {
+         SchemaGenerator.getJavascript(dir, _package).then(function(js) {
+            fs.writeFileSync(dest, js);
+         });
+      })
    }
 
    static express(dir, _package) {
       return (req, res, next) => {
-         return SchemaGenerator.service(dir, _package).then(function(contents) {
+         SchemaGenerator.getJavascript(dir, _package).then(function(contents) {
             res.setHeader('content-type', 'text/javascript');
-            return res.end(realm.transpiler.wrap(contents));
+            return res.end(contents);
          });
       }
+   }
+
+   static getJavascript(dir, _package) {
+      return SchemaGenerator.service(dir, _package).then(function(contents) {
+         return realm.transpiler.wrap(contents);
+      });
    }
 
    static walkDirectory(dirName) {

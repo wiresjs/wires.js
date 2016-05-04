@@ -1,4 +1,40 @@
 (function(scope) {
+
+   var useSchema = function(name, scope) {
+
+      return function(done) {
+         $('#root').html('');
+         return realm.require(['wires.runtime.Schema', 'wires.core.Schema'], function(userSchema, Schema) {
+            if (userSchema[name]) {
+               Schema.inflate({
+                  target: document.querySelector('#root'),
+                  scope: scope,
+                  locals: {},
+                  schema: userSchema[name]
+               });
+               done();
+            } else {
+               done("Template '" + name + "' is not compiled!")
+            }
+         }).catch(function(e) {
+            console.log(e.stack)
+         })
+      }
+   }
+
+   var takeScreenshot = function() {
+
+      if (window.callPhantom) {
+         var date = new Date()
+         var filename = "screenshots/" + date.getTime()
+         console.log("Taking screenshot " + filename)
+         callPhantom({
+            'screenshot': filename
+         })
+      }
+
+   }
+
    var check = function(t) {
       return new Promise(function(resolve, reject) {
          setTimeout(function() {
@@ -11,6 +47,7 @@
             }
             return resolve({
                html: function(html) {
+
                   var got = $(element).html();
                   if (html !== got) {
                      assert("Expected", html, " got:", got)
@@ -19,10 +56,12 @@
                exists: function(shouldBeThere) {
 
                   var isUndefined = element[0] === undefined;
-                  if (shouldBeThere && isUndefined) {
+
+                  if (shouldBeThere === true && isUndefined) {
                      return assert("Element should exist")
                   }
-                  if (!shouldBeThere && !isUndefined) {
+                  if (shouldBeThere === false && !isUndefined) {
+
                      return assert("Element should not exist")
                   }
                },
@@ -46,5 +85,7 @@
          }, 30);
       })
    }
+
    scope.check = check;
+   scope.useSchema = useSchema;
 })(this)

@@ -1,12 +1,14 @@
 module wires.core.Directive;
+
 import Schema as userSchemas from wires.runtime;
 import Properties as prop from wires.utils;
-class Directive {
+import Common from wires.core;
 
-   constructor(element, name, value) {
+class Directive extends Common {
+
+   constructor(element) {
+      super();
       this.element = element;
-      this.name = name;
-      this.value = value;
    }
 
    inflate(info) {
@@ -17,17 +19,26 @@ class Directive {
 
       // adding transclude schema to the scope;
       if (transclude) {
+
          prop.defineHidden(scope, '$$transcluded', transclude);
+
       }
       var opts = this.__proto__.constructor.compiler;
+
       if (opts.schema && userSchemas[opts.schema]) {
          var locals = locals || this.element.locals;
          this.element.inflate(userSchemas[opts.schema], scope, locals)
       }
    }
 
+   /**
+    * detach
+    * Destorying watchers from directives and attributes
+    *
+    * @return {type}  description
+    */
    detach() {
-
+      this.__gc();
    }
 }
 

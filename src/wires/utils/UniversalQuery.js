@@ -17,7 +17,7 @@ export class {
          console.error("jQuery or Zepto is required!");
       }
       var first = window.$("<div>" + html + "</div>").find("div:first");
-      console.log(first);
+
       return first;
    }
 }

@@ -3,6 +3,7 @@ module wires.directives.Conditional
 import Directive from wires.core;
 
 class Conditional extends Directive {
+
    static get compiler() {
       return {
          name: 'ng-if',
@@ -12,14 +13,12 @@ class Conditional extends Directive {
          }
       }
    }
+
    initialize(attr) {
       var self = this;
       var el = this.element;
-      this.clone = this.element.clone();
-      this.clone.schema.detachAttribute("ng-if");
-
+      this.$initialized = false;
       attr.watchExpression((value) => {
-
          value ? self.createNodes() : self.removeNodes();
       }, true);
    }
@@ -28,11 +27,21 @@ class Conditional extends Directive {
       if (this.clone) {
          this.clone.remove();
       }
+
+      // if (this.$initialized) {
+      //    this.clone.detachElement();
+      // }
    }
+
    createNodes() {
       var self = this;
-
-      this.clone.create(this.clone.schema.children)
+      // if (this.$initialized) {
+      //    return this.clone.insertAfter(this.element);;
+      // }
+      // this.$initialized = true;
+      this.clone = this.element.clone();
+      this.clone.schema.detachAttribute("ng-if");
+      this.clone.create();
       this.clone.insertAfter(this.element);
       this.clone.initialize();
 

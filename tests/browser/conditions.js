@@ -3,8 +3,7 @@ describe("Conditions", function() {
 
    }
    var $scope = new cls();
-
-   before(Helpers.init('<div><h1 id="c" ng-if="user.age > 50">{{user.name}} is {{user.age}}</h1><h1>Hello with name {{user.name}}</h1></div>', $scope));
+   before(useSchema('tests/conditions/index.html', $scope));
 
    it("Should not be there (variable is absent)", function(done) {
       $scope.user = {

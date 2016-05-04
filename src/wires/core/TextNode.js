@@ -1,8 +1,8 @@
 module wires.core.TextNode
 import StringInterpolation from wires.expressions;
-import Watchable from wires.core;
+import Common from wires.core;
 
-class TextNode extends Watchable {
+class TextNode extends Common {
 
    constructor(schema, scope, locals) {
       super();

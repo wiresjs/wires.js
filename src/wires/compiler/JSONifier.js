@@ -56,10 +56,12 @@ class JSONifier {
    }
    createText(element) {
       var text = element.data || element.nodeValue;
-      return Packer.pack({
-         type: "text",
-         text: interpolate.parse(text)
-      });
+      if (!text.match(/^\s*$/g)) {
+         return Packer.pack({
+            type: "text",
+            text: interpolate.parse(text)
+         });
+      }
    }
 
    /**
@@ -70,7 +72,9 @@ class JSONifier {
    iterateChildren(children) {
       const result = [];
       const self = this;
+
       _.each(children, function(element) {
+
          var isTag = element.type === "tag" || element.nodeType == 1;
          var isText = element.type === "text" || element.nodeType == 3;
 
@@ -78,7 +82,11 @@ class JSONifier {
             result.push(self.createTag(element));
          }
          if (isText) {
-            result.push(self.createText(element));
+            var t = self.createText(element);
+            if (t) {
+               result.push(t);
+            }
+
          }
       });
       return result;
@@ -101,7 +109,7 @@ class JSONifier {
       });
       var $ = UniversalQuery.init(html);
       const compiler = new JSONifier(directives);
-      const result = compiler.iterateChildren($.children());
+      const result = compiler.iterateChildren($[0].childNodes);
       return result;
    }
 }

@@ -2,16 +2,13 @@
   <head>
     <meta charset="utf-8">
     <!-- encoding must be set for mocha's special characters to render properly -->
-    <link rel="stylesheet" href="lib/mocha.css" />
+
   </head>
   <body>
     <div id="mocha"></div>
     <!-- <script src="lib/lodash.min.js"></script> -->
 
-    <script id="watcher-template" type="text/template">
-      <div id="a">{{user.name}}</div>
-      <div id="b">Hello {{user.name}} {{user.age}}</div>
-   </script>
+
 
    <script id="conditions-template" type="text/template">
      <div id="a" ng-if="user.age > 50">{{user.name}}</div>
@@ -20,29 +17,32 @@
     <div id="root">
 
     </div>
-    <script src="lib/promise.js"></script>
-    <script src="lib/requestAnimationFrame.js"></script>
+     <script src="../../dist/polyfills.js"></script>
+
     <script src="../../bower_components/lodash/dist/lodash.min.js"></script>
     <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
     <script src="../../bower_components/async-watch/dist/async-watch.js"></script>
     <script src="../../node_modules/realm-js/src/realm.js"></script>
-
+    <script src="../../dist/views.js"></script>
     <script src="../../dist/build.js"></script>
-    <script src="lib/helpers.js"></script>
-    <script src="lib/el.js"></script>
 
 
 
-    <script src="lib/mocha.js"></script>
+
+    <script src="../../node_modules/mocha/mocha.js"></script>
+
 
 
     <script>
       mocha.ui('bdd');
     </script>
-    <script src="test/watchers.js"></script>
-    <script src="test/conditions.js"></script>
-    <script src="test/show.js"></script>
-    <script src="test/attributes.js"></script>
+    <script src="__helper.js"></script>
+   <script src="watchers.js"></script>
+    <script src="conditions.js"></script>
+    <script src="show.js"></script>
+    <script src="attributes.js"></script>
+    <script src="include.js"></script>
+    <script src="directives.js"></script>
     <script>
       mocha.run()
     </script>

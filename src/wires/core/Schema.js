@@ -23,7 +23,10 @@ class Schema {
       });
    }
    inflate(opts) {
-      Schema.inflate(opts)
+      return Schema.inflate(opts)
+   }
+   init(schema, scope, locals) {
+      return Schema.init(schema, scope, locals);
    }
 
    static init(schema, scope, locals) {
@@ -53,15 +56,12 @@ class Schema {
 
          if (opts.element && opts.element.placeholder) {
             element = new Element(item, scope, locals);
-
             directive.element = element;
             element.setControllingDirective(directive);
          } else {
             element = new Element(item, scope, locals);
             directive.element = element;
-            element.registerDirective(item.name, directive);
-            element.primaryDirective = directive;
-
+            element.setPrimaryDirective(item.name, directive);
          }
       }
       return element;
@@ -77,28 +77,12 @@ class Schema {
       var children = [];
       _.each(json, function(item) {
          var schema = new Schema(item);
-         //console.log(schema);
-
          var element = Schema.init(schema, scope, locals);
-
          if (element) {
             element.create();
-            element.appendTo(target);
 
+            element.appendTo(target);
             element.initialize();
-            if (!element.controllingDirective && !element.primaryDirective) {
-               Schema.inflate({
-                  scope: scope,
-                  locals: locals,
-                  schema: element.schema.children,
-                  target: element
-               });
-            }
-            if (element.primaryDirective) {
-               element.primaryDirective.inflate({
-                  transclude: element.schema.children
-               });
-            }
          }
       });
       var element;

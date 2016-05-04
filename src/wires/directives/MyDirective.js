@@ -2,7 +2,7 @@ module wires.directives.MyDirective;
 
 import Directive from wires.core;
 
-export class extends Directive {
+class MyDirective extends Directive {
    static get compiler() {
       return {
          name: 'my-directive',
@@ -10,7 +10,8 @@ export class extends Directive {
       }
    }
    initialize() {
-
+      this.myName = "This is my name";
    }
 
 }
+export MyDirective;

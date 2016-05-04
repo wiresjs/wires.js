@@ -7,14 +7,17 @@ var stream = require('stream');
 var es = require('event-stream');
 var _ = require('lodash')
 var realm = require('realm-js');
-
+require("./dist/build.js")
 gulp.task('watch', function() {
    gulp.watch(['src/**/*.js'], ['build']);
+   gulp.watch(['views/**/*.html'], ['build-views']);
 
    //gulp.watch(['views/**/*.html'], ['build-views']);
 });
 gulp.task("build-views", function() {
-   return gulp.src("views/**/*.html")
+   realm.require('wires.compiler.SchemaGenerator', function(Generator) {
+      return Generator.compact("views/", "wires.schema.test", "dist/views.js");
+   });
 
 });
 gulp.task("build", function() {
@@ -30,5 +33,5 @@ gulp.task("build", function() {
          this.emit('end');
       })
       .pipe(realm.transpiler.universalWrap())
-      .pipe(gulp.dest("dist/")).pipe(gulp.dest("tests/browser/lib/"))
+      .pipe(gulp.dest("dist/"))
 });

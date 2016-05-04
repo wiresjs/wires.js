@@ -13,17 +13,31 @@ phonecatApp.controller('PhoneListCtrl', function($scope, $interval) {
    }
    $scope.width = 20;
    $scope.height = 20;
+   $scope.showMe = function() {
+      this.show_me = true;
+   }
+   $scope.hideMe = function() {
+      this.show_me = false;
+   }
+
+   this.user = {
+      name: "Pekka",
+      age: 20
+   }
+   $scope.doSomething = function() {
+      alert(1);
+   }
 
    var b = function() {
-      window.requestAnimationFrame(function() {
-         $scope.index++;
+         window.requestAnimationFrame(function() {
+            $scope.index++;
 
-         $scope.$apply();
+            $scope.$apply();
 
-         b()
+            b()
 
-      })
-   }
-   b();
+         })
+      }
+      //b();
 
 });

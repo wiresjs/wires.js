@@ -28,30 +28,12 @@
 
 <body >
    <script id="tpl" type="text/template">
-
-         <h2 ng-show="index % 2 === 0">Index is here {{ index}}</h2>
-         <div>
-            {{index % 2 === 0}}
-         </div>
-         <my-directive ng-show="index % 2 === 0">
-            <h1>SOME SHIT INSIDE</h1>
-         </my-directive>
-
-         <my-directive ng-show="index % 2 === 0">
-            <h1>SOME SHIT INSIDE2</h1>
-         </my-directive>
-
-         <my-directive ng-show="index % 2 === 0">
-            <h1>SOME SHIT INSIDE3</h1>
-         </my-directive>
-
-         <my-directive ng-show="index % 2 === 0">
-            <h1>SOME SHIT INSIDE4</h1>
-         </my-directive>
-
+      <div>
+         <my-directive ng-if="hello === 1" id="c"><h1>transcluded element</h1></my-directive>
+      </div>
 
    </script>
-   <!--  <h1 ng-class="{hello : user.name == 1}">Hello {{user.name}} i am {{user.age}} years old INDEX:{{index}}</h1>  -->
+
    <div id="application"></div>
 
 
@@ -64,52 +46,19 @@
             //
             $(function(){
 
+
                var Scope = function(){
-                  var self = this;
-                  this.index = 2;
-                  this.width = 10;
-                  this.height=10;
-                  this.user = {
-                     name : "Pekka",
-                     age : 20
-                  }
-                  var a = 0;
+                  this.hello = 1;
                }
                var $scope = new Scope();
-               $('body').mousemove(function(e){
-
-                  $scope.pos = e.clientX;
-
-               })
+               window.scope = $scope;
                var contents = ViewCompiler.htmlString($("#tpl").html());
 
                Schema.inflate({
                   scope : $scope,
                   target : document.querySelector('#application'),
                   schema : contents
-               })
-
-
-               $scope.my = {
-                  age : 10
-               }
-               var b =  function(){
-                  window.requestAnimationFrame(function(){
-                     $scope.index++;
-                     $scope.user.name = "Pekka " + $scope.index;
-
-                     $scope.user.age++;
-                     $scope.my.age++;
-
-                           b()
-
-
-                  })
-               }
-              //b();
-
-
-
+               });
 
 
             });

@@ -1,12 +1,12 @@
 module wires.core.Element;
 
-import Attribute, Watchable from wires.core;
+import Attribute, Common from wires.core;
 import lodash as _ from utils;
 import StringInterpolation from wires.expressions;
 import Packer from wires.compiler;
 import Directives as appDirectives from wires.runtime;
 
-class Element extends Watchable {
+class Element extends Common {
    constructor(schema, scope, locals) {
       super();
       this.scope = scope;
@@ -26,15 +26,18 @@ class Element extends Watchable {
     */
    create(children) {
       this.filterAttrs();
+
       var element;
       if (this.controllingDirective) {
          element = document.createComment('');
       } else {
          element = document.createElement(this.schema.name);
       }
+
       this.original = element;
       if (children) {
-         this.inflate();
+
+         this.inflate(children);
       }
       return element;
    }
@@ -51,16 +54,30 @@ class Element extends Watchable {
          throw "Cannot initialize an element without a schema!"
       }
 
-      if (parent) {
-         parent.append(this)
-      }
       if (!this.controllingDirective) {
+
          this.initAttrs();
          this.initDirectives();
       } else {
+         var opts = this.controllingDirective.__proto__.constructor.compiler;
          this.controllingDirective.initialize(
-            this.attrs[this.controllingDirective.name]
+            this.attrs[opts.name]
          );
+      }
+
+      if (!this.controllingDirective && !this.primaryDirective) {
+         this.schema.inflate({
+            scope: this.scope,
+            locals: this.locals,
+            schema: this.schema.children,
+            target: this
+         });
+      }
+      if (this.primaryDirective) {
+
+         this.primaryDirective.inflate({
+            transclude: this.schema.children
+         });
       }
    }
 
@@ -76,8 +93,9 @@ class Element extends Watchable {
       });
    }
 
-   registerDirective(name, directive) {
+   setPrimaryDirective(name, directive) {
       this.directives[name] = directive;
+      this.primaryDirective = directive;
    }
 
    /**
@@ -111,10 +129,10 @@ class Element extends Watchable {
             var Dir = appDirectives[item.requires];
             var opts = Dir.compiler;
             if (opts.attribute && opts.attribute.placeholder) {
-               self.controllingDirective = new Dir(self, item.name, item.value);
+               self.controllingDirective = new Dir(self);
                attr.directive = self.controllingDirective;
             } else {
-               var anyDirective = new Dir(self, item.name, item.value);
+               var anyDirective = new Dir(self);
                self.directives[item.name] = anyDirective;
                attr.directive = anyDirective;
             }
@@ -125,7 +143,6 @@ class Element extends Watchable {
    }
 
    inflate(schema, scope, locals) {
-
       this.schema.inflate({
          target: this,
          schema: schema || this.schema.children,
@@ -141,20 +158,17 @@ class Element extends Watchable {
     * @return {type}  description
     */
    remove() {
+      this.detach(); // removing all watchers
       if (this.original && this.original.parentNode) {
          this.original.parentNode.removeChild(this.original);
       }
-      this.detach(); // removing all watchers
+      this.children = [];
+      this.directives = [];
    }
 
-   /**
-    * detach
-    * Destorying watchers from directives and attributes
-    *
-    * @return {type}  description
-    */
    detach() {
-      this.destroyWatchers();
+
+      this.__gc();
       _.each(this.children, function(item) {
          item.detach();
       });
@@ -173,7 +187,7 @@ class Element extends Watchable {
     * @return {type}        description
     */
    clone(scope, locals) {
-      return new Element(this.schema.clone(), scope || this.scope, locals || this.locals);;
+      return this.schema.init(this.schema.clone(), scope || this.scope, locals || this.locals);
    }
 
    newInstance(schema, scope, locals) {
@@ -200,8 +214,11 @@ class Element extends Watchable {
     * @return {type}        description
     */
    append(target) {
+
       this.children.push(target);
-      this.original.appendChild(target.original);
+      if (!this.controllingDirective) {
+         this.original.appendChild(target.original);
+      }
    }
 
    appendTo(target) {
@@ -209,6 +226,18 @@ class Element extends Watchable {
          target.appendChild(this.original);
       } else {
          target.append(this);
+      }
+   }
+
+   detachElement() {
+      if (this.original && this.original.parentNode) {
+         this.original.parentNode.removeChild(this.original);
+      }
+   }
+
+   attachElement() {
+      if (this.original && this.original.parentNode) {
+         this.original.parentNode.appendChild(this.original);
       }
    }
 

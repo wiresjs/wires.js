@@ -2,7 +2,7 @@ describe("My Test", function() {
    var cls = function() {}
    var $scope = new cls();
 
-   before(Helpers.initView("#watcher-template", $scope));
+   before(useSchema('tests/watchers/index.html', $scope));
 
    it("Should modify a simpe node with a variable", function(done) {
       $scope.user = {

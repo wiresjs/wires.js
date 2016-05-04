@@ -3,8 +3,7 @@ describe("Show", function() {
 
    }
    var $scope = new cls();
-
-   before(Helpers.init('<div id="a" ng-show="index > 5"></div>', $scope));
+   before(useSchema('tests/show/index.html', $scope));
 
    it("Should be hidden", function(done) {
       check("#a").then(function(el) {

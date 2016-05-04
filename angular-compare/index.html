@@ -12,6 +12,21 @@
 <body ng-controller="PhoneListCtrl">
 
 
+   <a href="#" ng-click="showMe()">show</a>
+   <a href="#" ng-click="hideMe()">hide</a>
+
+
+   <div ng-if="show_me === true"  style="background-color:blue;width:100px; height:100px;">
+      <div ng-click="doSomething()">
+         HELLO1
+      </div>
+      <div ng-click="doSomething()">
+         HELLO2
+      </div>
+      <div ng-click="doSomething()">
+         HELLO3
+      </div>
+   </div>
 
 
    <h2 ng-if="index % 2 === 0">Index is here {{ index}}</h2>

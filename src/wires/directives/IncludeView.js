@@ -6,11 +6,7 @@ import Schema as userSchemas from wires.runtime;
 class IncludeView extends Directive {
    static get compiler() {
       return {
-         name: 'ng-include',
-         element: {
-            //placeholder: true
-         }
-
+         name: 'ng-include'
       }
    }
    initialize(attr) {
@@ -39,9 +35,6 @@ class IncludeView extends Directive {
 
    }
    createSchema(json) {
-      var self = this;
-      var schema = this.element.schema;
-      var children = schema.children;
       this.element.inflate(json);
    }
 

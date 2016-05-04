@@ -1,0 +1,15 @@
+<div>
+   <div id="a" ng-include="tests/include/partial.html"></div>
+</div>
+
+<div>
+   <ng-include id="b" src="tests/include/partial.html"></ng-include>
+</div>
+
+<div>
+   <ng-include id="c" ng-if="hello === 1" src="tests/include/partial.html"></ng-include>
+</div>
+
+<div>
+   <ng-include id="d" ng-if="hello === 0" src="tests/include/partial.html"></ng-include>
+</div>

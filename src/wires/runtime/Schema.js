@@ -1,13 +1,12 @@
 module wires.runtime.Schema;
-
+import lodash as _ from utils;
 var data = {};
-if (!isNode) {
-   if (realm.isRegistered('wires.sample.schema')) {
-      data = realm.require('wires.sample.schema', function(views) {
-         return views;
-      });
-   }
 
-}
+export realm.requirePackage('wires.schema').then(function(items) {
+   var schemas = {};
 
-export data;
+   _.each(items, function(packg) {
+      schemas = _.merge(schemas, packg);
+   });
+   return schemas;
+});

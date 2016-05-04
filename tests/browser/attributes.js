@@ -4,9 +4,7 @@ describe("Attributes", function() {
    }
    var $scope = new cls();
 
-   before(Helpers.init(
-      '<div id="a" ng-show="1==1" style="color:red"><div id="b" ng-if="index >= 1" style="color:blue"><div id="c" style="left:{{index}}px"></div></div></div>',
-      $scope));
+   before(useSchema('tests/attributes/index.html', $scope));
 
    it("Should display at attribute", function(done) {
       check("#a").then(function(el) {

@@ -28,6 +28,9 @@ realm.module("realm", function () {
    return realm;
 });
 
+realm.module("nodejs.utils.stream", function () {
+   return isNode ? require("event-stream") : {};
+});
 realm.module("nodejs.utils.fs", function () {
    return isNode ? require("fs") : {};
 });
@@ -100,10 +103,12 @@ realm.module("wires.compiler.JSONifier", ["realm", "utils.lodash", "wires.utils.
          key: "createText",
          value: function createText(element) {
             var text = element.data || element.nodeValue;
-            return Packer.pack({
-               type: "text",
-               text: interpolate.parse(text)
-            });
+            if (!text.match(/^\s*$/g)) {
+               return Packer.pack({
+                  type: "text",
+                  text: interpolate.parse(text)
+               });
+            }
          }
 
          /**
@@ -117,7 +122,9 @@ realm.module("wires.compiler.JSONifier", ["realm", "utils.lodash", "wires.utils.
          value: function iterateChildren(children) {
             var result = [];
             var self = this;
+
             _.each(children, function (element) {
+
                var isTag = element.type === "tag" || element.nodeType == 1;
                var isText = element.type === "text" || element.nodeType == 3;
 
@@ -125,7 +132,10 @@ realm.module("wires.compiler.JSONifier", ["realm", "utils.lodash", "wires.utils.
                   result.push(self.createTag(element));
                }
                if (isText) {
-                  result.push(self.createText(element));
+                  var t = self.createText(element);
+                  if (t) {
+                     result.push(t);
+                  }
                }
             });
             return result;
@@ -151,7 +161,7 @@ realm.module("wires.compiler.JSONifier", ["realm", "utils.lodash", "wires.utils.
             });
             var $ = UniversalQuery.init(html);
             var compiler = new JSONifier(directives);
-            var result = compiler.iterateChildren($.children());
+            var result = compiler.iterateChildren($[0].childNodes);
             return result;
          }
       }]);
@@ -286,7 +296,7 @@ realm.module("wires.compiler.Packer", ["utils.lodash"], function (_) {
 
    return ___module__promised__;
 });
-realm.module("wires.compiler.SchemaGenerator", ["nodejs.utils.fs", "nodejs.utils.walk", "nodejs.utils.path", "wires.compiler.JSONifier", "utils.lodash", "utils.Promise", "realm"], function (fs, walk, path, JSONifier, _, Promise, realm) {
+realm.module("wires.compiler.SchemaGenerator", ["nodejs.utils.fs", "nodejs.utils.walk", "nodejs.utils.path", "nodejs.utils.stream", "wires.compiler.JSONifier", "utils.lodash", "utils.Promise", "realm"], function (fs, walk, path, stream, JSONifier, _, Promise, realm) {
    var SchemaGenerator = function () {
       function SchemaGenerator() {
          _classCallCheck(this, SchemaGenerator);
@@ -297,7 +307,7 @@ realm.module("wires.compiler.SchemaGenerator", ["nodejs.utils.fs", "nodejs.utils
          value: function service(dir, _package) {
 
             return SchemaGenerator.walkDirectory(dir).then(function (items) {
-               var fn = ['realm.module("' + (_package || 'wires.sample.schema') + '", function(){'];
+               var fn = ['realm.module("' + (_package || 'wires.schema.sample') + '", function(){'];
                fn.push('\n\treturn {\n');
                var views = [];
                _.each(items, function (item, key) {
@@ -309,17 +319,30 @@ realm.module("wires.compiler.SchemaGenerator", ["nodejs.utils.fs", "nodejs.utils
             });
          }
       }, {
-         key: "gulp",
-         value: function gulp() {}
+         key: "compact",
+         value: function compact(dir, _package, dest) {
+            return new Promise(function (resolve, reject) {
+               SchemaGenerator.getJavascript(dir, _package).then(function (js) {
+                  fs.writeFileSync(dest, js);
+               });
+            });
+         }
       }, {
          key: "express",
          value: function express(dir, _package) {
             return function (req, res, next) {
-               return SchemaGenerator.service(dir, _package).then(function (contents) {
+               SchemaGenerator.getJavascript(dir, _package).then(function (contents) {
                   res.setHeader('content-type', 'text/javascript');
-                  return res.end(realm.transpiler.wrap(contents));
+                  return res.end(contents);
                });
             };
+         }
+      }, {
+         key: "getJavascript",
+         value: function getJavascript(dir, _package) {
+            return SchemaGenerator.service(dir, _package).then(function (contents) {
+               return realm.transpiler.wrap(contents);
+            });
          }
       }, {
          key: "walkDirectory",
@@ -349,9 +372,9 @@ realm.module("wires.compiler.SchemaGenerator", ["nodejs.utils.fs", "nodejs.utils
 
    return ___module__promised__;
 });
-realm.module("wires.core.Attribute", ["wires.expressions.StringInterpolation", "wires.core.ConfigurableNode", "wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "wires.services.Watch", "wires.core.Watchable"], function (StringInterpolation, ConfigurableNode, AngularExpressions, WatchBatch, Watch, Watchable) {
-   var Attribute = function (_Watchable) {
-      _inherits(Attribute, _Watchable);
+realm.module("wires.core.Attribute", ["wires.expressions.StringInterpolation", "wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "wires.services.Watch", "wires.core.Common"], function (StringInterpolation, AngularExpressions, WatchBatch, Watch, Common) {
+   var Attribute = function (_Common) {
+      _inherits(Attribute, _Common);
 
       function Attribute(element, name, value) {
          _classCallCheck(this, Attribute);
@@ -368,7 +391,7 @@ realm.module("wires.core.Attribute", ["wires.expressions.StringInterpolation", "
       _createClass(Attribute, [{
          key: "initialize",
          value: function initialize() {
-            // Must ignore regular initialization if an attribute linked to a directive
+            // Must ignore regular initialization if an attribute is linked to a directive
             if (this.directive) {
                return;
             }
@@ -377,9 +400,17 @@ realm.module("wires.core.Attribute", ["wires.expressions.StringInterpolation", "
             this.element.original.setAttributeNode(original);
             var self = this;
             this.registerWatcher(this.watchString(function (value) {
-
                self.original.value = value;
             }));
+         }
+      }, {
+         key: "asFunction",
+         value: function asFunction() {
+            var compiled = AngularExpressions.compile(this.value);
+            var scope = this.element.scope;
+            return function (locals) {
+               compiled(scope, locals);
+            };
          }
       }, {
          key: "watchExpression",
@@ -411,46 +442,88 @@ realm.module("wires.core.Attribute", ["wires.expressions.StringInterpolation", "
       }]);
 
       return Attribute;
-   }(Watchable);
+   }(Common);
 
    var ___module__promised__ = Attribute;
 
    return ___module__promised__;
 });
-realm.module("wires.core.ConfigurableNode", ["wires.core.Watchable"], function (Watchable) {
-   var ConfigurableNode = function (_Watchable2) {
-      _inherits(ConfigurableNode, _Watchable2);
+realm.module("wires.core.Common", ["utils.lodash"], function (_) {
+   var Common = function () {
+      function Common() {
+         _classCallCheck(this, Common);
 
-      function ConfigurableNode(config, scope, locals) {
-         _classCallCheck(this, ConfigurableNode);
-
-         var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(ConfigurableNode).call(this));
-
-         _this3.scope = scope;
-         _this3.locals = locals;
-         if (config.type) {
-            _this3.original = _this3.initialize(config);
-         } else {
-            _this3.original = config;
-         }
-         return _this3;
+         this.__events = [];
       }
 
-      return ConfigurableNode;
-   }(Watchable);
+      _createClass(Common, [{
+         key: "bindEvent",
+         value: function bindEvent(name, cb) {
+            if (this.original) {
+               this.original.addEventListener(name, cb, false);
+               this.__events.push({
+                  name: name,
+                  cb: cb
+               });
+            }
+         }
 
-   var ___module__promised__ = ConfigurableNode;
+         /**
+          * "GarbageCollector"
+          * Removes listeners and watchers
+          */
+
+      }, {
+         key: "__gc",
+         value: function __gc() {
+            this.destroyWatchers();
+            this.destroyListeners();
+         }
+      }, {
+         key: "destroyListeners",
+         value: function destroyListeners() {
+            var self = this;
+            if (self.original) {
+               _.each(this.__events, function (item, index) {
+                  self.original.removeEventListener(item.name, item.cb);
+                  self.__events[index] = undefined;
+               });
+               this.__events = {};
+            }
+         }
+      }, {
+         key: "registerWatcher",
+         value: function registerWatcher(watcher) {
+            this.watchers = this.watchers || [];
+            this.watchers.push(watcher);
+         }
+      }, {
+         key: "destroyWatchers",
+         value: function destroyWatchers() {
+            _.each(this.watchers, function (watcher) {
+               watcher.destroy();
+            });
+         }
+      }]);
+
+      return Common;
+   }();
+
+   var ___module__promised__ = Common;
 
    return ___module__promised__;
 });
-realm.module("wires.core.Directive", ["wires.runtime.Schema", "wires.utils.Properties"], function (userSchemas, prop) {
-   var Directive = function () {
-      function Directive(element, name, value) {
+realm.module("wires.core.Directive", ["wires.runtime.Schema", "wires.utils.Properties", "wires.core.Common"], function (userSchemas, prop, Common) {
+   var Directive = function (_Common2) {
+      _inherits(Directive, _Common2);
+
+      function Directive(element) {
          _classCallCheck(this, Directive);
 
-         this.element = element;
-         this.name = name;
-         this.value = value;
+         var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(Directive).call(this));
+
+         _this3.element = element;
+         return _this3;
       }
 
       _createClass(Directive, [{
@@ -463,204 +536,54 @@ realm.module("wires.core.Directive", ["wires.runtime.Schema", "wires.utils.Prope
 
             // adding transclude schema to the scope;
             if (transclude) {
+
                prop.defineHidden(scope, '$$transcluded', transclude);
             }
             var opts = this.__proto__.constructor.compiler;
+
             if (opts.schema && userSchemas[opts.schema]) {
                var locals = locals || this.element.locals;
                this.element.inflate(userSchemas[opts.schema], scope, locals);
             }
          }
+
+         /**
+          * detach
+          * Destorying watchers from directives and attributes
+          *
+          * @return {type}  description
+          */
+
       }, {
          key: "detach",
-         value: function detach() {}
+         value: function detach() {
+            this.__gc();
+         }
       }]);
 
       return Directive;
-   }();
+   }(Common);
 
    var ___module__promised__ = Directive;
 
    return ___module__promised__;
 });
-realm.module("wires.core.Document", [], function () {
-
-   var cheerio;
-
-   if (isNode) {
-      cheerio = require("cheerio");
-   }
-
-   var Element = function () {
-      function Element() {
-         _classCallCheck(this, Element);
-      }
-
-      _createClass(Element, [{
-         key: "append",
-         value: function append() {}
-      }, {
-         key: "addClass",
-         value: function addClass(clsName) {}
-      }, {
-         key: "removeClass",
-         value: function removeClass() {}
-      }]);
-
-      return Element;
-   }();
-
-   var TextNode = function () {
-      function TextNode() {
-         _classCallCheck(this, TextNode);
-      }
-
-      _createClass(TextNode, [{
-         key: "setValue",
-         value: function setValue() {}
-      }]);
-
-      return TextNode;
-   }();
-
-   var BackendTextNode = function BackendTextNode(text) {
-      _classCallCheck(this, BackendTextNode);
-
-      cheerio(text);
-   };
-
-   var BackendElement = function (_Element) {
-      _inherits(BackendElement, _Element);
-
-      function BackendElement(name) {
-         _classCallCheck(this, BackendElement);
-
-         var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(BackendElement).call(this));
-
-         _this4.el = cheerio('<' + name + '><' + name + '>');
-         return _this4;
-      }
-
-      _createClass(BackendElement, [{
-         key: "append",
-         value: function append(element) {
-            this.el.append(element);
-         }
-      }]);
-
-      return BackendElement;
-   }(Element);
-
-   var NativeElement = function (_Element2) {
-      _inherits(NativeElement, _Element2);
-
-      function NativeElement(name) {
-         _classCallCheck(this, NativeElement);
-
-         var _this5 = _possibleConstructorReturn(this, Object.getPrototypeOf(NativeElement).call(this));
-
-         _this5.el = document.createElement(name);
-         return _this5;
-      }
-
-      _createClass(NativeElement, [{
-         key: "append",
-         value: function append(element) {
-            this.el.appendChild(element);
-         }
-      }]);
-
-      return NativeElement;
-   }(Element);
-
-   var WiresDocument = function () {
-      function WiresDocument() {
-         _classCallCheck(this, WiresDocument);
-      }
-
-      _createClass(WiresDocument, [{
-         key: "createElement",
-         value: function createElement(name) {
-            return new BackendElement(name);
-         }
-      }, {
-         key: "createTextNode",
-         value: function createTextNode(text) {
-            return window.document.createTextNode(text);
-         }
-      }]);
-
-      return WiresDocument;
-   }();
-
-   var BackendDocument = function (_WiresDocument) {
-      _inherits(BackendDocument, _WiresDocument);
-
-      function BackendDocument() {
-         _classCallCheck(this, BackendDocument);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(BackendDocument).apply(this, arguments));
-      }
-
-      _createClass(BackendDocument, [{
-         key: "createElement",
-         value: function createElement(name) {
-            return new NativeElement(name);
-         }
-      }, {
-         key: "createTextNode",
-         value: function createTextNode(text) {
-            return cheerio(text);
-         }
-      }]);
-
-      return BackendDocument;
-   }(WiresDocument);
-
-   var NativeDocument = function (_WiresDocument2) {
-      _inherits(NativeDocument, _WiresDocument2);
-
-      function NativeDocument() {
-         _classCallCheck(this, NativeDocument);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(NativeDocument).apply(this, arguments));
-      }
-
-      _createClass(NativeDocument, [{
-         key: "createElement",
-         value: function createElement(name) {
-            return document.createElement(name);
-         }
-      }, {
-         key: "createTextNode",
-         value: function createTextNode(text) {
-            return document.createTextNode(text);
-         }
-      }]);
-
-      return NativeDocument;
-   }(WiresDocument);
-
-   var ___module__promised__ = isNode ? BackendDocument : NativeDocument;
-
-   return ___module__promised__;
-});
-realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchable", "utils.lodash", "wires.expressions.StringInterpolation", "wires.compiler.Packer", "wires.runtime.Directives"], function (Attribute, Watchable, _, StringInterpolation, Packer, appDirectives) {
-   var Element = function (_Watchable3) {
-      _inherits(Element, _Watchable3);
+realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Common", "utils.lodash", "wires.expressions.StringInterpolation", "wires.compiler.Packer", "wires.runtime.Directives"], function (Attribute, Common, _, StringInterpolation, Packer, appDirectives) {
+   var Element = function (_Common3) {
+      _inherits(Element, _Common3);
 
       function Element(schema, scope, locals) {
          _classCallCheck(this, Element);
 
-         var _this8 = _possibleConstructorReturn(this, Object.getPrototypeOf(Element).call(this));
+         var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(Element).call(this));
 
-         _this8.scope = scope;
-         _this8.locals = locals;
-         _this8.children = [];
-         _this8.schema = schema;
-         _this8.attrs = {};
-         _this8.directives = {};
-         return _this8;
+         _this4.scope = scope;
+         _this4.locals = locals;
+         _this4.children = [];
+         _this4.schema = schema;
+         _this4.attrs = {};
+         _this4.directives = {};
+         return _this4;
       }
 
       /**
@@ -676,15 +599,18 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
          key: "create",
          value: function create(children) {
             this.filterAttrs();
+
             var element;
             if (this.controllingDirective) {
                element = document.createComment('');
             } else {
                element = document.createElement(this.schema.name);
             }
+
             this.original = element;
             if (children) {
-               this.inflate();
+
+               this.inflate(children);
             }
             return element;
          }
@@ -704,14 +630,28 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
                throw "Cannot initialize an element without a schema!";
             }
 
-            if (parent) {
-               parent.append(this);
-            }
             if (!this.controllingDirective) {
+
                this.initAttrs();
                this.initDirectives();
             } else {
-               this.controllingDirective.initialize(this.attrs[this.controllingDirective.name]);
+               var opts = this.controllingDirective.__proto__.constructor.compiler;
+               this.controllingDirective.initialize(this.attrs[opts.name]);
+            }
+
+            if (!this.controllingDirective && !this.primaryDirective) {
+               this.schema.inflate({
+                  scope: this.scope,
+                  locals: this.locals,
+                  schema: this.schema.children,
+                  target: this
+               });
+            }
+            if (this.primaryDirective) {
+
+               this.primaryDirective.inflate({
+                  transclude: this.schema.children
+               });
             }
          }
 
@@ -730,9 +670,10 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
             });
          }
       }, {
-         key: "registerDirective",
-         value: function registerDirective(name, directive) {
+         key: "setPrimaryDirective",
+         value: function setPrimaryDirective(name, directive) {
             this.directives[name] = directive;
+            this.primaryDirective = directive;
          }
 
          /**
@@ -772,10 +713,10 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
                   var Dir = appDirectives[item.requires];
                   var opts = Dir.compiler;
                   if (opts.attribute && opts.attribute.placeholder) {
-                     self.controllingDirective = new Dir(self, item.name, item.value);
+                     self.controllingDirective = new Dir(self);
                      attr.directive = self.controllingDirective;
                   } else {
-                     var anyDirective = new Dir(self, item.name, item.value);
+                     var anyDirective = new Dir(self);
                      self.directives[item.name] = anyDirective;
                      attr.directive = anyDirective;
                   }
@@ -787,7 +728,6 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
       }, {
          key: "inflate",
          value: function inflate(schema, scope, locals) {
-
             this.schema.inflate({
                target: this,
                schema: schema || this.schema.children,
@@ -806,23 +746,18 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
       }, {
          key: "remove",
          value: function remove() {
+            this.detach(); // removing all watchers
             if (this.original && this.original.parentNode) {
                this.original.parentNode.removeChild(this.original);
             }
-            this.detach(); // removing all watchers
+            this.children = [];
+            this.directives = [];
          }
-
-         /**
-          * detach
-          * Destorying watchers from directives and attributes
-          *
-          * @return {type}  description
-          */
-
       }, {
          key: "detach",
          value: function detach() {
-            this.destroyWatchers();
+
+            this.__gc();
             _.each(this.children, function (item) {
                item.detach();
             });
@@ -844,7 +779,7 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
       }, {
          key: "clone",
          value: function clone(scope, locals) {
-            return new Element(this.schema.clone(), scope || this.scope, locals || this.locals);;
+            return this.schema.init(this.schema.clone(), scope || this.scope, locals || this.locals);
          }
       }, {
          key: "newInstance",
@@ -877,8 +812,11 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
       }, {
          key: "append",
          value: function append(target) {
+
             this.children.push(target);
-            this.original.appendChild(target.original);
+            if (!this.controllingDirective) {
+               this.original.appendChild(target.original);
+            }
          }
       }, {
          key: "appendTo",
@@ -887,6 +825,20 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
                target.appendChild(this.original);
             } else {
                target.append(this);
+            }
+         }
+      }, {
+         key: "detachElement",
+         value: function detachElement() {
+            if (this.original && this.original.parentNode) {
+               this.original.parentNode.removeChild(this.original);
+            }
+         }
+      }, {
+         key: "attachElement",
+         value: function attachElement() {
+            if (this.original && this.original.parentNode) {
+               this.original.parentNode.appendChild(this.original);
             }
          }
       }, {
@@ -926,7 +878,7 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Watchabl
       }]);
 
       return Element;
-   }(Watchable);
+   }(Common);
 
    var ___module__promised__ = Element;
 
@@ -957,7 +909,12 @@ realm.module("wires.core.Schema", ["wires.compiler.Packer", "utils.lodash", "wir
       }, {
          key: "inflate",
          value: function inflate(opts) {
-            Schema.inflate(opts);
+            return Schema.inflate(opts);
+         }
+      }, {
+         key: "init",
+         value: function init(schema, scope, locals) {
+            return Schema.init(schema, scope, locals);
          }
       }, {
          key: "clone",
@@ -994,14 +951,12 @@ realm.module("wires.core.Schema", ["wires.compiler.Packer", "utils.lodash", "wir
 
                if (opts.element && opts.element.placeholder) {
                   element = new Element(item, scope, locals);
-
                   directive.element = element;
                   element.setControllingDirective(directive);
                } else {
                   element = new Element(item, scope, locals);
                   directive.element = element;
-                  element.registerDirective(item.name, directive);
-                  element.primaryDirective = directive;
+                  element.setPrimaryDirective(item.name, directive);
                }
             }
             return element;
@@ -1018,28 +973,12 @@ realm.module("wires.core.Schema", ["wires.compiler.Packer", "utils.lodash", "wir
             var children = [];
             _.each(json, function (item) {
                var schema = new Schema(item);
-               //console.log(schema);
-
                var element = Schema.init(schema, scope, locals);
-
                if (element) {
                   element.create();
-                  element.appendTo(target);
 
+                  element.appendTo(target);
                   element.initialize();
-                  if (!element.controllingDirective && !element.primaryDirective) {
-                     Schema.inflate({
-                        scope: scope,
-                        locals: locals,
-                        schema: element.schema.children,
-                        target: element
-                     });
-                  }
-                  if (element.primaryDirective) {
-                     element.primaryDirective.inflate({
-                        transclude: element.schema.children
-                     });
-                  }
                }
             });
             var element;
@@ -1053,19 +992,19 @@ realm.module("wires.core.Schema", ["wires.compiler.Packer", "utils.lodash", "wir
 
    return ___module__promised__;
 });
-realm.module("wires.core.TextNode", ["wires.expressions.StringInterpolation", "wires.core.Watchable"], function (StringInterpolation, Watchable) {
-   var TextNode = function (_Watchable4) {
-      _inherits(TextNode, _Watchable4);
+realm.module("wires.core.TextNode", ["wires.expressions.StringInterpolation", "wires.core.Common"], function (StringInterpolation, Common) {
+   var TextNode = function (_Common4) {
+      _inherits(TextNode, _Common4);
 
       function TextNode(schema, scope, locals) {
          _classCallCheck(this, TextNode);
 
-         var _this9 = _possibleConstructorReturn(this, Object.getPrototypeOf(TextNode).call(this));
+         var _this5 = _possibleConstructorReturn(this, Object.getPrototypeOf(TextNode).call(this));
 
-         _this9.schema = schema;
-         _this9.scope = scope;
-         _this9.locals = locals;
-         return _this9;
+         _this5.schema = schema;
+         _this5.scope = scope;
+         _this5.locals = locals;
+         return _this5;
       }
 
       _createClass(TextNode, [{
@@ -1105,347 +1044,9 @@ realm.module("wires.core.TextNode", ["wires.expressions.StringInterpolation", "w
       }]);
 
       return TextNode;
-   }(Watchable);
+   }(Common);
 
    var ___module__promised__ = TextNode;
-
-   return ___module__promised__;
-});
-realm.module("wires.core.Universe", ["wires.core.Element", "utils.lodash", "wires.expressions.StringInterpolation"], function (Element, _, StringInterpolation) {
-   var Universe = function () {
-      function Universe(contents, scope, locals, target) {
-         _classCallCheck(this, Universe);
-
-         this.scope = scope;
-         this.locals = locals;
-
-         var parent = new Element(target, scope, locals);
-         parent.initialize();
-
-         parent.inflateChildren(contents);
-      }
-
-      _createClass(Universe, null, [{
-         key: "inflate",
-         value: function inflate(contents, scope, local, target) {
-            var universe = new Universe(contents, scope, local, target);
-            return universe;
-         }
-      }]);
-
-      return Universe;
-   }();
-
-   var ___module__promised__ = Universe;
-
-   return ___module__promised__;
-});
-realm.module("wires.core.Watchable", ["utils.lodash"], function (_) {
-   var Watchable = function () {
-      function Watchable() {
-         _classCallCheck(this, Watchable);
-      }
-
-      _createClass(Watchable, [{
-         key: "registerWatcher",
-         value: function registerWatcher(watcher) {
-            this.watchers = this.watchers || [];
-            this.watchers.push(watcher);
-         }
-      }, {
-         key: "destroyWatchers",
-         value: function destroyWatchers() {
-            _.each(this.watchers, function (watcher) {
-               watcher.destroy();
-            });
-         }
-      }]);
-
-      return Watchable;
-   }();
-
-   var ___module__promised__ = Watchable;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.Conditional", ["wires.core.Directive"], function (Directive) {
-   var Conditional = function (_Directive) {
-      _inherits(Conditional, _Directive);
-
-      function Conditional() {
-         _classCallCheck(this, Conditional);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Conditional).apply(this, arguments));
-      }
-
-      _createClass(Conditional, [{
-         key: "initialize",
-         value: function initialize(attr) {
-            var self = this;
-            var el = this.element;
-            this.clone = this.element.clone();
-            this.clone.schema.detachAttribute("ng-if");
-
-            attr.watchExpression(function (value) {
-
-               value ? self.createNodes() : self.removeNodes();
-            }, true);
-         }
-      }, {
-         key: "removeNodes",
-         value: function removeNodes() {
-            if (this.clone) {
-               this.clone.remove();
-            }
-         }
-      }, {
-         key: "createNodes",
-         value: function createNodes() {
-            var self = this;
-
-            this.clone.create(this.clone.schema.children);
-            this.clone.insertAfter(this.element);
-            this.clone.initialize();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-if',
-               type: 'attribute',
-               attribute: {
-                  placeholder: true
-               }
-            };
-         }
-      }]);
-
-      return Conditional;
-   }(Directive);
-
-   var ___module__promised__ = Conditional;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.IncludeView", ["wires.core.Directive", "wires.runtime.Schema"], function (Directive, userSchemas) {
-   var IncludeView = function (_Directive2) {
-      _inherits(IncludeView, _Directive2);
-
-      function IncludeView() {
-         _classCallCheck(this, IncludeView);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(IncludeView).apply(this, arguments));
-      }
-
-      _createClass(IncludeView, [{
-         key: "initialize",
-
-         //placeholder: true
-         value: function initialize(attr) {
-
-            var self = this;
-            var el = this.element;
-            this.inflated = false;
-            this.isElementDirective = false;
-            if (!attr) {
-               attr = this.element.attrs["src"];
-               this.isElementDirective = true;
-            }
-            if (!attr) {
-               throw "Directive needs either src attribute or self value!";
-            }
-            if (attr) {
-               attr.watchString(function (fname) {
-                  if (self.inflated) {
-                     self.element.removeChildren();
-                  }
-                  if (userSchemas[fname]) {
-                     self.createSchema(userSchemas[fname]);
-                  }
-               }, true);
-            }
-         }
-      }, {
-         key: "createSchema",
-         value: function createSchema(json) {
-            var self = this;
-            var schema = this.element.schema;
-            var children = schema.children;
-            this.element.inflate(json);
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-include',
-               element: {}
-
-            };
-         }
-      }]);
-
-      return IncludeView;
-   }(Directive);
-
-   var ___module__promised__ = IncludeView;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.MyDirective", ["wires.core.Directive"], function (Directive) {
-
-   var ___module__promised__ = function (_Directive3) {
-      _inherits(___module__promised__, _Directive3);
-
-      function ___module__promised__() {
-         _classCallCheck(this, ___module__promised__);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(___module__promised__).apply(this, arguments));
-      }
-
-      _createClass(___module__promised__, [{
-         key: "initialize",
-         value: function initialize() {}
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'my-directive',
-               schema: 'other/my-directive.html'
-            };
-         }
-      }]);
-
-      return ___module__promised__;
-   }(Directive);
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.Show", ["wires.core.Directive"], function (Directive) {
-   var Show = function (_Directive4) {
-      _inherits(Show, _Directive4);
-
-      function Show() {
-         _classCallCheck(this, Show);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Show).apply(this, arguments));
-      }
-
-      _createClass(Show, [{
-         key: "initialize",
-         value: function initialize() {
-            var self = this;
-            var el = this.element;
-            var attr = el.attrs['ng-show'];
-
-            attr.watchExpression(function (value, oldValue, changes) {
-               if (value !== oldValue || oldValue === undefined) {
-                  if (value) {
-                     // diplaying underlying elements
-                     self.show();
-                  } else {
-                     self.hide();
-                  }
-               }
-            }, true);
-         }
-      }, {
-         key: "hide",
-         value: function hide() {
-            this.element.hide();
-         }
-      }, {
-         key: "show",
-         value: function show() {
-            this.element.show();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-show'
-            };
-         }
-      }]);
-
-      return Show;
-   }(Directive);
-
-   var ___module__promised__ = Show;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.ToggleClass", ["wires.core.Directive"], function (Directive) {
-   var ToggleClass = function (_Directive5) {
-      _inherits(ToggleClass, _Directive5);
-
-      _createClass(ToggleClass, null, [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-class'
-            };
-         }
-      }]);
-
-      function ToggleClass() {
-         _classCallCheck(this, ToggleClass);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(ToggleClass).call(this));
-      }
-
-      _createClass(ToggleClass, [{
-         key: "initialize",
-         value: function initialize($parent, attrs) {}
-      }]);
-
-      return ToggleClass;
-   }(Directive);
-
-   var ___module__promised__ = ToggleClass;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.Transclude", ["wires.core.Directive"], function (Directive) {
-   var Transclude = function (_Directive6) {
-      _inherits(Transclude, _Directive6);
-
-      function Transclude() {
-         _classCallCheck(this, Transclude);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Transclude).apply(this, arguments));
-      }
-
-      _createClass(Transclude, [{
-         key: "initialize",
-         value: function initialize() {
-            if (this.element.scope.$$transcluded) {
-               // swap children to transclusion
-               this.element.schema.children = this.element.scope.$$transcluded;
-            }
-         }
-      }, {
-         key: "hide",
-         value: function hide() {
-            this.element.hide();
-         }
-      }, {
-         key: "show",
-         value: function show() {
-            this.element.show();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-transclude'
-            };
-         }
-      }]);
-
-      return Transclude;
-   }(Directive);
-
-   var ___module__promised__ = Transclude;
 
    return ___module__promised__;
 });
@@ -2725,24 +2326,342 @@ realm.module("wires.expressions.WatchBatch", ["utils.lodash", "wires.AsyncWatch"
 
    return ___module__promised__;
 });
+realm.module("wires.directives.Click", ["wires.core.Directive"], function (Directive) {
+   var Click = function (_Directive) {
+      _inherits(Click, _Directive);
+
+      function Click() {
+         _classCallCheck(this, Click);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Click).apply(this, arguments));
+      }
+
+      _createClass(Click, [{
+         key: "initialize",
+         value: function initialize(attr) {
+
+            var callback = attr.asFunction();
+            var scope = this.element.scope;
+            this.element.bindEvent("click", function () {
+               callback.bind(scope)();
+            });
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-click'
+            };
+         }
+      }]);
+
+      return Click;
+   }(Directive);
+
+   var ___module__promised__ = Click;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.Conditional", ["wires.core.Directive"], function (Directive) {
+   var Conditional = function (_Directive2) {
+      _inherits(Conditional, _Directive2);
+
+      function Conditional() {
+         _classCallCheck(this, Conditional);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Conditional).apply(this, arguments));
+      }
+
+      _createClass(Conditional, [{
+         key: "initialize",
+         value: function initialize(attr) {
+            var self = this;
+            var el = this.element;
+            this.$initialized = false;
+            attr.watchExpression(function (value) {
+               value ? self.createNodes() : self.removeNodes();
+            }, true);
+         }
+      }, {
+         key: "removeNodes",
+         value: function removeNodes() {
+            if (this.clone) {
+               this.clone.remove();
+            }
+
+            // if (this.$initialized) {
+            //    this.clone.detachElement();
+            // }
+         }
+      }, {
+         key: "createNodes",
+         value: function createNodes() {
+            var self = this;
+            // if (this.$initialized) {
+            //    return this.clone.insertAfter(this.element);;
+            // }
+            // this.$initialized = true;
+            this.clone = this.element.clone();
+            this.clone.schema.detachAttribute("ng-if");
+            this.clone.create();
+            this.clone.insertAfter(this.element);
+            this.clone.initialize();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-if',
+               type: 'attribute',
+               attribute: {
+                  placeholder: true
+               }
+            };
+         }
+      }]);
+
+      return Conditional;
+   }(Directive);
+
+   var ___module__promised__ = Conditional;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.IncludeView", ["wires.core.Directive", "wires.runtime.Schema"], function (Directive, userSchemas) {
+   var IncludeView = function (_Directive3) {
+      _inherits(IncludeView, _Directive3);
+
+      function IncludeView() {
+         _classCallCheck(this, IncludeView);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(IncludeView).apply(this, arguments));
+      }
+
+      _createClass(IncludeView, [{
+         key: "initialize",
+         value: function initialize(attr) {
+
+            var self = this;
+            var el = this.element;
+            this.inflated = false;
+            this.isElementDirective = false;
+            if (!attr) {
+               attr = this.element.attrs["src"];
+               this.isElementDirective = true;
+            }
+            if (!attr) {
+               throw "Directive needs either src attribute or self value!";
+            }
+            if (attr) {
+               attr.watchString(function (fname) {
+                  if (self.inflated) {
+                     self.element.removeChildren();
+                  }
+                  if (userSchemas[fname]) {
+                     self.createSchema(userSchemas[fname]);
+                  }
+               }, true);
+            }
+         }
+      }, {
+         key: "createSchema",
+         value: function createSchema(json) {
+            this.element.inflate(json);
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-include'
+            };
+         }
+      }]);
+
+      return IncludeView;
+   }(Directive);
+
+   var ___module__promised__ = IncludeView;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.MyDirective", ["wires.core.Directive"], function (Directive) {
+   var MyDirective = function (_Directive4) {
+      _inherits(MyDirective, _Directive4);
+
+      function MyDirective() {
+         _classCallCheck(this, MyDirective);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(MyDirective).apply(this, arguments));
+      }
+
+      _createClass(MyDirective, [{
+         key: "initialize",
+         value: function initialize() {
+            this.myName = "This is my name";
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'my-directive',
+               schema: 'other/my-directive.html'
+            };
+         }
+      }]);
+
+      return MyDirective;
+   }(Directive);
+
+   var ___module__promised__ = MyDirective;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.Show", ["wires.core.Directive"], function (Directive) {
+   var Show = function (_Directive5) {
+      _inherits(Show, _Directive5);
+
+      function Show() {
+         _classCallCheck(this, Show);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Show).apply(this, arguments));
+      }
+
+      _createClass(Show, [{
+         key: "initialize",
+         value: function initialize() {
+            var self = this;
+            var el = this.element;
+            var attr = el.attrs['ng-show'];
+
+            attr.watchExpression(function (value, oldValue, changes) {
+               if (value !== oldValue || oldValue === undefined) {
+                  if (value) {
+                     // diplaying underlying elements
+                     self.show();
+                  } else {
+                     self.hide();
+                  }
+               }
+            }, true);
+         }
+      }, {
+         key: "hide",
+         value: function hide() {
+            this.element.hide();
+         }
+      }, {
+         key: "show",
+         value: function show() {
+            this.element.show();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-show'
+            };
+         }
+      }]);
+
+      return Show;
+   }(Directive);
+
+   var ___module__promised__ = Show;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.ToggleClass", ["wires.core.Directive"], function (Directive) {
+   var ToggleClass = function (_Directive6) {
+      _inherits(ToggleClass, _Directive6);
+
+      _createClass(ToggleClass, null, [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-class'
+            };
+         }
+      }]);
+
+      function ToggleClass() {
+         _classCallCheck(this, ToggleClass);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(ToggleClass).call(this));
+      }
+
+      _createClass(ToggleClass, [{
+         key: "initialize",
+         value: function initialize($parent, attrs) {}
+      }]);
+
+      return ToggleClass;
+   }(Directive);
+
+   var ___module__promised__ = ToggleClass;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.Transclude", ["wires.core.Directive"], function (Directive) {
+   var Transclude = function (_Directive7) {
+      _inherits(Transclude, _Directive7);
+
+      function Transclude() {
+         _classCallCheck(this, Transclude);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Transclude).apply(this, arguments));
+      }
+
+      _createClass(Transclude, [{
+         key: "initialize",
+         value: function initialize() {
+            if (this.element.scope.$$transcluded) {
+               // swap children to transclusion
+               this.element.schema.children = this.element.scope.$$transcluded;
+            }
+         }
+      }, {
+         key: "hide",
+         value: function hide() {
+            this.element.hide();
+         }
+      }, {
+         key: "show",
+         value: function show() {
+            this.element.show();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-transclude'
+            };
+         }
+      }]);
+
+      return Transclude;
+   }(Directive);
+
+   var ___module__promised__ = Transclude;
+
+   return ___module__promised__;
+});
 realm.module("wires.runtime.Directives", ["realm"], function (realm) {
 
    var ___module__promised__ = realm.requirePackage('wires.directives');
 
    return ___module__promised__;
 });
-realm.module("wires.runtime.Schema", [], function () {
-
+realm.module("wires.runtime.Schema", ["utils.lodash"], function (_) {
    var data = {};
-   if (!isNode) {
-      if (realm.isRegistered('wires.sample.schema')) {
-         data = realm.require('wires.sample.schema', function (views) {
-            return views;
-         });
-      }
-   }
 
-   var ___module__promised__ = data;
+   var ___module__promised__ = realm.requirePackage('wires.schema').then(function (items) {
+      var schemas = {};
+
+      _.each(items, function (packg) {
+         schemas = _.merge(schemas, packg);
+      });
+      return schemas;
+   });
 
    return ___module__promised__;
 });
@@ -2889,7 +2808,7 @@ realm.module("wires.utils.UniversalQuery", [], function () {
                console.error("jQuery or Zepto is required!");
             }
             var first = window.$("<div>" + html + "</div>").find("div:first");
-            console.log(first);
+
             return first;
          }
       }]);

@@ -15,6 +15,9 @@ realm.module("realm", function() {
    return realm;
 });
 
+realm.module("nodejs.utils.stream", function() {
+   return isNode ? require("event-stream") : {}
+})
 realm.module("nodejs.utils.fs", function() {
    return isNode ? require("fs") : {};
 });
