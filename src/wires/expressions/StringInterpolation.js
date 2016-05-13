@@ -1,4 +1,4 @@
-module wires.expressions.StringInterpolation;
+"use realm";
 
 import lodash as _ from utils;
 import AngularExpressions, WatchBatch from wires.expressions;

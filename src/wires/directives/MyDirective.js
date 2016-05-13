@@ -1,4 +1,4 @@
-module wires.directives.MyDirective;
+"use realm";
 
 import Directive from wires.core;
 

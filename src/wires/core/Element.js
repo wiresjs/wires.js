@@ -1,4 +1,4 @@
-module wires.core.Element;
+"use realm";
 
 import Attribute, Common from wires.core;
 import lodash as _ from utils;
@@ -55,7 +55,6 @@ class Element extends Common {
       }
 
       if (!this.controllingDirective) {
-
          this.initAttrs();
          this.initDirectives();
       } else {

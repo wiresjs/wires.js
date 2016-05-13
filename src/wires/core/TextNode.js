@@ -1,4 +1,5 @@
-module wires.core.TextNode
+"use realm";
+
 import StringInterpolation from wires.expressions;
 import Common from wires.core;
 

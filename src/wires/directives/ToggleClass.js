@@ -1,4 +1,4 @@
-module wires.directives.ToggleClass
+"use realm";
 
 import Directive from wires.core;
 

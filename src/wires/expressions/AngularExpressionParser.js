@@ -1,4 +1,4 @@
-module wires.expressions.AngularExpressionParser;
+"use realm";
 
 // We don't want to lint angular's code...
 /* eslint-disable */

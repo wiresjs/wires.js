@@ -1,4 +1,4 @@
-module wires.directives.Conditional
+"use realm";
 
 import Directive from wires.core;
 

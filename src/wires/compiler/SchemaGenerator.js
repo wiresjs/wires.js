@@ -1,4 +1,5 @@
-module wires.compiler.SchemaGenerator;
+"use realm";
+
 import fs, walk, path, stream from nodejs.utils;
 import JSONifier from wires.compiler;
 import lodash as _, Promise from utils;

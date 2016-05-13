@@ -1,4 +1,4 @@
-module wires.utils.DotNotation;
+"use realm";
 
 import AsyncWatch from wires;
 

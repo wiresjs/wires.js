@@ -1,4 +1,4 @@
-module wires.compiler.JSONifier
+"use realm";
 
 import realm
 import lodash as _ from utils;
@@ -21,7 +21,8 @@ class JSONifier {
    createTag(element) {
       const tag = {};
       const self = this;
-      var name = (element.name || element.nodeName).toLowerCase()
+      var name = (isNode ? element.name : element.nodeName).toLowerCase()
+
       const directive = this.directives[name];
       const children = isNode ? element.children : element.childNodes;
       const attrs = {};
@@ -56,7 +57,7 @@ class JSONifier {
    }
    createText(element) {
       var text = element.data || element.nodeValue;
-      if (!text.match(/^\s*$/g)) {
+      if (text && !text.match(/^\s*$/g)) {
          return Packer.pack({
             type: "text",
             text: interpolate.parse(text)

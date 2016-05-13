@@ -1,4 +1,4 @@
-module wires.core.Attribute
+"use realm";
 
 import StringInterpolation, AngularExpressions, WatchBatch from wires.expressions;
 import Watch from wires.services;
@@ -11,6 +11,7 @@ class Attribute extends Common {
       this.name = name;
       this.value = value;
       this.watchers = [];
+      this.model;
    }
    initialize() {
       // Must ignore regular initialization if an attribute is linked to a directive
@@ -26,6 +27,13 @@ class Attribute extends Common {
       }));
    }
 
+   assign(value) {
+      if (!this.model) {
+         this.model = AngularExpressions.compile(this.value);
+      }
+      this.model.assign(this.element.scope, value);
+   }
+
    asFunction() {
       var compiled = AngularExpressions.compile(this.value);
       var scope = this.element.scope;
@@ -33,6 +41,7 @@ class Attribute extends Common {
          compiled(scope, locals)
       }
    }
+
    watchExpression(cb, instant) {
 
       var watcher = Watch({

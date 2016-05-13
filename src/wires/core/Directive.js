@@ -1,4 +1,4 @@
-module wires.core.Directive;
+"use realm";
 
 import Schema as userSchemas from wires.runtime;
 import Properties as prop from wires.utils;

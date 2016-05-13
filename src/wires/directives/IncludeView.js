@@ -1,4 +1,4 @@
-module wires.directives.IncludeView
+"use realm";
 
 import Directive from wires.core;
 import Schema as userSchemas from wires.runtime;

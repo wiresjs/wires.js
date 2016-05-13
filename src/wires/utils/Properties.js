@@ -1,4 +1,4 @@
-module wires.utils.Properties;
+"use realm";
 
 class Properties {
    static defineHidden(obj, key, value) {

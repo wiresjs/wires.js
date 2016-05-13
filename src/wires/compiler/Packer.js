@@ -1,4 +1,4 @@
-module wires.compiler.Packer;
+"use realm";
 
 import lodash as _ from utils;
 

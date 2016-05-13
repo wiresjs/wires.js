@@ -21,17 +21,21 @@ gulp.task("build-views", function() {
 
 });
 gulp.task("build", function() {
-   return gulp.src("src/**/*.js")
-      //.pipe(sourcemaps.init())
-
-   .pipe(realm.transpiler.importify())
-      .pipe(concat("build.js"))
-      .pipe(babel())
+   return gulp.src("src/wires/**/*.js").pipe(realm.transpiler({
+         preffix: "wires",
+         base: "src/wires",
+         target: "./build.js"
+      }))
+      .pipe(babel({
+         presets: ["es2016"],
+         plugins: ["transform-decorators-legacy"]
+      }))
       .on('error', function(e) {
-         console.log('>>> ERROR', e.stack);
-         // emit here
+         console.log(e.stack);
          this.emit('end');
       })
-      .pipe(realm.transpiler.universalWrap())
-      .pipe(gulp.dest("dist/"))
-});
+      .pipe(realm.transpiler({
+         wrap: true
+      }))
+      .pipe(gulp.dest("./build"));
+});;

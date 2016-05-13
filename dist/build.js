@@ -66,7 +66,8 @@ realm.module("wires.compiler.JSONifier", ["realm", "utils.lodash", "wires.utils.
          value: function createTag(element) {
             var tag = {};
             var self = this;
-            var name = (element.name || element.nodeName).toLowerCase();
+            var name = (isNode ? element.name : element.nodeName).toLowerCase();
+
             var directive = this.directives[name];
             var children = isNode ? element.children : element.childNodes;
             var attrs = {};
@@ -103,7 +104,7 @@ realm.module("wires.compiler.JSONifier", ["realm", "utils.lodash", "wires.utils.
          key: "createText",
          value: function createText(element) {
             var text = element.data || element.nodeValue;
-            if (!text.match(/^\s*$/g)) {
+            if (text && !text.match(/^\s*$/g)) {
                return Packer.pack({
                   type: "text",
                   text: interpolate.parse(text)
@@ -385,6 +386,7 @@ realm.module("wires.core.Attribute", ["wires.expressions.StringInterpolation", "
          _this2.name = name;
          _this2.value = value;
          _this2.watchers = [];
+         _this2.model;
          return _this2;
       }
 
@@ -402,6 +404,14 @@ realm.module("wires.core.Attribute", ["wires.expressions.StringInterpolation", "
             this.registerWatcher(this.watchString(function (value) {
                self.original.value = value;
             }));
+         }
+      }, {
+         key: "assign",
+         value: function assign(value) {
+            if (!this.model) {
+               this.model = AngularExpressions.compile(this.value);
+            }
+            this.model.assign(this.element.scope, value);
          }
       }, {
          key: "asFunction",
@@ -459,8 +469,9 @@ realm.module("wires.core.Common", ["utils.lodash"], function (_) {
       _createClass(Common, [{
          key: "bindEvent",
          value: function bindEvent(name, cb) {
-            if (this.original) {
-               this.original.addEventListener(name, cb, false);
+            var target = this.element ? this.element.original : this.original;
+            if (target) {
+               target.addEventListener(name, cb, false);
                this.__events.push({
                   name: name,
                   cb: cb
@@ -483,9 +494,10 @@ realm.module("wires.core.Common", ["utils.lodash"], function (_) {
          key: "destroyListeners",
          value: function destroyListeners() {
             var self = this;
-            if (self.original) {
+            var target = this.element ? this.element.original : this.original;
+            if (target) {
                _.each(this.__events, function (item, index) {
-                  self.original.removeEventListener(item.name, item.cb);
+                  target.removeEventListener(item.name, item.cb);
                   self.__events[index] = undefined;
                });
                this.__events = {};
@@ -631,7 +643,6 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Common",
             }
 
             if (!this.controllingDirective) {
-
                this.initAttrs();
                this.initDirectives();
             } else {
@@ -925,7 +936,6 @@ realm.module("wires.core.Schema", ["wires.compiler.Packer", "utils.lodash", "wir
          key: "init",
          value: function init(schema, scope, locals) {
             var element;
-
             if (schema.type === "tag") {
                element = new Element(schema, scope, locals);
             }
@@ -969,7 +979,6 @@ realm.module("wires.core.Schema", ["wires.compiler.Packer", "utils.lodash", "wir
             var locals = opts.locals;
             var target = opts.target;
             var json = opts.schema;
-
             var children = [];
             _.each(json, function (item) {
                var schema = new Schema(item);
@@ -2326,325 +2335,6 @@ realm.module("wires.expressions.WatchBatch", ["utils.lodash", "wires.AsyncWatch"
 
    return ___module__promised__;
 });
-realm.module("wires.directives.Click", ["wires.core.Directive"], function (Directive) {
-   var Click = function (_Directive) {
-      _inherits(Click, _Directive);
-
-      function Click() {
-         _classCallCheck(this, Click);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Click).apply(this, arguments));
-      }
-
-      _createClass(Click, [{
-         key: "initialize",
-         value: function initialize(attr) {
-
-            var callback = attr.asFunction();
-            var scope = this.element.scope;
-            this.element.bindEvent("click", function () {
-               callback.bind(scope)();
-            });
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-click'
-            };
-         }
-      }]);
-
-      return Click;
-   }(Directive);
-
-   var ___module__promised__ = Click;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.Conditional", ["wires.core.Directive"], function (Directive) {
-   var Conditional = function (_Directive2) {
-      _inherits(Conditional, _Directive2);
-
-      function Conditional() {
-         _classCallCheck(this, Conditional);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Conditional).apply(this, arguments));
-      }
-
-      _createClass(Conditional, [{
-         key: "initialize",
-         value: function initialize(attr) {
-            var self = this;
-            var el = this.element;
-            this.$initialized = false;
-            attr.watchExpression(function (value) {
-               value ? self.createNodes() : self.removeNodes();
-            }, true);
-         }
-      }, {
-         key: "removeNodes",
-         value: function removeNodes() {
-            if (this.clone) {
-               this.clone.remove();
-            }
-
-            // if (this.$initialized) {
-            //    this.clone.detachElement();
-            // }
-         }
-      }, {
-         key: "createNodes",
-         value: function createNodes() {
-            var self = this;
-            // if (this.$initialized) {
-            //    return this.clone.insertAfter(this.element);;
-            // }
-            // this.$initialized = true;
-            this.clone = this.element.clone();
-            this.clone.schema.detachAttribute("ng-if");
-            this.clone.create();
-            this.clone.insertAfter(this.element);
-            this.clone.initialize();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-if',
-               type: 'attribute',
-               attribute: {
-                  placeholder: true
-               }
-            };
-         }
-      }]);
-
-      return Conditional;
-   }(Directive);
-
-   var ___module__promised__ = Conditional;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.IncludeView", ["wires.core.Directive", "wires.runtime.Schema"], function (Directive, userSchemas) {
-   var IncludeView = function (_Directive3) {
-      _inherits(IncludeView, _Directive3);
-
-      function IncludeView() {
-         _classCallCheck(this, IncludeView);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(IncludeView).apply(this, arguments));
-      }
-
-      _createClass(IncludeView, [{
-         key: "initialize",
-         value: function initialize(attr) {
-
-            var self = this;
-            var el = this.element;
-            this.inflated = false;
-            this.isElementDirective = false;
-            if (!attr) {
-               attr = this.element.attrs["src"];
-               this.isElementDirective = true;
-            }
-            if (!attr) {
-               throw "Directive needs either src attribute or self value!";
-            }
-            if (attr) {
-               attr.watchString(function (fname) {
-                  if (self.inflated) {
-                     self.element.removeChildren();
-                  }
-                  if (userSchemas[fname]) {
-                     self.createSchema(userSchemas[fname]);
-                  }
-               }, true);
-            }
-         }
-      }, {
-         key: "createSchema",
-         value: function createSchema(json) {
-            this.element.inflate(json);
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-include'
-            };
-         }
-      }]);
-
-      return IncludeView;
-   }(Directive);
-
-   var ___module__promised__ = IncludeView;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.MyDirective", ["wires.core.Directive"], function (Directive) {
-   var MyDirective = function (_Directive4) {
-      _inherits(MyDirective, _Directive4);
-
-      function MyDirective() {
-         _classCallCheck(this, MyDirective);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(MyDirective).apply(this, arguments));
-      }
-
-      _createClass(MyDirective, [{
-         key: "initialize",
-         value: function initialize() {
-            this.myName = "This is my name";
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'my-directive',
-               schema: 'other/my-directive.html'
-            };
-         }
-      }]);
-
-      return MyDirective;
-   }(Directive);
-
-   var ___module__promised__ = MyDirective;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.Show", ["wires.core.Directive"], function (Directive) {
-   var Show = function (_Directive5) {
-      _inherits(Show, _Directive5);
-
-      function Show() {
-         _classCallCheck(this, Show);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Show).apply(this, arguments));
-      }
-
-      _createClass(Show, [{
-         key: "initialize",
-         value: function initialize() {
-            var self = this;
-            var el = this.element;
-            var attr = el.attrs['ng-show'];
-
-            attr.watchExpression(function (value, oldValue, changes) {
-               if (value !== oldValue || oldValue === undefined) {
-                  if (value) {
-                     // diplaying underlying elements
-                     self.show();
-                  } else {
-                     self.hide();
-                  }
-               }
-            }, true);
-         }
-      }, {
-         key: "hide",
-         value: function hide() {
-            this.element.hide();
-         }
-      }, {
-         key: "show",
-         value: function show() {
-            this.element.show();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-show'
-            };
-         }
-      }]);
-
-      return Show;
-   }(Directive);
-
-   var ___module__promised__ = Show;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.ToggleClass", ["wires.core.Directive"], function (Directive) {
-   var ToggleClass = function (_Directive6) {
-      _inherits(ToggleClass, _Directive6);
-
-      _createClass(ToggleClass, null, [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-class'
-            };
-         }
-      }]);
-
-      function ToggleClass() {
-         _classCallCheck(this, ToggleClass);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(ToggleClass).call(this));
-      }
-
-      _createClass(ToggleClass, [{
-         key: "initialize",
-         value: function initialize($parent, attrs) {}
-      }]);
-
-      return ToggleClass;
-   }(Directive);
-
-   var ___module__promised__ = ToggleClass;
-
-   return ___module__promised__;
-});
-realm.module("wires.directives.Transclude", ["wires.core.Directive"], function (Directive) {
-   var Transclude = function (_Directive7) {
-      _inherits(Transclude, _Directive7);
-
-      function Transclude() {
-         _classCallCheck(this, Transclude);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Transclude).apply(this, arguments));
-      }
-
-      _createClass(Transclude, [{
-         key: "initialize",
-         value: function initialize() {
-            if (this.element.scope.$$transcluded) {
-               // swap children to transclusion
-               this.element.schema.children = this.element.scope.$$transcluded;
-            }
-         }
-      }, {
-         key: "hide",
-         value: function hide() {
-            this.element.hide();
-         }
-      }, {
-         key: "show",
-         value: function show() {
-            this.element.show();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-transclude'
-            };
-         }
-      }]);
-
-      return Transclude;
-   }(Directive);
-
-   var ___module__promised__ = Transclude;
-
-   return ___module__promised__;
-});
 realm.module("wires.runtime.Directives", ["realm"], function (realm) {
 
    var ___module__promised__ = realm.requirePackage('wires.directives');
@@ -2815,6 +2505,406 @@ realm.module("wires.utils.UniversalQuery", [], function () {
 
       return ___module__promised__;
    }();
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.Click", ["wires.core.Directive"], function (Directive) {
+   var Click = function (_Directive) {
+      _inherits(Click, _Directive);
+
+      function Click() {
+         _classCallCheck(this, Click);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Click).apply(this, arguments));
+      }
+
+      _createClass(Click, [{
+         key: "initialize",
+         value: function initialize(attr) {
+
+            var callback = attr.asFunction();
+            var scope = this.element.scope;
+            this.element.bindEvent("click", function () {
+               callback.bind(scope)({
+                  event: event
+               });
+            });
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-click'
+            };
+         }
+      }]);
+
+      return Click;
+   }(Directive);
+
+   var ___module__promised__ = Click;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.Conditional", ["wires.core.Directive"], function (Directive) {
+   var Conditional = function (_Directive2) {
+      _inherits(Conditional, _Directive2);
+
+      function Conditional() {
+         _classCallCheck(this, Conditional);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Conditional).apply(this, arguments));
+      }
+
+      _createClass(Conditional, [{
+         key: "initialize",
+         value: function initialize(attr) {
+            var self = this;
+            var el = this.element;
+            this.$initialized = false;
+            attr.watchExpression(function (value) {
+               value ? self.createNodes() : self.removeNodes();
+            }, true);
+         }
+      }, {
+         key: "removeNodes",
+         value: function removeNodes() {
+            if (this.clone) {
+               this.clone.remove();
+            }
+
+            // if (this.$initialized) {
+            //    this.clone.detachElement();
+            // }
+         }
+      }, {
+         key: "createNodes",
+         value: function createNodes() {
+            var self = this;
+            // if (this.$initialized) {
+            //    return this.clone.insertAfter(this.element);;
+            // }
+            // this.$initialized = true;
+            this.clone = this.element.clone();
+            this.clone.schema.detachAttribute("ng-if");
+            this.clone.create();
+            this.clone.insertAfter(this.element);
+            this.clone.initialize();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-if',
+               type: 'attribute',
+               attribute: {
+                  placeholder: true
+               }
+            };
+         }
+      }]);
+
+      return Conditional;
+   }(Directive);
+
+   var ___module__promised__ = Conditional;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.IncludeView", ["wires.core.Directive", "wires.runtime.Schema"], function (Directive, userSchemas) {
+   var IncludeView = function (_Directive3) {
+      _inherits(IncludeView, _Directive3);
+
+      function IncludeView() {
+         _classCallCheck(this, IncludeView);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(IncludeView).apply(this, arguments));
+      }
+
+      _createClass(IncludeView, [{
+         key: "initialize",
+         value: function initialize(attr) {
+
+            var self = this;
+            var el = this.element;
+            this.inflated = false;
+            this.isElementDirective = false;
+            if (!attr) {
+               attr = this.element.attrs["src"];
+               this.isElementDirective = true;
+            }
+            if (!attr) {
+               throw "Directive needs either src attribute or self value!";
+            }
+            if (attr) {
+               attr.watchString(function (fname) {
+                  if (self.inflated) {
+                     self.element.removeChildren();
+                  }
+                  if (userSchemas[fname]) {
+                     self.createSchema(userSchemas[fname]);
+                  }
+               }, true);
+            }
+         }
+      }, {
+         key: "createSchema",
+         value: function createSchema(json) {
+            this.element.inflate(json);
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-include'
+            };
+         }
+      }]);
+
+      return IncludeView;
+   }(Directive);
+
+   var ___module__promised__ = IncludeView;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.Model", ["wires.expressions.AngularExpressions", "wires.core.Directive"], function (AngularExpressions, Directive) {
+   var Model = function (_Directive4) {
+      _inherits(Model, _Directive4);
+
+      function Model() {
+         _classCallCheck(this, Model);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Model).apply(this, arguments));
+      }
+
+      _createClass(Model, [{
+         key: "initialize",
+         value: function initialize(attr) {
+            var el = this.element.original;
+            var type = "text";
+            var typeAttribute = this.element.attrs["type"];
+            var selfAssign = false;
+            if (typeAttribute) {
+               type = typeAttribute.value[0];
+            }
+            if (el.nodeName.toLowerCase() === "select") {
+               type = "select";
+            }
+
+            attr.watchExpression(function (value) {
+               if (type === "text") {
+                  el.value = value;
+               }
+               if (type === "checkbox") {
+                  el.checked = value;
+               }
+
+               if (type === "select") {
+                  el.value = value;
+               }
+               if (type === "radio") {
+                  if (value === el.value) {
+                     el.checked = true;
+                  }
+               }
+            });
+
+            // Bind events ************************
+            if (type === "text") {
+               this.bindEvent("keyup", function () {
+                  attr.assign(el.value);
+               });
+            }
+            // checkbox
+            if (type === "checkbox") {
+               this.bindEvent("click", function () {
+                  attr.assign(el.checked);
+               });
+            }
+            // select
+            if (type === "select") {
+               this.bindEvent("change", function () {
+                  attr.assign(el.value);
+               });
+            }
+            if (type === "radio") {
+               this.bindEvent("click", function () {
+                  attr.assign(el.value);
+               });
+            }
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-model'
+            };
+         }
+      }]);
+
+      return Model;
+   }(Directive);
+
+   var ___module__promised__ = Model;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.MyDirective", ["wires.core.Directive"], function (Directive) {
+   var MyDirective = function (_Directive5) {
+      _inherits(MyDirective, _Directive5);
+
+      function MyDirective() {
+         _classCallCheck(this, MyDirective);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(MyDirective).apply(this, arguments));
+      }
+
+      _createClass(MyDirective, [{
+         key: "initialize",
+         value: function initialize() {
+            this.myName = "This is my name";
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'my-directive',
+               schema: 'other/my-directive.html'
+            };
+         }
+      }]);
+
+      return MyDirective;
+   }(Directive);
+
+   var ___module__promised__ = MyDirective;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.Show", ["wires.core.Directive"], function (Directive) {
+   var Show = function (_Directive6) {
+      _inherits(Show, _Directive6);
+
+      function Show() {
+         _classCallCheck(this, Show);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Show).apply(this, arguments));
+      }
+
+      _createClass(Show, [{
+         key: "initialize",
+         value: function initialize() {
+            var self = this;
+            var el = this.element;
+            var attr = el.attrs['ng-show'];
+
+            attr.watchExpression(function (value, oldValue, changes) {
+               if (value) {
+                  self.show();
+               } else {
+                  self.hide();
+               }
+            }, true);
+         }
+      }, {
+         key: "hide",
+         value: function hide() {
+            this.element.hide();
+         }
+      }, {
+         key: "show",
+         value: function show() {
+            this.element.show();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-show'
+            };
+         }
+      }]);
+
+      return Show;
+   }(Directive);
+
+   var ___module__promised__ = Show;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.ToggleClass", ["wires.core.Directive"], function (Directive) {
+   var ToggleClass = function (_Directive7) {
+      _inherits(ToggleClass, _Directive7);
+
+      _createClass(ToggleClass, null, [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-class'
+            };
+         }
+      }]);
+
+      function ToggleClass() {
+         _classCallCheck(this, ToggleClass);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(ToggleClass).call(this));
+      }
+
+      _createClass(ToggleClass, [{
+         key: "initialize",
+         value: function initialize($parent, attrs) {}
+      }]);
+
+      return ToggleClass;
+   }(Directive);
+
+   var ___module__promised__ = ToggleClass;
+
+   return ___module__promised__;
+});
+realm.module("wires.directives.Transclude", ["wires.core.Directive"], function (Directive) {
+   var Transclude = function (_Directive8) {
+      _inherits(Transclude, _Directive8);
+
+      function Transclude() {
+         _classCallCheck(this, Transclude);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Transclude).apply(this, arguments));
+      }
+
+      _createClass(Transclude, [{
+         key: "initialize",
+         value: function initialize() {
+            if (this.element.scope.$$transcluded) {
+               // swap children to transclusion
+               this.element.schema.children = this.element.scope.$$transcluded;
+            }
+         }
+      }, {
+         key: "hide",
+         value: function hide() {
+            this.element.hide();
+         }
+      }, {
+         key: "show",
+         value: function show() {
+            this.element.show();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-transclude'
+            };
+         }
+      }]);
+
+      return Transclude;
+   }(Directive);
+
+   var ___module__promised__ = Transclude;
 
    return ___module__promised__;
 });

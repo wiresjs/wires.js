@@ -1,4 +1,5 @@
-module wires.runtime.Schema;
+"use realm";
+
 import lodash as _ from utils;
 var data = {};
 

@@ -1,4 +1,4 @@
-module wires.directives.Transclude
+"use realm";
 
 import Directive from wires.core;
 

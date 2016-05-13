@@ -1,4 +1,4 @@
-module wires.expressions.WatchBatch;
+"use realm";
 
 import lodash as _ from utils;
 import AsyncWatch from wires;

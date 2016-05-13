@@ -1,4 +1,4 @@
-module wires.directives.Click
+"use realm";
 
 import Directive from wires.core;
 
@@ -13,7 +13,9 @@ class Click extends Directive {
       var callback = attr.asFunction();
       var scope = this.element.scope;
       this.element.bindEvent("click", function() {
-         callback.bind(scope)()
+         callback.bind(scope)({
+            event: event
+         })
       });
    }
 }

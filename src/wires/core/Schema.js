@@ -1,4 +1,4 @@
-module wires.core.Schema;
+"use realm";
 
 import Packer from wires.compiler;
 import lodash as _ from utils;
@@ -22,16 +22,17 @@ class Schema {
          return attrs.name === name
       });
    }
+
    inflate(opts) {
       return Schema.inflate(opts)
    }
+
    init(schema, scope, locals) {
       return Schema.init(schema, scope, locals);
    }
 
    static init(schema, scope, locals) {
       var element;
-
       if (schema.type === "tag") {
          element = new Element(schema, scope, locals);
       }
@@ -73,7 +74,6 @@ class Schema {
       var locals = opts.locals;
       var target = opts.target;
       var json = opts.schema;
-
       var children = [];
       _.each(json, function(item) {
          var schema = new Schema(item);

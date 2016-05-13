@@ -1,4 +1,4 @@
-module wires.runtime.Directives;
+"use realm";
 
 import realm
 

@@ -1,4 +1,5 @@
-module wires.services.Watch;
+"use realm";
+
 import AngularExpressions, WatchBatch from wires.expressions;
 
 import lodash as _ from utils;

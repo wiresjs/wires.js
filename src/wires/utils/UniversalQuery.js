@@ -1,4 +1,4 @@
-module wires.utils.UniversalQuery;
+"use realm";
 
 /**
  * Universal "jQuery"

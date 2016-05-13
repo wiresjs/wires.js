@@ -1,4 +1,4 @@
-module wires.expressions.AngularExpressions;
+"use realm";
 
 import AngularExpressionParser from wires.expressions;
 import lodash as _ from utils;

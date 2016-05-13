@@ -1,4 +1,4 @@
-module wires.core.Common
+"use realm";
 
 import lodash as _ from utils;
 class Common {
@@ -7,8 +7,9 @@ class Common {
    }
 
    bindEvent(name, cb) {
-      if (this.original) {
-         this.original.addEventListener(name, cb, false)
+      var target = this.element ? this.element.original : this.original;
+      if (target) {
+         target.addEventListener(name, cb, false)
          this.__events.push({
             name: name,
             cb: cb
@@ -26,9 +27,10 @@ class Common {
    }
    destroyListeners() {
       var self = this;
-      if (self.original) {
+      var target = this.element ? this.element.original : this.original;
+      if (target) {
          _.each(this.__events, function(item, index) {
-            self.original.removeEventListener(item.name, item.cb);
+            target.removeEventListener(item.name, item.cb);
             self.__events[index] = undefined;
          });
          this.__events = {};
