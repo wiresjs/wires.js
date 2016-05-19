@@ -1,14 +1,14 @@
 realm.module("utils.lodash", function() {
-   return isNode ? require("lodash") : window._;
+   return $isBackend ? require("lodash") : window._;
 });
 
 realm.module("utils.Promise", function() {
-   return isNode ? require("Promise") : window.Promise;
+   return $isBackend ? require("Promise") : window.Promise;
 });
-var nodeAsyncLib = isNode ? require("async-watch") : undefined;
+var nodeAsyncLib = $isBackend ? require("async-watch") : undefined;
 
 realm.module("wires.AsyncWatch", function() {
-   return isNode ? nodeAsyncLib.AsyncWatch : window.AsyncWatch;
+   return $isBackend ? nodeAsyncLib.AsyncWatch : window.AsyncWatch;
 });
 
 realm.module("realm", function() {
@@ -16,18 +16,18 @@ realm.module("realm", function() {
 });
 
 realm.module("nodejs.utils.stream", function() {
-   return isNode ? require("event-stream") : {}
+   return $isBackend ? require("event-stream") : {}
 })
 realm.module("nodejs.utils.fs", function() {
-   return isNode ? require("fs") : {};
+   return $isBackend ? require("fs") : {};
 });
 realm.module("nodejs.utils.walk", function() {
-   return isNode ? require("walk") : {};
+   return $isBackend ? require("walk") : {};
 });
 realm.module("nodejs.utils.path", function() {
-   return isNode ? require("path") : {};
+   return $isBackend ? require("path") : {};
 });
 
 realm.module("AsyncTransaction", function() {
-   return isNode ? nodeAsyncLib.AsyncTransaction : window.AsyncTransaction;
+   return $isBackend ? nodeAsyncLib.AsyncTransaction : window.AsyncTransaction;
 });

@@ -37,5 +37,5 @@ gulp.task("build", function() {
       .pipe(realm.transpiler({
          wrap: true
       }))
-      .pipe(gulp.dest("./build"));
+      .pipe(gulp.dest("./dist"));
 });;

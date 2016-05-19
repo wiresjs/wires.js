@@ -1,28 +1,29 @@
 {
-   "name": "wires.js",
-   "main": "index.js",
-   "version": "0.5.76",
-   "homepage": "https://github.com/wiresjs/wires.js",
-   "authors": [
-      "Ivan.Orlov <ivan@morrr.com>"
-   ],
-   "license": "MIT",
-   "ignore": [
-      "**/.*",
-      "node_modules",
-      "bower_components",
-      "src",
-      "external",
-      "app",
-      "test",
-      "tests"
-   ],
-   "dependencies": {
-      "async-watch": "1.1.16",
-      "jquery": "^2.2.3",
-      "lodash": "^4.11.2"
-   },
-   "resolutions": {
-      "lodash": "^4.11.1"
-   }
+  "name": "wires.js",
+  "main": "index.js",
+  "version": "0.5.76",
+  "homepage": "https://github.com/wiresjs/wires.js",
+  "authors": [
+    "Ivan.Orlov <ivan@morrr.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src",
+    "external",
+    "app",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "async-watch": "1.1.16",
+    "jquery": "^2.2.3",
+    "lodash": "^4.11.2",
+    "zepto": "^1.1.6"
+  },
+  "resolutions": {
+    "lodash": "^4.11.1"
+  }
 }

@@ -8,7 +8,7 @@
 export class {
    static init(html) {
       html = "<div>" + html + "</div>";
-      if (isNode) {
+      if ($isBackend) {
          var cheerio = require("cheerio");
          var $ = cheerio.load(html)
          return $("div").first();
@@ -16,7 +16,8 @@ export class {
       if (!window.$) {
          console.error("jQuery or Zepto is required!");
       }
-      var first = window.$("<div>" + html + "</div>").find("div:first");
+
+      var first = window.$("<div>" + html + "</div>").find("div").first();
 
       return first;
    }

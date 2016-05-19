@@ -27,24 +27,15 @@ class Conditional extends Directive {
       if (this.clone) {
          this.clone.remove();
       }
-
-      // if (this.$initialized) {
-      //    this.clone.detachElement();
-      // }
    }
 
    createNodes() {
       var self = this;
-      // if (this.$initialized) {
-      //    return this.clone.insertAfter(this.element);;
-      // }
-      // this.$initialized = true;
       this.clone = this.element.clone();
       this.clone.schema.detachAttribute("ng-if");
       this.clone.create();
       this.clone.insertAfter(this.element);
       this.clone.initialize();
-
    }
 }
 export Conditional;

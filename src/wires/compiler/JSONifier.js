@@ -21,17 +21,17 @@ class JSONifier {
    createTag(element) {
       const tag = {};
       const self = this;
-      var name = (isNode ? element.name : element.nodeName).toLowerCase()
-
+      var name = ($isBackend ? element.name : element.nodeName).toLowerCase()
+         //
       const directive = this.directives[name];
-      const children = isNode ? element.children : element.childNodes;
+      const children = $isBackend ? element.children : element.childNodes;
       const attrs = {};
-      var elAttrs = isNode ? element.attribs : element.attributes;
+      var elAttrs = $isBackend ? element.attribs : element.attributes;
 
       _.each(elAttrs, function(attr, key) {
-         var name = isNode ? key : attr.nodeName;
+         var name = $isBackend ? key : attr.nodeName;
          var attrDirective = self.directives[name]
-         var stringValue = isNode ? attr : attr.nodeValue;
+         var stringValue = $isBackend ? attr : attr.nodeValue;
 
          attrs[name] = {};
          if (attrDirective) {

@@ -11,9 +11,11 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta name="keywords" content="">
    <meta name="description" content="">
-   <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+   <!-- <script src="/bower_components/jquery/dist/jquery.min.js"></script> -->
 
-   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+   <script src="/bower_components/zepto/zepto.js"></script>
+
+   <!-- <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script> -->
    <script src="/bower_components/lodash/dist/lodash.min.js"></script>
 
    <script src="/bower_components/async-watch/dist/async-watch.js"></script>
@@ -28,7 +30,33 @@
 
 <body >
    <script id="tpl" type="text/template">
-
+      <div>
+         {{name1}}
+      </div>
+      <div>
+         {{name2}}
+      </div>
+      <div>
+         {{name3}}
+      </div>
+      <div>
+         {{name4}}
+      </div>
+      <div>
+         {{name5}}
+      </div>
+      <div>
+         {{name6}}
+      </div>
+      <div>
+         {{name7}}
+      </div>
+      <div>
+         {{name8}}
+      </div>
+      <div>
+         {{name9}}
+      </div>
       <h1>{{user.name}} | {{user.active ? 'active': 'not active'}}</h1>
       <h2>gender: {{user.gender}}</h2>
       <h2>color: {{user.color}}</h2>
@@ -72,12 +100,12 @@
    <script>
 
 
-      realm.require(['wires.compiler.JSONifier', 'wires.core.Schema'], function(ViewCompiler, Schema){
+      realm.require(['wires.compiler.JSONifier', 'wires.core.Schema', 'wires.htmlparser.Parser'], function(ViewCompiler, Schema, Parser){
             //ViewCompiler.htmlString('<div><my-directive></my-directive><h1>Hello {{user.name}}</h1><ul><li>1</li><li></li></ul></div>')
             // console.log()
             //
             $(function(){
-
+               Parser.parse('<div id="test">hello <s>my</s> world</div>');
 
                var Scope = function(){
                   this.hello = 1;
@@ -89,6 +117,16 @@
                   this.testClick = function(event){
 
                   }
+                  var self = this;
+                  var j = 0;
+                  // setInterval(function(){
+                  //    for(var i = 1; i<10;i++){
+                  //
+                  //       self["name" + i] = "hello" + j
+                  //    }
+                  //    self.user.name = "ivan " + j;
+                  //    j++;
+                  // },1000)
                }
                var $scope = new Scope();
                window.scope = $scope;

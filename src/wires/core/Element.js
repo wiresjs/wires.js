@@ -51,7 +51,7 @@ class Element extends Common {
    initialize(parent) {
       var self = this;
       if (!this.schema) {
-         throw "Cannot initialize an element without a schema!"
+         throw "Cannot initialize an element without schema!"
       }
 
       if (!this.controllingDirective) {

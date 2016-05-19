@@ -12,16 +12,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 realm.module("utils.lodash", function () {
-   return $isBackend ? require("lodash") : window._;
+   return isNode ? require("lodash") : window._;
 });
 
 realm.module("utils.Promise", function () {
-   return $isBackend ? require("Promise") : window.Promise;
+   return isNode ? require("Promise") : window.Promise;
 });
-var nodeAsyncLib = $isBackend ? require("async-watch") : undefined;
+var nodeAsyncLib = isNode ? require("async-watch") : undefined;
 
 realm.module("wires.AsyncWatch", function () {
-   return $isBackend ? nodeAsyncLib.AsyncWatch : window.AsyncWatch;
+   return isNode ? nodeAsyncLib.AsyncWatch : window.AsyncWatch;
 });
 
 realm.module("realm", function () {
@@ -29,20 +29,20 @@ realm.module("realm", function () {
 });
 
 realm.module("nodejs.utils.stream", function () {
-   return $isBackend ? require("event-stream") : {};
+   return isNode ? require("event-stream") : {};
 });
 realm.module("nodejs.utils.fs", function () {
-   return $isBackend ? require("fs") : {};
+   return isNode ? require("fs") : {};
 });
 realm.module("nodejs.utils.walk", function () {
-   return $isBackend ? require("walk") : {};
+   return isNode ? require("walk") : {};
 });
 realm.module("nodejs.utils.path", function () {
-   return $isBackend ? require("path") : {};
+   return isNode ? require("path") : {};
 });
 
 realm.module("AsyncTransaction", function () {
-   return $isBackend ? nodeAsyncLib.AsyncTransaction : window.AsyncTransaction;
+   return isNode ? nodeAsyncLib.AsyncTransaction : window.AsyncTransaction;
 });
 
 realm.module("wires.compiler.JSONifier", ["realm", "utils.lodash", "wires.utils.UniversalQuery", "wires.expressions.StringInterpolation", "wires.compiler.Packer", "wires.runtime.Directives"], function (realm, _, UniversalQuery, interpolate, Packer, appDirectives) {
@@ -67,17 +67,17 @@ realm.module("wires.compiler.JSONifier", ["realm", "utils.lodash", "wires.utils.
          value: function createTag(element) {
             var tag = {};
             var self = this;
-            var name = ($isBackend ? element.name : element.nodeName).toLowerCase();
-            //
+            var name = (isNode ? element.name : element.nodeName).toLowerCase();
+
             var directive = this.directives[name];
-            var children = $isBackend ? element.children : element.childNodes;
+            var children = isNode ? element.children : element.childNodes;
             var attrs = {};
-            var elAttrs = $isBackend ? element.attribs : element.attributes;
+            var elAttrs = isNode ? element.attribs : element.attributes;
 
             _.each(elAttrs, function (attr, key) {
-               var name = $isBackend ? key : attr.nodeName;
+               var name = isNode ? key : attr.nodeName;
                var attrDirective = self.directives[name];
-               var stringValue = $isBackend ? attr : attr.nodeValue;
+               var stringValue = isNode ? attr : attr.nodeValue;
 
                attrs[name] = {};
                if (attrDirective) {
@@ -297,244 +297,6 @@ realm.module("wires.compiler.Packer", ["utils.lodash"], function (_) {
    }();
 
    $_exports = Packer;
-
-   return $_exports;
-});
-realm.module("wires.compiler.Parser", ["utils.lodash"], function (_) {
-   var $_exports;
-
-   var Attr = function () {
-      function Attr() {
-         _classCallCheck(this, Attr);
-      }
-
-      _createClass(Attr, [{
-         key: "parse",
-         value: function parse(parser) {}
-      }]);
-
-      return Attr;
-   }();
-
-   var TAG_OPENED = "1";
-   var TAG_CLOSING = "2";
-   var TAG_CLOSED = "3";
-   var TAG_CREATED = "4";
-   var TAG_OPENING = "5";
-   var TAG_TEXT_OPENING = "6";
-   var TAG_TEXT = "7";
-   var TAG_TEXT_END = "8";
-
-   var State = function () {
-      function State() {
-         _classCallCheck(this, State);
-
-         this.$states = new Set();
-         this.$used = new Set();
-      }
-
-      _createClass(State, [{
-         key: "set",
-         value: function set() {
-            for (var i = 0; i < arguments.length; i++) {
-               var name = arguments[i];
-               if (!this.$states.has(name)) {
-                  this.$states.add(name);
-               }
-            }
-         }
-      }, {
-         key: "clean",
-         value: function clean() {
-
-            for (var i = 0; i < arguments.length; i++) {
-               var name = arguments[i];
-               this.$states.delete(name);
-            }
-         }
-      }, {
-         key: "has",
-         value: function has(name) {
-            return this.$states.has(name);
-         }
-      }, {
-         key: "once",
-         value: function once(name) {
-            var valid = this.$states.has(name);
-            if (valid) {
-               this.$states.delete(name);
-            }
-            return valid;
-         }
-      }, {
-         key: "unset",
-         value: function unset() {
-            for (var i = 0; i < arguments.length; i++) {
-               var name = arguments[i];
-               this.$states.delete(name);
-               this.$used.delete(name);
-            }
-         }
-      }]);
-
-      return State;
-   }();
-
-   var Text = function Text(str) {
-      _classCallCheck(this, Text);
-
-      this.str = str;
-   };
-
-   var Tag = function () {
-      function Tag(parent) {
-         _classCallCheck(this, Tag);
-
-         this.parent = parent;
-         this.name;
-         this.children = [];
-         this.raw = "";
-      }
-
-      _createClass(Tag, [{
-         key: "addTag",
-         value: function addTag(tag) {
-            this.children.push(tag);
-         }
-      }, {
-         key: "addText",
-         value: function addText(text) {
-            console.log("add text", text);
-            this.children.push(text);
-         }
-      }, {
-         key: "parse",
-         value: function parse(s) {
-            this.raw += s;
-         }
-      }]);
-
-      return Tag;
-   }();
-
-   var Parser = function () {
-      function Parser(html) {
-         _classCallCheck(this, Parser);
-
-         this.index = -1;
-         this.html = html;
-         this.root = new Tag();
-         this.state = new State();
-      }
-
-      // <div class="hello"></div>
-
-
-      _createClass(Parser, [{
-         key: "isConsuming",
-         value: function isConsuming(s) {
-            var started = false;
-            return this.consuming;
-         }
-      }, {
-         key: "analyze",
-         value: function analyze(i) {
-            var state = this.state;
-
-            if (state.has(TAG_TEXT_OPENING)) {
-               state.set(TAG_TEXT);
-            }
-            state.clean(TAG_CLOSED, TAG_TEXT_END, TAG_TEXT_OPENING);
-
-            if (i === "/") {
-               state.set(TAG_CLOSING);
-               state.unset(TAG_OPENING, TAG_OPENED);
-            }
-
-            if (state.has(TAG_CREATED)) {
-               state.unset(TAG_CREATED);
-               state.set(TAG_OPENED);
-            }
-            if (state.has(TAG_OPENING)) {
-               state.set(TAG_CREATED);
-               state.unset(TAG_OPENING);
-            }
-            if (i === "<") {
-               if (!state.has(TAG_OPENED)) {
-                  state.set(TAG_OPENING);
-               }
-               if (state.has(TAG_TEXT)) {
-                  state.set(TAG_TEXT_END);
-               }
-               state.unset(TAG_TEXT, TAG_TEXT_OPENING);
-            }
-            if (i === ">") {
-               state.set(TAG_TEXT_OPENING);
-               if (state.once(TAG_CLOSING)) {
-                  state.unset(TAG_OPENED);
-                  return state.set(TAG_CLOSED);
-               }
-               if (state.has(TAG_OPENED)) {
-                  state.unset(TAG_OPENED);
-               }
-            }
-         }
-      }, {
-         key: "parse",
-         value: function parse() {
-            var root = new Tag();
-            var text;
-            while (current = this.next()) {
-               this.analyze(current);
-               if (this.state.has(TAG_CREATED)) {
-                  var tag = new Tag(root);
-                  tag.parse(current);
-                  root.addTag(tag);
-                  root = tag;
-               } else if (this.state.has(TAG_OPENED)) {
-                  root.parse(current);
-               } else if (this.state.has(TAG_CLOSED)) {
-                  root = root.parent;
-               } else if (this.state.has(TAG_TEXT)) {
-
-                  text = text || '';
-                  text += current;
-               } else if (this.state.has(TAG_TEXT_END)) {
-                  root.addText(new Text(text));
-                  text = undefined;
-               }
-
-               prev = current;
-            }
-            console.log(root);
-         }
-
-         /**
-          * next - description
-          *
-          * @return {type}  description
-          */
-
-      }, {
-         key: "next",
-         value: function next() {
-            this.index++;
-            if (this.index < this.html.length) {
-               return this.html[this.index];
-            }
-         }
-      }], [{
-         key: "parse",
-         value: function parse(html) {
-            var parser = new Parser(html);
-            parser.parse();
-         }
-      }]);
-
-      return Parser;
-   }();
-
-   $_exports = Parser;
 
    return $_exports;
 });
@@ -890,7 +652,7 @@ realm.module("wires.core.Element", ["wires.core.Attribute", "wires.core.Common",
          value: function initialize(parent) {
             var self = this;
             if (!this.schema) {
-               throw "Cannot initialize an element without schema!";
+               throw "Cannot initialize an element without a schema!";
             }
 
             if (!this.controllingDirective) {
@@ -1311,414 +1073,6 @@ realm.module("wires.core.TextNode", ["wires.expressions.StringInterpolation", "w
    }(Common);
 
    $_exports = TextNode;
-
-   return $_exports;
-});
-realm.module("wires.directives.Click", ["wires.core.Directive"], function (Directive) {
-   var $_exports;
-
-   var Click = function (_Directive) {
-      _inherits(Click, _Directive);
-
-      function Click() {
-         _classCallCheck(this, Click);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Click).apply(this, arguments));
-      }
-
-      _createClass(Click, [{
-         key: "initialize",
-         value: function initialize(attr) {
-
-            var callback = attr.asFunction();
-            var scope = this.element.scope;
-            this.element.bindEvent("click", function () {
-               callback.bind(scope)({
-                  event: event
-               });
-            });
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-click'
-            };
-         }
-      }]);
-
-      return Click;
-   }(Directive);
-
-   $_exports = Click;
-
-   return $_exports;
-});
-realm.module("wires.directives.Conditional", ["wires.core.Directive"], function (Directive) {
-   var $_exports;
-
-   var Conditional = function (_Directive2) {
-      _inherits(Conditional, _Directive2);
-
-      function Conditional() {
-         _classCallCheck(this, Conditional);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Conditional).apply(this, arguments));
-      }
-
-      _createClass(Conditional, [{
-         key: "initialize",
-         value: function initialize(attr) {
-            var self = this;
-            var el = this.element;
-            this.$initialized = false;
-            attr.watchExpression(function (value) {
-               value ? self.createNodes() : self.removeNodes();
-            }, true);
-         }
-      }, {
-         key: "removeNodes",
-         value: function removeNodes() {
-            if (this.clone) {
-               this.clone.remove();
-            }
-         }
-      }, {
-         key: "createNodes",
-         value: function createNodes() {
-            var self = this;
-            this.clone = this.element.clone();
-            this.clone.schema.detachAttribute("ng-if");
-            this.clone.create();
-            this.clone.insertAfter(this.element);
-            this.clone.initialize();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-if',
-               type: 'attribute',
-               attribute: {
-                  placeholder: true
-               }
-            };
-         }
-      }]);
-
-      return Conditional;
-   }(Directive);
-
-   $_exports = Conditional;
-
-   return $_exports;
-});
-realm.module("wires.directives.IncludeView", ["wires.core.Directive", "wires.runtime.Schema"], function (Directive, userSchemas) {
-   var $_exports;
-
-   var IncludeView = function (_Directive3) {
-      _inherits(IncludeView, _Directive3);
-
-      function IncludeView() {
-         _classCallCheck(this, IncludeView);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(IncludeView).apply(this, arguments));
-      }
-
-      _createClass(IncludeView, [{
-         key: "initialize",
-         value: function initialize(attr) {
-
-            var self = this;
-            var el = this.element;
-            this.inflated = false;
-            this.isElementDirective = false;
-            if (!attr) {
-               attr = this.element.attrs["src"];
-               this.isElementDirective = true;
-            }
-            if (!attr) {
-               throw "Directive needs either src attribute or self value!";
-            }
-            if (attr) {
-               attr.watchString(function (fname) {
-                  if (self.inflated) {
-                     self.element.removeChildren();
-                  }
-                  if (userSchemas[fname]) {
-                     self.createSchema(userSchemas[fname]);
-                  }
-               }, true);
-            }
-         }
-      }, {
-         key: "createSchema",
-         value: function createSchema(json) {
-            this.element.inflate(json);
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-include'
-            };
-         }
-      }]);
-
-      return IncludeView;
-   }(Directive);
-
-   $_exports = IncludeView;
-
-   return $_exports;
-});
-realm.module("wires.directives.Model", ["wires.expressions.AngularExpressions", "wires.core.Directive"], function (AngularExpressions, Directive) {
-   var $_exports;
-
-   var Model = function (_Directive4) {
-      _inherits(Model, _Directive4);
-
-      function Model() {
-         _classCallCheck(this, Model);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Model).apply(this, arguments));
-      }
-
-      _createClass(Model, [{
-         key: "initialize",
-         value: function initialize(attr) {
-            var el = this.element.original;
-            var type = "text";
-            var typeAttribute = this.element.attrs["type"];
-            var selfAssign = false;
-            if (typeAttribute) {
-               type = typeAttribute.value[0];
-            }
-            if (el.nodeName.toLowerCase() === "select") {
-               type = "select";
-            }
-
-            attr.watchExpression(function (value) {
-               if (type === "text") {
-                  el.value = value;
-               }
-               if (type === "checkbox") {
-                  el.checked = value;
-               }
-
-               if (type === "select") {
-                  el.value = value;
-               }
-               if (type === "radio") {
-                  if (value === el.value) {
-                     el.checked = true;
-                  }
-               }
-            });
-
-            // Bind events ************************
-            if (type === "text") {
-               this.bindEvent("keyup", function () {
-                  attr.assign(el.value);
-               });
-            }
-            // checkbox
-            if (type === "checkbox") {
-               this.bindEvent("click", function () {
-                  attr.assign(el.checked);
-               });
-            }
-            // select
-            if (type === "select") {
-               this.bindEvent("change", function () {
-                  attr.assign(el.value);
-               });
-            }
-            if (type === "radio") {
-               this.bindEvent("click", function () {
-                  attr.assign(el.value);
-               });
-            }
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-model'
-            };
-         }
-      }]);
-
-      return Model;
-   }(Directive);
-
-   $_exports = Model;
-
-   return $_exports;
-});
-realm.module("wires.directives.MyDirective", ["wires.core.Directive"], function (Directive) {
-   var $_exports;
-
-   var MyDirective = function (_Directive5) {
-      _inherits(MyDirective, _Directive5);
-
-      function MyDirective() {
-         _classCallCheck(this, MyDirective);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(MyDirective).apply(this, arguments));
-      }
-
-      _createClass(MyDirective, [{
-         key: "initialize",
-         value: function initialize() {
-            this.myName = "This is my name";
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'my-directive',
-               schema: 'other/my-directive.html'
-            };
-         }
-      }]);
-
-      return MyDirective;
-   }(Directive);
-
-   $_exports = MyDirective;
-
-   return $_exports;
-});
-realm.module("wires.directives.Show", ["wires.core.Directive"], function (Directive) {
-   var $_exports;
-
-   var Show = function (_Directive6) {
-      _inherits(Show, _Directive6);
-
-      function Show() {
-         _classCallCheck(this, Show);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Show).apply(this, arguments));
-      }
-
-      _createClass(Show, [{
-         key: "initialize",
-         value: function initialize() {
-            var self = this;
-            var el = this.element;
-            var attr = el.attrs['ng-show'];
-
-            attr.watchExpression(function (value, oldValue, changes) {
-               if (value) {
-                  self.show();
-               } else {
-                  self.hide();
-               }
-            }, true);
-         }
-      }, {
-         key: "hide",
-         value: function hide() {
-            this.element.hide();
-         }
-      }, {
-         key: "show",
-         value: function show() {
-            this.element.show();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-show'
-            };
-         }
-      }]);
-
-      return Show;
-   }(Directive);
-
-   $_exports = Show;
-
-   return $_exports;
-});
-realm.module("wires.directives.ToggleClass", ["wires.core.Directive"], function (Directive) {
-   var $_exports;
-
-   var ToggleClass = function (_Directive7) {
-      _inherits(ToggleClass, _Directive7);
-
-      _createClass(ToggleClass, null, [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-class'
-            };
-         }
-      }]);
-
-      function ToggleClass() {
-         _classCallCheck(this, ToggleClass);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(ToggleClass).call(this));
-      }
-
-      _createClass(ToggleClass, [{
-         key: "initialize",
-         value: function initialize($parent, attrs) {}
-      }]);
-
-      return ToggleClass;
-   }(Directive);
-
-   $_exports = ToggleClass;
-
-   return $_exports;
-});
-realm.module("wires.directives.Transclude", ["wires.core.Directive"], function (Directive) {
-   var $_exports;
-
-   var Transclude = function (_Directive8) {
-      _inherits(Transclude, _Directive8);
-
-      function Transclude() {
-         _classCallCheck(this, Transclude);
-
-         return _possibleConstructorReturn(this, Object.getPrototypeOf(Transclude).apply(this, arguments));
-      }
-
-      _createClass(Transclude, [{
-         key: "initialize",
-         value: function initialize() {
-            if (this.element.scope.$$transcluded) {
-               // swap children to transclusion
-               this.element.schema.children = this.element.scope.$$transcluded;
-            }
-         }
-      }, {
-         key: "hide",
-         value: function hide() {
-            this.element.hide();
-         }
-      }, {
-         key: "show",
-         value: function show() {
-            this.element.show();
-         }
-      }], [{
-         key: "compiler",
-         get: function get() {
-            return {
-               name: 'ng-transclude'
-            };
-         }
-      }]);
-
-      return Transclude;
-   }(Directive);
-
-   $_exports = Transclude;
 
    return $_exports;
 });
@@ -3002,381 +2356,411 @@ realm.module("wires.expressions.WatchBatch", ["utils.lodash", "wires.AsyncWatch"
 
    return $_exports;
 });
-realm.module("wires.htmlparser.Parser", ["utils.lodash", "wires.htmlparser.TagAnalyzer", "wires.htmlparser.Tag", "wires.htmlparser.Text"], function (_, TagAnalyzer, Tag, Text) {
+realm.module("wires.directives.Click", ["wires.core.Directive"], function (Directive) {
    var $_exports;
 
-   var Parser = function () {
-      function Parser() {
-         _classCallCheck(this, Parser);
+   var Click = function (_Directive) {
+      _inherits(Click, _Directive);
+
+      function Click() {
+         _classCallCheck(this, Click);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Click).apply(this, arguments));
       }
 
-      _createClass(Parser, null, [{
-         key: "parse",
+      _createClass(Click, [{
+         key: "initialize",
+         value: function initialize(attr) {
 
-
-         /**
-          * parse  parses html into an object with "root" and children
-          *
-          *    <div id="test">hello <s>my</s> world</div>'
-          *
-          * will give a structure
-          *    Tag (test)
-          *       children:
-          *          Text "hello "
-          *          Tag (s)
-          *             children:
-          *                Text "my"
-          *          Text " world"
-          * @param  {type} html description
-          * @return {type}      description
-          */
-         value: function parse(html) {
-            var analyzer = new TagAnalyzer();
-            var root = new Tag();
-            var text;
-            for (var i = 0; i < html.length; i++) {
-               var symbol = html[i];
-               analyzer.analyze(symbol);
-               if (analyzer.isCreated()) {
-                  var tag = new Tag(root);
-                  tag.parse(symbol);
-                  root.addTag(tag);
-                  root = tag;
-               } else if (analyzer.isOpened()) {
-                  root.parse(symbol);
-               } else if (analyzer.isClosed()) {
-                  root = root.parent;
-               } else if (analyzer.isText()) {
-                  text = text || '';
-                  text += symbol;
-               } else if (analyzer.isTextEnd()) {
-                  root.addText(new Text(text));
-                  text = undefined;
-               }
-            }
-            console.log(root);
+            var callback = attr.asFunction();
+            var scope = this.element.scope;
+            this.element.bindEvent("click", function () {
+               callback.bind(scope)({
+                  event: event
+               });
+            });
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-click'
+            };
          }
       }]);
 
-      return Parser;
-   }();
+      return Click;
+   }(Directive);
 
-   $_exports = Parser;
+   $_exports = Click;
 
    return $_exports;
 });
-realm.module("wires.htmlparser.State", [], function () {
+realm.module("wires.directives.Conditional", ["wires.core.Directive"], function (Directive) {
    var $_exports;
 
-   var State = function () {
-      function State() {
-         _classCallCheck(this, State);
+   var Conditional = function (_Directive2) {
+      _inherits(Conditional, _Directive2);
 
-         this.$states = new Set();
+      function Conditional() {
+         _classCallCheck(this, Conditional);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Conditional).apply(this, arguments));
       }
 
-      /**
-       * set - description
-       *
-       * @return {type}  description
-       */
-
-
-      _createClass(State, [{
-         key: "set",
-         value: function set() {
-            for (var i = 0; i < arguments.length; i++) {
-               var name = arguments[i];
-               if (!this.$states.has(name)) {
-                  this.$states.add(name);
+      _createClass(Conditional, [{
+         key: "initialize",
+         value: function initialize(attr) {
+            var self = this;
+            var el = this.element;
+            this.$initialized = false;
+            attr.watchExpression(function (value) {
+               value ? self.createNodes() : self.removeNodes();
+            }, true);
+         }
+      }, {
+         key: "removeNodes",
+         value: function removeNodes() {
+            if (this.clone) {
+               this.clone.remove();
+            }
+         }
+      }, {
+         key: "createNodes",
+         value: function createNodes() {
+            var self = this;
+            this.clone = this.element.clone();
+            this.clone.schema.detachAttribute("ng-if");
+            this.clone.create();
+            this.clone.insertAfter(this.element);
+            this.clone.initialize();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-if',
+               type: 'attribute',
+               attribute: {
+                  placeholder: true
                }
-            }
-         }
-
-         /**
-          * clean - description
-          *
-          * @return {type}  description
-          */
-
-      }, {
-         key: "clean",
-         value: function clean() {
-            for (var i = 0; i < arguments.length; i++) {
-               var name = arguments[i];
-               this.$states.delete(name);
-            }
-         }
-
-         /**
-          * has - description
-          *
-          * @param  {type} name description
-          * @return {type}      description
-          */
-
-      }, {
-         key: "has",
-         value: function has(name) {
-            return this.$states.has(name);
-         }
-
-         /**
-          * once - description
-          *
-          * @param  {type} name description
-          * @return {type}      description
-          */
-
-      }, {
-         key: "once",
-         value: function once(name) {
-            var valid = this.$states.has(name);
-            if (valid) {
-               this.$states.delete(name);
-            }
-            return valid;
-         }
-
-         /**
-          * unset - description
-          *
-          * @return {type}  description
-          */
-
-      }, {
-         key: "unset",
-         value: function unset() {
-            for (var i = 0; i < arguments.length; i++) {
-               var name = arguments[i];
-               this.$states.delete(name);
-            }
+            };
          }
       }]);
 
-      return State;
-   }();
+      return Conditional;
+   }(Directive);
 
-   $_exports = State;
+   $_exports = Conditional;
 
    return $_exports;
 });
-realm.module("wires.htmlparser.Tag", [], function () {
+realm.module("wires.directives.IncludeView", ["wires.core.Directive", "wires.runtime.Schema"], function (Directive, userSchemas) {
    var $_exports;
 
-   var Tag = function () {
-      function Tag(parent) {
-         _classCallCheck(this, Tag);
+   var IncludeView = function (_Directive3) {
+      _inherits(IncludeView, _Directive3);
 
-         this.parent = parent;
-         this.name;
-         this.children = [];
-         this.raw = "";
+      function IncludeView() {
+         _classCallCheck(this, IncludeView);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(IncludeView).apply(this, arguments));
       }
 
-      /**
-       * addTag - adds a "Tag" instance to children
-       *
-       * @param  {type} tag description
-       * @return {type}     description
-       */
+      _createClass(IncludeView, [{
+         key: "initialize",
+         value: function initialize(attr) {
 
-
-      _createClass(Tag, [{
-         key: "addTag",
-         value: function addTag(tag) {
-            this.children.push(tag);
+            var self = this;
+            var el = this.element;
+            this.inflated = false;
+            this.isElementDirective = false;
+            if (!attr) {
+               attr = this.element.attrs["src"];
+               this.isElementDirective = true;
+            }
+            if (!attr) {
+               throw "Directive needs either src attribute or self value!";
+            }
+            if (attr) {
+               attr.watchString(function (fname) {
+                  if (self.inflated) {
+                     self.element.removeChildren();
+                  }
+                  if (userSchemas[fname]) {
+                     self.createSchema(userSchemas[fname]);
+                  }
+               }, true);
+            }
          }
-
-         /**
-          * addText - adds "text" instance to children
-          *
-          * @param  {type} text description
-          * @return {type}      description
-          */
-
       }, {
-         key: "addText",
-         value: function addText(text) {
-            this.children.push(text);
+         key: "createSchema",
+         value: function createSchema(json) {
+            this.element.inflate(json);
          }
-
-         /**
-          * parse - accepts characters   
-          *
-          * @param  {type} s description
-          * @return {type}   description
-          */
-
-      }, {
-         key: "parse",
-         value: function parse(s) {
-            this.raw += s;
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-include'
+            };
          }
       }]);
 
-      return Tag;
-   }();
+      return IncludeView;
+   }(Directive);
 
-   $_exports = Tag;
+   $_exports = IncludeView;
 
    return $_exports;
 });
-realm.module("wires.htmlparser.TagAnalyzer", ["wires.htmlparser.State"], function (State) {
+realm.module("wires.directives.Model", ["wires.expressions.AngularExpressions", "wires.core.Directive"], function (AngularExpressions, Directive) {
    var $_exports;
 
-   var TAG_OPENED = "1";
-   var TAG_CLOSING = "2";
-   var TAG_CLOSED = "3";
-   var TAG_CREATED = "4";
-   var TAG_OPENING = "5";
-   var TAG_TEXT_OPENING = "6";
-   var TAG_TEXT = "7";
-   var TAG_TEXT_END = "8";
+   var Model = function (_Directive4) {
+      _inherits(Model, _Directive4);
 
-   var TagAnalyzer = function () {
-      function TagAnalyzer() {
-         _classCallCheck(this, TagAnalyzer);
+      function Model() {
+         _classCallCheck(this, Model);
 
-         this.state = new State();
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Model).apply(this, arguments));
       }
 
-      /**
-       * isCreated - returns true or false based on it tag has been just created
-       * Triggers only once
-       *
-       * @return {type}  description
-       */
-
-
-      _createClass(TagAnalyzer, [{
-         key: "isCreated",
-         value: function isCreated() {
-            return this.state.has(TAG_CREATED);
-         }
-
-         /**
-          * isOpened - if a tag has been opened (meaning that everything beetween <> will get there)
-          *
-          * @return {type}  description
-          */
-
-      }, {
-         key: "isOpened",
-         value: function isOpened() {
-            return this.state.has(TAG_OPENED);
-         }
-
-         /**
-          * isClosed - when a tag is closed
-          *
-          * @return {type}  description
-          */
-
-      }, {
-         key: "isClosed",
-         value: function isClosed() {
-            return this.state.has(TAG_CLOSED);
-         }
-
-         /**
-          * isText - if text can be consumed
-          *
-          * @return {type}  description
-          */
-
-      }, {
-         key: "isText",
-         value: function isText() {
-            return this.state.has(TAG_TEXT);
-         }
-
-         /**
-          * isTextEnd - when text consuming should be ended
-          *
-          * @return {type}  description
-          */
-
-      }, {
-         key: "isTextEnd",
-         value: function isTextEnd() {
-            return this.state.has(TAG_TEXT_END);
-         }
-
-         /**
-          * analyze - analyzer, set states based on known/existing states
-          *
-          *
-          * @param  {type} i description
-          * @return {type}   description
-          */
-
-      }, {
-         key: "analyze",
-         value: function analyze(i) {
-            var state = this.state;
-
-            if (state.has(TAG_TEXT_OPENING)) {
-               state.set(TAG_TEXT);
+      _createClass(Model, [{
+         key: "initialize",
+         value: function initialize(attr) {
+            var el = this.element.original;
+            var type = "text";
+            var typeAttribute = this.element.attrs["type"];
+            var selfAssign = false;
+            if (typeAttribute) {
+               type = typeAttribute.value[0];
             }
-            state.clean(TAG_CLOSED, TAG_TEXT_END, TAG_TEXT_OPENING);
-
-            if (i === "/") {
-               state.set(TAG_CLOSING);
-               state.unset(TAG_OPENING, TAG_OPENED);
+            if (el.nodeName.toLowerCase() === "select") {
+               type = "select";
             }
 
-            if (state.has(TAG_CREATED)) {
-               state.unset(TAG_CREATED);
-               state.set(TAG_OPENED);
-            }
-            if (state.has(TAG_OPENING)) {
-               state.set(TAG_CREATED);
-               state.unset(TAG_OPENING);
-            }
-            if (i === "<") {
-               if (!state.has(TAG_OPENED)) {
-                  state.set(TAG_OPENING);
+            attr.watchExpression(function (value) {
+               if (type === "text") {
+                  el.value = value;
                }
-               if (state.has(TAG_TEXT)) {
-                  state.set(TAG_TEXT_END);
+               if (type === "checkbox") {
+                  el.checked = value;
                }
-               state.unset(TAG_TEXT, TAG_TEXT_OPENING);
+
+               if (type === "select") {
+                  el.value = value;
+               }
+               if (type === "radio") {
+                  if (value === el.value) {
+                     el.checked = true;
+                  }
+               }
+            });
+
+            // Bind events ************************
+            if (type === "text") {
+               this.bindEvent("keyup", function () {
+                  attr.assign(el.value);
+               });
             }
-            if (i === ">") {
-               state.set(TAG_TEXT_OPENING);
-               if (state.once(TAG_CLOSING)) {
-                  state.unset(TAG_OPENED);
-                  return state.set(TAG_CLOSED);
-               }
-               if (state.has(TAG_OPENED)) {
-                  state.unset(TAG_OPENED);
-               }
+            // checkbox
+            if (type === "checkbox") {
+               this.bindEvent("click", function () {
+                  attr.assign(el.checked);
+               });
             }
+            // select
+            if (type === "select") {
+               this.bindEvent("change", function () {
+                  attr.assign(el.value);
+               });
+            }
+            if (type === "radio") {
+               this.bindEvent("click", function () {
+                  attr.assign(el.value);
+               });
+            }
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-model'
+            };
          }
       }]);
 
-      return TagAnalyzer;
-   }();
+      return Model;
+   }(Directive);
 
-   $_exports = TagAnalyzer;
+   $_exports = Model;
 
    return $_exports;
 });
-realm.module("wires.htmlparser.Text", [], function () {
+realm.module("wires.directives.MyDirective", ["wires.core.Directive"], function (Directive) {
    var $_exports;
 
-   /**
-    * Just Text
-    */
+   var MyDirective = function (_Directive5) {
+      _inherits(MyDirective, _Directive5);
 
-   var Text = function Text(str) {
-      _classCallCheck(this, Text);
+      function MyDirective() {
+         _classCallCheck(this, MyDirective);
 
-      this.str = str;
-   };
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(MyDirective).apply(this, arguments));
+      }
 
-   $_exports = Text;
+      _createClass(MyDirective, [{
+         key: "initialize",
+         value: function initialize() {
+            this.myName = "This is my name";
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'my-directive',
+               schema: 'other/my-directive.html'
+            };
+         }
+      }]);
+
+      return MyDirective;
+   }(Directive);
+
+   $_exports = MyDirective;
+
+   return $_exports;
+});
+realm.module("wires.directives.Show", ["wires.core.Directive"], function (Directive) {
+   var $_exports;
+
+   var Show = function (_Directive6) {
+      _inherits(Show, _Directive6);
+
+      function Show() {
+         _classCallCheck(this, Show);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Show).apply(this, arguments));
+      }
+
+      _createClass(Show, [{
+         key: "initialize",
+         value: function initialize() {
+            var self = this;
+            var el = this.element;
+            var attr = el.attrs['ng-show'];
+
+            attr.watchExpression(function (value, oldValue, changes) {
+               if (value) {
+                  self.show();
+               } else {
+                  self.hide();
+               }
+            }, true);
+         }
+      }, {
+         key: "hide",
+         value: function hide() {
+            this.element.hide();
+         }
+      }, {
+         key: "show",
+         value: function show() {
+            this.element.show();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-show'
+            };
+         }
+      }]);
+
+      return Show;
+   }(Directive);
+
+   $_exports = Show;
+
+   return $_exports;
+});
+realm.module("wires.directives.ToggleClass", ["wires.core.Directive"], function (Directive) {
+   var $_exports;
+
+   var ToggleClass = function (_Directive7) {
+      _inherits(ToggleClass, _Directive7);
+
+      _createClass(ToggleClass, null, [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-class'
+            };
+         }
+      }]);
+
+      function ToggleClass() {
+         _classCallCheck(this, ToggleClass);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(ToggleClass).call(this));
+      }
+
+      _createClass(ToggleClass, [{
+         key: "initialize",
+         value: function initialize($parent, attrs) {}
+      }]);
+
+      return ToggleClass;
+   }(Directive);
+
+   $_exports = ToggleClass;
+
+   return $_exports;
+});
+realm.module("wires.directives.Transclude", ["wires.core.Directive"], function (Directive) {
+   var $_exports;
+
+   var Transclude = function (_Directive8) {
+      _inherits(Transclude, _Directive8);
+
+      function Transclude() {
+         _classCallCheck(this, Transclude);
+
+         return _possibleConstructorReturn(this, Object.getPrototypeOf(Transclude).apply(this, arguments));
+      }
+
+      _createClass(Transclude, [{
+         key: "initialize",
+         value: function initialize() {
+            if (this.element.scope.$$transcluded) {
+               // swap children to transclusion
+               this.element.schema.children = this.element.scope.$$transcluded;
+            }
+         }
+      }, {
+         key: "hide",
+         value: function hide() {
+            this.element.hide();
+         }
+      }, {
+         key: "show",
+         value: function show() {
+            this.element.show();
+         }
+      }], [{
+         key: "compiler",
+         get: function get() {
+            return {
+               name: 'ng-transclude'
+            };
+         }
+      }]);
+
+      return Transclude;
+   }(Directive);
+
+   $_exports = Transclude;
 
    return $_exports;
 });
@@ -3545,7 +2929,7 @@ realm.module("wires.utils.UniversalQuery", [], function () {
          key: "init",
          value: function init(html) {
             html = "<div>" + html + "</div>";
-            if ($isBackend) {
+            if (isNode) {
                var cheerio = require("cheerio");
                var $ = cheerio.load(html);
                return $("div").first();
@@ -3554,7 +2938,7 @@ realm.module("wires.utils.UniversalQuery", [], function () {
                console.error("jQuery or Zepto is required!");
             }
 
-            var first = window.$("<div>" + html + "</div>").find("div").first();
+            //var first = window.$("<div>" + html + "</div>").find("div").first();
 
             return first;
          }
