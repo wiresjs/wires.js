@@ -23,40 +23,23 @@
    <script src="/views.js"></script>
 
 
-   <script src="/build.js"></script>
+   <script src="/universal.js"></script>
 
 
 </head>
 
 <body >
-   <script id="tpl" type="text/template">
+   <script id="tpl2" type="text/template">
       <div>
-         {{name1}}
+         some text {{user.name}}
       </div>
       <div>
          {{name2}}
       </div>
-      <div>
-         {{name3}}
-      </div>
-      <div>
-         {{name4}}
-      </div>
-      <div>
-         {{name5}}
-      </div>
-      <div>
-         {{name6}}
-      </div>
-      <div>
-         {{name7}}
-      </div>
-      <div>
-         {{name8}}
-      </div>
-      <div>
-         {{name9}}
-      </div>
+   </script>
+   <script id="tpl" type="text/template">
+      <h1>Hello</h1>
+         <hr>
       <h1>{{user.name}} | {{user.active ? 'active': 'not active'}}</h1>
       <h2>gender: {{user.gender}}</h2>
       <h2>color: {{user.color}}</h2>
@@ -65,29 +48,23 @@
       <input type="checkbox" ng-model="user.active" />
       <br />
       <label for="singleSelect"> Single select: </label>
-
-      <br>
-
-  <select name="singleSelect" ng-model="user.gender">
-     <option checked value="male">male</option>
-     <option value="female">female</option>
-  </select>
-  <input type="button" value="set male" ng-click="user.gender = 'male';testClick(event, this)" />
-
-  <br>
-
-  <hr />
-
+     <select name="singleSelect" ng-model="user.gender">
+        <option checked value="male">male</option>
+        <option value="female">female</option>
+     </select>
+     <input type="button" value="set male" ng-click="user.gender = 'male';testClick(event, this)" />
+     <br>
+     <hr>
   <label>
-  <input type="radio" name="color" ng-model="user.color" value="red">
+  <input type="radio" name="color" ng-model="user.color" value="red"/>
   Red
 </label><br/>
 <label>
-  <input type="radio" name="color" ng-model="user.color" value="green">
+  <input type="radio" name="color" ng-model="user.color" value="green"/>
   Green
 </label><br/>
 <label>
-  <input type="radio" name="color" ng-model="user.color" value="blue">
+  <input type="radio" name="color" ng-model="user.color" value="blue"/>
   Blue
 </label><br/>
 <input type="button" value="set red color" ng-click="user.color = 'red'" />
@@ -114,19 +91,6 @@
                      name : "ivan",
                      color: "blue"
                   }
-                  this.testClick = function(event){
-
-                  }
-                  var self = this;
-                  var j = 0;
-                  // setInterval(function(){
-                  //    for(var i = 1; i<10;i++){
-                  //
-                  //       self["name" + i] = "hello" + j
-                  //    }
-                  //    self.user.name = "ivan " + j;
-                  //    j++;
-                  // },1000)
                }
                var $scope = new Scope();
                window.scope = $scope;

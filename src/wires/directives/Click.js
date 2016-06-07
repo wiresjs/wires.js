@@ -19,4 +19,5 @@ class Click extends Directive {
       });
    }
 }
+
 export Click;

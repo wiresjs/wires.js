@@ -3,7 +3,7 @@ realm.module("utils.lodash", function() {
 });
 
 realm.module("utils.Promise", function() {
-   return $isBackend ? require("Promise") : window.Promise;
+   return $isBackend ? Promise : window.Promise;
 });
 var nodeAsyncLib = $isBackend ? require("async-watch") : undefined;
 

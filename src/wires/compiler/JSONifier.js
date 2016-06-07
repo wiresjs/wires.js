@@ -2,10 +2,11 @@
 
 import realm
 import lodash as _ from utils;
-import UniversalQuery from wires.utils;
+
 import StringInterpolation as interpolate from wires.expressions;
 import Packer from wires.compiler;
 import Directives as appDirectives from wires.runtime;
+import Parser from wires.htmlparser;
 
 /**
  * ViewCompiler
@@ -13,33 +14,32 @@ import Directives as appDirectives from wires.runtime;
  * Precompiles string templates (makes it easier for watchers)
  */
 class JSONifier {
-   constructor(directives) {
+   constructor(directives, elements) {
       this.directives = directives;
+      this.elements = elements;
       this.json = [];
    }
 
+   getResult() {
+      return this.iterateChildren(this.elements)
+   }
+
    createTag(element) {
-      const tag = {};
-      const self = this;
-      var name = ($isBackend ? element.name : element.nodeName).toLowerCase()
-         //
-      const directive = this.directives[name];
-      const children = $isBackend ? element.children : element.childNodes;
-      const attrs = {};
-      var elAttrs = $isBackend ? element.attribs : element.attributes;
-
-      _.each(elAttrs, function(attr, key) {
-         var name = $isBackend ? key : attr.nodeName;
+      var tag = {};
+      var self = this;
+      var name = element.name;
+      var directive = this.directives[name];
+      var children = element.children;
+      var attrs = {};
+      _.each(element.attrs, function(value, name) {
          var attrDirective = self.directives[name]
-         var stringValue = $isBackend ? attr : attr.nodeValue;
-
          attrs[name] = {};
          if (attrDirective) {
-            attrs[name].value = stringValue;
+            attrs[name].value = value;
             attrs[name].requires = attrDirective.path;
          } else {
             attrs[name] = {
-               value: interpolate.parse(stringValue),
+               value: interpolate.parse(value),
             }
          }
       });
@@ -52,11 +52,13 @@ class JSONifier {
       } else {
          tag.name = name;
       }
-      tag.children = children.length ? this.iterateChildren(children) : [];
+      tag.children = children && children.length ? this.iterateChildren(children) : [];
+
       return Packer.pack(tag);
    }
    createText(element) {
-      var text = element.data || element.nodeValue;
+      var text = element.value;
+
       if (text && !text.match(/^\s*$/g)) {
          return Packer.pack({
             type: "text",
@@ -71,14 +73,13 @@ class JSONifier {
     * @return {type}  description
     */
    iterateChildren(children) {
-      const result = [];
-      const self = this;
+      var result = [];
+      var self = this;
 
       _.each(children, function(element) {
 
-         var isTag = element.type === "tag" || element.nodeType == 1;
-         var isText = element.type === "text" || element.nodeType == 3;
-
+         var isTag = element.type === "tag"
+         var isText = element.type === "text";
          if (isTag) {
             result.push(self.createTag(element));
          }
@@ -87,7 +88,6 @@ class JSONifier {
             if (t) {
                result.push(t);
             }
-
          }
       });
       return result;
@@ -108,9 +108,10 @@ class JSONifier {
             path: path
          }
       });
-      var $ = UniversalQuery.init(html);
-      const compiler = new JSONifier(directives);
-      const result = compiler.iterateChildren($[0].childNodes);
+      var elements = Parser.parse(html, true);
+      const compiler = new JSONifier(directives, elements);
+      const result = compiler.getResult();
+
       return result;
    }
 }

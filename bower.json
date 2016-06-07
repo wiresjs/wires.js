@@ -18,7 +18,7 @@
     "tests"
   ],
   "dependencies": {
-    "async-watch": "1.1.16",
+    "async-watch": "^1.1.17",
     "jquery": "^2.2.3",
     "lodash": "^4.11.2",
     "zepto": "^1.1.6"

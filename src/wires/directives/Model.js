@@ -10,6 +10,7 @@ class Model extends Directive {
       }
    }
    initialize(attr) {
+
       var el = this.element.original;
       var type = "text";
       var typeAttribute = this.element.attrs["type"];

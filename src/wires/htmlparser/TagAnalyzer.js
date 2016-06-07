@@ -10,6 +10,7 @@ const TAG_OPENING = "5";
 const TAG_TEXT_OPENING = "6";
 const TAG_TEXT = "7";
 const TAG_TEXT_END = "8";
+const TAG_CONSUMED = "9";
 
 class TagAnalyzer {
    constructor() {
@@ -53,6 +54,10 @@ class TagAnalyzer {
       return this.state.has(TAG_TEXT);
    }
 
+   isConsumed() {
+      return this.state.has(TAG_CONSUMED);
+   }
+
    /**
     * isTextEnd - when text consuming should be ended
     *
@@ -62,6 +67,11 @@ class TagAnalyzer {
       return this.state.has(TAG_TEXT_END);
    }
 
+   closeTag() {
+      this.state.unset(TAG_OPENING, TAG_OPENED, TAG_OPENED);
+      this.state.set(TAG_CONSUMED);
+   }
+
    /**
     * analyze - analyzer, set states based on known/existing states
     *
@@ -69,13 +79,22 @@ class TagAnalyzer {
     * @param  {type} i description
     * @return {type}   description
     */
-   analyze(i) {
+   analyze(i, last) {
       var state = this.state;
-
+      // if (last) {
+      //    if (state.has(TAG_OPENED)) {
+      //       state.unset(TAG_OPENED)
+      //       state.set(TAG_CLOSED)
+      //    }
+      //    if (state.has(TAG_TEXT)) {
+      //       state.set(TAG_TEXT_END)
+      //    }
+      //    return this;;
+      // }
       if (state.has(TAG_TEXT_OPENING)) {
          state.set(TAG_TEXT);
       }
-      state.clean(TAG_CLOSED, TAG_TEXT_END, TAG_TEXT_OPENING);
+      state.clean(TAG_CLOSED, TAG_TEXT_END, TAG_TEXT_OPENING, TAG_CONSUMED);
 
       if (i === "/") {
          state.set(TAG_CLOSING);
@@ -99,11 +118,14 @@ class TagAnalyzer {
          }
          state.unset(TAG_TEXT, TAG_TEXT_OPENING);
       }
+
       if (i === ">") {
          state.set(TAG_TEXT_OPENING);
          if (state.once(TAG_CLOSING)) {
             state.unset(TAG_OPENED);
             return state.set(TAG_CLOSED)
+         } else {
+            state.set(TAG_CONSUMED)
          }
          if (state.has(TAG_OPENED)) {
             state.unset(TAG_OPENED)
