@@ -175,6 +175,19 @@ describe('HTMLparser', function() {
 
    });
 
+   it('Should parse attributes correctly', function() {
+
+      var data = Parser.parse('<a ws-link="/user/profile"></a>', true);
+      data.should.deepEqual([{
+         type: 'tag',
+         attrs: {
+            'ws-link': '/user/profile'
+         },
+         name: 'a',
+         children: []
+      }])
+
+   });
    // it('Should close the latest tag is not closed', function() {
    //
    //    var data = Parser.parse('<h1><div>sdff<h2>ss</div>', true);

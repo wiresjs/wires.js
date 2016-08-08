@@ -96,7 +96,7 @@ class TagAnalyzer {
       }
       state.clean(TAG_CLOSED, TAG_TEXT_END, TAG_TEXT_OPENING, TAG_CONSUMED);
 
-      if (i === "/") {
+      if (i === "/" && state.has(TAG_OPENING)) {
          state.set(TAG_CLOSING);
          state.unset(TAG_OPENING, TAG_OPENED)
       }

@@ -20,7 +20,9 @@
     "async-watch": "^1.1.13",
     "event-stream": "^3.3.2",
     "lodash": "^3.10.0",
-    "realm-js": "^1.1.84",
+    "realm-js": "^1.1.89",
+    "realm-router": "^1.1.24",
+    "realm-server": "^1.0.3",
     "require-all": "^2.0.0",
     "tosource": "^0.1.3",
     "walk": "^2.3.9"

@@ -5,4 +5,4 @@ require("./build/backend.js");
 require("./build/universal.js");
 require("./build/app/backend.js")
 require("./build/app/universal.js")
-realm.start('app.Server');
+realm.start('app.TestInflate');

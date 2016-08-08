@@ -24,9 +24,11 @@ class SchemaGenerator {
 
    static compact(dir, _package, dest) {
       return new Promise(function(resolve, reject) {
+
          SchemaGenerator.getJavascript(dir, _package).then(function(js) {
             fs.writeFileSync(dest, js);
-         });
+            console.log('here is good')
+         }).catch(reject).then(resolve)
       })
    }
 
@@ -41,7 +43,7 @@ class SchemaGenerator {
 
    static getJavascript(dir, _package) {
       return SchemaGenerator.service(dir, _package).then(function(contents) {
-         return realm.transpiler.wrap(contents);
+         return realm.transpiler2.wrapContents(contents);
       });
    }
 

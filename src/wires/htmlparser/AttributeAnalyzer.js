@@ -60,6 +60,7 @@ class AttributeAnalyzer {
       }
       if (state.has(ATTR_VALUE_CONSUMING)) {
          if (i === "\\") {
+
             state.unset(ATTR_VALUE_CONSUMING)
             state.set(ATTR_VALUE_PAUSED)
          }
@@ -76,7 +77,9 @@ class AttributeAnalyzer {
       }
 
       if (state.has(ATTR_VALUE_STARTING)) {
+
          state.unset(ATTR_VALUE_STARTING);
+
          state.set(ATTR_VALUE_CONSUMING)
       }
 
@@ -88,8 +91,10 @@ class AttributeAnalyzer {
          } else {
             if (state.has(ATTR_VALUE_MIGHT_START)) {
                if (i === "'" || i === '"') {
+
                   this.quote = i;
                   state.unset(ATTR_VALUE_PENDING, ATTR_VALUE_MIGHT_START);
+
                   state.set(ATTR_VALUE_STARTING)
                }
             }

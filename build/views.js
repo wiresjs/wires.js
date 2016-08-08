@@ -1,18 +1,13 @@
-(function(isNode, realm) {
+(function(___scope___) { "use strict"; var $isBackend = ___scope___.isNode; var realm  = ___scope___.realm;
+
 realm.module("wires.schema.test", function(){
 	return {
-	  "hello.html":[[1,["MUKKA\n"]],[0,0,"section",[],[[1,["\nHello.html\n"]]]]],
-	  "tests/watchers/index.html":[[0,0,"div",[["id",["a"]]],[[1,[{"e":"user.name","v":{"user.name":{}}}]]]],[0,0,"div",[["id",["b"]]],[[1,["Hello ",{"e":"user.name","v":{"user.name":{}}}," ",{"e":"user.age","v":{"user.age":{}}}]]]]],
-	  "tests/show/index.html":[[0,0,"div",[["id",["a"]],["ng-show","index > 5","wires.directives.Show"]],[]]],
-	  "tests/include/include.html":[[0,0,"div",[],[[0,0,"div",[["id",["a"]],["ng-include","tests/include/partial.html","wires.directives.IncludeView"]],[]]]],[0,0,"div",[],[[2,"wires.directives.IncludeView","ng-include",[["id",["b"]],["src",["tests/include/partial.html"]]],[]]]],[0,0,"div",[],[[2,"wires.directives.IncludeView","ng-include",[["id",["c"]],["ng-if","hello === 1","wires.directives.Conditional"],["src",["tests/include/partial.html"]]],[]]]],[0,0,"div",[],[[2,"wires.directives.IncludeView","ng-include",[["id",["d"]],["ng-if","hello === 0","wires.directives.Conditional"],["src",["tests/include/partial.html"]]],[]]]]],
-	  "tests/include/partial.html":[[0,0,"h1",[],[[1,["Hello World"]]]]],
-	  "tests/include/partial2.html":[[0,0,"div",[],[[1,["\n   Hello from partial2.html\n"]]]],[0,0,"section",[["ng-transclude","1","wires.directives.Transclude"]],[]]],
-	  "tests/directives/index.html":[[0,0,"div",[],[[2,"wires.directives.MyDirective","my-directive",[["id",["a"]]],[]]]],[0,0,"div",[],[[2,"wires.directives.MyDirective","my-directive",[["id",["b"]]],[[0,0,"h1",[],[[1,["transcluded element"]]]]]]]],[0,0,"div",[],[[2,"wires.directives.MyDirective","my-directive",[["ng-if","hello === 0","wires.directives.Conditional"],["id",["c"]]],[[0,0,"h1",[],[[1,["transcluded element"]]]]]]]]],
-	  "tests/conditions/index.html":[[0,0,"div",[],[[0,0,"h1",[["id",["c"]],["ng-if","user.age > 50","wires.directives.Conditional"]],[[1,[{"e":"user.name","v":{"user.name":{}}}," is ",{"e":"user.age","v":{"user.age":{}}}]]]],[0,0,"h1",[],[[1,["Hello with name ",{"e":"user.name","v":{"user.name":{}}}]]]]]]],
-	  "tests/attributes/index.html":[[0,0,"div",[["id",["a"]],["ng-show","1==1","wires.directives.Show"],["style",["color:red"]]],[[0,0,"div",[["id",["b"]],["ng-if","index >= 1","wires.directives.Conditional"],["style",["color:blue"]]],[[0,0,"div",[["id",["c"]],["style",["left:",{"e":"index","v":{"index":{}}},"px"]]],[]]]]]]],
-	  "other/my-directive.html":[[0,0,"div",[],[[0,0,"span",[],[[1,["Hello from directive"]]]],[0,0,"div",[["ng-transclude","","wires.directives.Transclude"]],[]]]]],
-	  "other/pukka.html":[[1,["Pukka!\n"]],[0,0,"h3",[],[[1,["I am pukka"]]]],[0,0,"div",[["style",["margin-left:50px;"]],["ng-include","other/sukka.html","wires.directives.IncludeView"]],[]]],
-	  "other/sukka.html":[[0,0,"h1",[],[[1,["Hello Sukka"]]]]]
+	  "index.html":[[0,0,"div",[["class",["base"]]],[[0,0,"h1",[],[[1,["Hello World"]]]],[0,0,"div",[],[[1,["\n      my name is ",{"e":"name","v":{"name":{}}},"\n   "]]]],[0,0,"hr",[],[]],[0,0,"div",[],[[0,0,"div",[],[[0,0,"a",[["ws-link","/user","wires.directives.WsLink"]],[[1,["user"]]]]]],[0,0,"div",[],[[0,0,"a",[["ws-link","/user/one","wires.directives.WsLink"]],[[1,["jump to user one"]]]]]],[0,0,"div",[],[[0,0,"a",[["ws-link","/profile","wires.directives.WsLink"]],[[1,["profile"]]]]]]]],[0,0,"input",[["type",["text"]],["ng-model","name","wires.directives.Model"]],[]],[0,0,"div",[["ws-route","i","wires.directives.WsRoute"],["style",["border:1px solid red;padding:10px"]]],[]]]]],
+	  "profile.html":[[0,0,"h1",[],[[1,["Some profile data here"]]]]],
+	  "user.html":[[0,0,"div",[],[[1,["\n   i am user ",{"e":"name","v":{"name":{}}},"\n\n   "]],[0,0,"table",[["width",["100%"]]],[[0,0,"tr",[],[[0,0,"td",[["width",["100"]]],[[0,0,"div",[],[[0,0,"a",[["ws-link","/user/one","wires.directives.WsLink"]],[[1,["one"]]]]]],[0,0,"div",[],[[0,0,"a",[["ws-link","/user/two","wires.directives.WsLink"]],[[1,["two"]]]]]]]],[0,0,"td",[["ws-route","","wires.directives.WsRoute"]],[[1,["\n               sub routes are here\n         "]]]]]]]]]]],
+	  "user/one.html":[[0,0,"h2",[],[[1,["ONE"]]]]],
+	  "user/two.html":[[0,0,"h2",[],[[1,["TWO"]]]]]
 	}
 });
-})(typeof exports !== 'undefined', typeof exports !== 'undefined' ? require('realm-js') : window.realm)
+
+})(function(self){ var isNode = typeof exports !== 'undefined'; return { isNode : isNode, realm : isNode ? require('realm-js') : window.realm}}());

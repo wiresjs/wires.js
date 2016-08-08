@@ -36,6 +36,12 @@ class TextNode extends Common {
          target.append(this);
       }
    }
+   remove() {
+      if (this.original && this.original.parentNode) {
+         this.original.parentNode.removeChild(this.original);
+      }
+      this.detach();
+   }
 
    detach() {
       return this.destroyWatchers();

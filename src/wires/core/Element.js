@@ -249,6 +249,13 @@ class Element extends Common {
       this.children = children;
    }
 
+   attr(name, value) {
+      if (value === undefined) {
+         return this.original.getAttribute(name)
+      }
+      this.original.setAttribute(name, value);
+   }
+
    /**
     * hide - description
     *

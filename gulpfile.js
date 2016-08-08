@@ -30,18 +30,30 @@ gulp.task('watch', function() {
 
    //gulp.watch(['views/**/*.html'], ['build-views']);
 });
-gulp.task("build-views", function() {
+gulp.task("build-views", function(done) {
    realm.require('wires.compiler.SchemaGenerator', function(Generator) {
-      return Generator.compact("views/", "wires.schema.test", "build/views.js");
-   });
+
+      return Generator.compact("test-app/app/schemas/", "wires.schema.test", "build/views.js");
+   }).then(function() {
+      console.log("ALL GOOD")
+      done()
+   }).catch(function(e) {
+
+      console.log(e)
+      done();
+   })
 
 });
 gulp.task("build", function(done) {
    return realm.transpiler2.universal("src/", "build/");
 });;
 
+gulp.task("build-app", function(done) {
+   return realm.transpiler2.universal("test-app/", "build/app");
+});;
+
 gulp.task('start', function() {
-   return runSequence('build', function() {
+   return runSequence('build', 'build-app', 'build-views', function() {
       runSequence('server')
 
       gulp.watch(['src/**/*.js'], function() {
@@ -49,6 +61,21 @@ gulp.task('start', function() {
          return realm.transpiler2.universal("src/", "build/").then(function(changes) {
             runSequence('server')
          });
+      });
+
+      gulp.watch(['test-app/**/*.js'], function() {
+
+         runSequence('build-app')
+      });
+
+      gulp.watch(['test-app/**/*.html'], function() {
+
+         return realm.transpiler2.universal("test-app/", "build/app").then(function(changes) {
+            runSequence('server')
+         });
+      });
+      gulp.watch(['test-app/app/schemas/**/*.html'], function() {
+         runSequence('build-views');
       });
    });
 });

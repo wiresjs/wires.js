@@ -56,6 +56,11 @@ class Attribute extends Common {
 
       this.registerWatcher(watcher);
    }
+
+   asString(cb) {
+      var model = StringInterpolation.compile(this.value);
+      return model(this.element.scope, this.element.locals);
+   }
    watchString(cb, instant) {
       var model = StringInterpolation.compile(this.value);
       var watcher = model(this.element.scope, this.element.locals, function(value, oldValue) {

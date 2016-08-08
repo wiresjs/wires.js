@@ -1,5 +1,68 @@
 (function(___scope___) { "use strict"; var $isBackend = ___scope___.isNode; var realm  = ___scope___.realm;
 
+realm.module("wires.Router",["utils.lodash"],function(_){ var $_exports;
+
+class Router {
+   constructor(config) {
+      this.package = config.package || '';
+   }
+
+   getURLSnippets() {
+      var data = window.location.pathname.split("/");
+      data = data.splice(1, data.length);
+      if (data.length === 1) {
+         return [];
+      }
+      return data;
+   }
+
+   /**
+    * root - description
+    *
+    * @param  {type} data   description
+    * @param  {type} states description
+    * @return {type}        description
+    */
+   root(data, states) {
+      this.root = this.state("/", data, states);
+      return this;
+   }
+
+   /**
+    * state - description
+    *
+    * @param  {type} path   description
+    * @param  {type} data   description
+    * @param  {type} states description
+    * @return {type}        description
+    */
+   state(path, data, states) {
+      let arr = data.split(/\s+->\s+/);
+      let ctrl = arr[0];
+
+      ctrl = (this.package ? this.package + "." : '') + ctrl;
+
+      let view = arr[1];
+      return {
+         ctrl: ctrl,
+         view: view,
+         path: path,
+         states: states
+      }
+   }
+
+   start() {
+      var url = this.getURLSnippets();
+      console.log(url)
+      console.log(this.root);
+   }
+}
+
+
+$_exports = Router;
+
+return $_exports;
+});
 realm.module("utils.lodash", function() {
    return $isBackend ? require("lodash") : window._;
 });
@@ -235,6 +298,7 @@ class AttributeAnalyzer {
       }
       if (state.has(ATTR_VALUE_CONSUMING)) {
          if (i === "\\") {
+
             state.unset(ATTR_VALUE_CONSUMING)
             state.set(ATTR_VALUE_PAUSED)
          }
@@ -251,7 +315,9 @@ class AttributeAnalyzer {
       }
 
       if (state.has(ATTR_VALUE_STARTING)) {
+
          state.unset(ATTR_VALUE_STARTING);
+
          state.set(ATTR_VALUE_CONSUMING)
       }
 
@@ -263,8 +329,10 @@ class AttributeAnalyzer {
          } else {
             if (state.has(ATTR_VALUE_MIGHT_START)) {
                if (i === "'" || i === '"') {
+
                   this.quote = i;
                   state.unset(ATTR_VALUE_PENDING, ATTR_VALUE_MIGHT_START);
+
                   state.set(ATTR_VALUE_STARTING)
                }
             }
@@ -679,7 +747,7 @@ class TagAnalyzer {
       }
       state.clean(TAG_CLOSED, TAG_TEXT_END, TAG_TEXT_OPENING, TAG_CONSUMED);
 
-      if (i === "/") {
+      if (i === "/" && state.has(TAG_OPENING)) {
          state.set(TAG_CLOSING);
          state.unset(TAG_OPENING, TAG_OPENED)
       }
@@ -2337,6 +2405,61 @@ $_exports = Transclude;
 
 return $_exports;
 });
+realm.module("wires.directives.WsLink",["wires.core.Directive", "wires.app.PushState"],function(Directive, PushState){ var $_exports;
+
+//import Dispatcher as dispatcher from wires.app;
+
+class WsLink extends Directive {
+   static get compiler() {
+      return {
+         name: 'ws-link'
+      }
+   }
+   initialize(attr) {
+      var self = this;
+      this.element.bindEvent("click", function(e) {
+         e.preventDefault();
+         e.stopPropagation();
+         var link = self.element.attr("href");
+         PushState.force({}, link);
+      })
+      attr.watchString(function(value) {
+         self.element.attr("href", value);
+      }, true);
+   }
+
+}
+
+$_exports = WsLink;
+
+return $_exports;
+});
+realm.module("wires.directives.WsRoute",["wires.core.Directive"],function(Directive){ var $_exports;
+
+//import Dispatcher as dispatcher from wires.app;
+
+class WsRoute extends Directive {
+   static get compiler() {
+      return {
+         name: 'ws-route'
+      }
+   }
+   initialize(attr) {
+      var self = this;
+      var route = this.element.scope;
+      var $router = route.$$router;
+      this.element.schema.children = [];
+      if ($router && $router.dispatcher) {
+         $router.dispatcher.register(this.element, route);
+      }
+   }
+
+}
+
+$_exports = WsRoute;
+
+return $_exports;
+});
 realm.module("wires.core.Attribute",["wires.expressions.StringInterpolation", "wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "wires.services.Watch", "wires.core.Common"],function(StringInterpolation, AngularExpressions, WatchBatch, Watch, Common){ var $_exports;
 
 
@@ -2391,6 +2514,11 @@ class Attribute extends Common {
       }, instant);
 
       this.registerWatcher(watcher);
+   }
+
+   asString(cb) {
+      var model = StringInterpolation.compile(this.value);
+      return model(this.element.scope, this.element.locals);
    }
    watchString(cb, instant) {
       var model = StringInterpolation.compile(this.value);
@@ -2751,6 +2879,13 @@ class Element extends Common {
       this.children = children;
    }
 
+   attr(name, value) {
+      if (value === undefined) {
+         return this.original.getAttribute(name)
+      }
+      this.original.setAttribute(name, value);
+   }
+
    /**
     * hide - description
     *
@@ -2907,6 +3042,12 @@ class TextNode extends Common {
       } else {
          target.append(this);
       }
+   }
+   remove() {
+      if (this.original && this.original.parentNode) {
+         this.original.parentNode.removeChild(this.original);
+      }
+      this.detach();
    }
 
    detach() {
@@ -3152,9 +3293,11 @@ class SchemaGenerator {
 
    static compact(dir, _package, dest) {
       return new Promise(function(resolve, reject) {
+
          SchemaGenerator.getJavascript(dir, _package).then(function(js) {
             fs.writeFileSync(dest, js);
-         });
+            console.log('here is good')
+         }).catch(reject).then(resolve)
       })
    }
 
@@ -3169,7 +3312,7 @@ class SchemaGenerator {
 
    static getJavascript(dir, _package) {
       return SchemaGenerator.service(dir, _package).then(function(contents) {
-         return realm.transpiler.wrap(contents);
+         return realm.transpiler2.wrapContents(contents);
       });
    }
 
@@ -3194,6 +3337,382 @@ class SchemaGenerator {
 
 
 $_exports = SchemaGenerator;
+
+return $_exports;
+});
+realm.module("wires.app.Dispatcher",["wires.core.Schema", "wires.runtime.Schema", "utils.lodash", "wires.app.PushState"],function(Schema, runtimeSchemas, _, PushState){ var $_exports;
+
+
+var $rootRoute;
+
+var url2Method = function(url) {
+   return "on" + url[0].toUpperCase() + url.slice(1, url.length);
+}
+
+class Dispatcher {
+
+   /**
+    * constructor -
+    * Subscribes to changes (Should be initialated only once)
+    *
+    * @return {type}  description
+    */
+   constructor() {
+      var self = this;
+      this.states = {};
+      this.urls = [];
+
+      PushState.subscribe(function() {
+         self.changed();
+      });
+   }
+
+   /**
+    * storeEssentials - stores information into the "route" object
+    * Creats a hidden proprety
+    * @param  {type} obj  description
+    * @param  {type} data description
+    * @return {type}      description
+    */
+   storeEssentials(obj, data) {
+      if (!obj.$$router) {
+         Object.defineProperty(obj, "$$router", {
+            enumerable: false,
+            value: data
+         });
+         return obj.$$router;
+      } else {
+
+         _.each(data, function(v, k) {
+
+            obj.$$router[k] = v;
+         });
+      }
+      return obj.$$router;
+   }
+
+   assign(route) {
+      if (!$rootRoute) {
+         $rootRoute = route;
+      }
+      this.changed();
+   }
+
+   /**
+    * getEssentials - gets information from an object
+    *
+    * @param  {type} obj description
+    * @return {type}     description
+    */
+   getEssentials(obj) {
+      return obj.$$router || {};
+   }
+
+   /**
+    * getPaths - Retrevies paths
+    *
+    * @return {type}  description
+    */
+   getPaths() {
+      var path = window.location.pathname;
+      return path.split("/")
+   }
+
+   getFullURL() {
+      return window.location.href;
+   }
+
+   /**
+    * register - description
+    *
+    * @param  {type} element description
+    * @param  {type} route   description
+    * @return {type}         description
+    */
+   register(element, route) {
+      var self = this;
+
+      var essentials = self.storeEssentials(route, {
+         element: element
+      });
+      var nextIndex = essentials.index + 1;
+      var path = this.paths[essentials.index + 1];
+      element.removeChildren(); // Clean up
+      if (!path) {
+         return;
+      }
+      var method = route[url2Method(path)];
+      if (_.isFunction(method)) {
+         var data = this.evaluate(route, method);
+         if (data.schema) {
+            return element.inflate(data.schema);
+         }
+         if (data.instance) {
+            var result = self.initializeRoute(data.instance, nextIndex)
+            return element.inflate(result.schema, data.instance);
+         }
+      }
+
+   }
+
+   /**
+    * changed - description
+    *
+    * @return {type}  description
+    */
+   changed() {
+      var self = this;
+      this.paths = this.getPaths();
+
+      if (!this.root) { // initial run
+         self.urls = this.paths;
+         return this.createRoot();
+      }
+      // on navigation
+      var changedRoute;
+      _.each(this.paths, function(path, index) {
+         if (self.urls[index] !== path && changedRoute === undefined) {
+            changedRoute = index;
+         }
+      });
+      //console.log(self.fullURL !== self.getFullURL())
+      if (changedRoute === undefined && self.paths.length !== self.urls.length) {
+         changedRoute = _.findLastIndex(this.paths);
+      }
+
+      if (changedRoute > -1) {
+         var route = self.states[changedRoute - 1];
+         if (route !== undefined) {
+            if (route.$$router) {
+               self.register(route.$$router.element, route);
+            }
+         }
+      }
+      self.fullURL = self.getFullURL();
+      self.urls = this.paths;
+   }
+
+   /**
+    * initializeRoute - description
+    *
+    * @param  {type} route     description
+    * @param  {type} nextIndex description
+    * @return {type}           description
+    */
+   initializeRoute(route, nextIndex) {
+      var self = this;
+      self.storeEssentials(route, {
+         index: nextIndex,
+         dispatcher: self
+      });
+      self.states[nextIndex] = route;
+      return this.evaluate(route, route.initialize);
+   }
+
+   /**
+    * createRoot - description
+    *
+    * @return {type}  description
+    */
+   createRoot() {
+      var self = this;
+      this.root = new $rootRoute();
+      self.storeEssentials(this.root, {
+         index: 0,
+         dispatcher: self
+      });
+      self.states[0] = this.root;
+      var data = this.evaluate(this.root, this.root.initialize);
+      if (data.schema) {
+         Schema.inflate({
+            schema: data.schema,
+            target: document.querySelector('body'),
+            scope: self.root
+         })
+      }
+   }
+
+   /**
+    * evaluate - checks the response
+    *
+    * @param  {type} result description
+    * @return {type}        description
+    */
+   evaluate(route, method) {
+      var index = route.$$router.index;
+      var result = method.apply(route)
+      console.log(result)
+      var view;
+      if (_.isString(result)) {
+         if (!runtimeSchemas[result]) {
+            throw {
+               message: result + " is not found in schemas!"
+            }
+         }
+         return {
+            type: "schema",
+            schema: runtimeSchemas[result]
+         }
+      } else {
+         return {
+            type: "route",
+            instance: result
+         }
+      }
+      return {};
+   }
+}
+
+let dispatcher = new Dispatcher();
+
+$_exports = dispatcher;
+
+return $_exports;
+});
+realm.module("wires.app.PushState",["wires.app.Query", "utils.lodash"],function(Query, _){ var $_exports;
+
+
+var subscriptions = [];
+
+class PushState {
+
+   static _createQueryString(data) {
+      var stringData = [];
+      _.each(data, function(value, k) {
+         stringData.push(k + "=" + encodeURI(value))
+      });
+      var str = stringData.join("&");
+      if (stringData.length > 0) {
+         str = "?" + str;
+      }
+      return str;
+   }
+   static subscribe(cb) {
+      subscriptions.push(cb);
+
+   }
+   static changed() {
+      _.each(subscriptions, function(cb) {
+         cb();
+      });
+   }
+
+   static redirect(url) {
+      History.set(url);
+   }
+
+   static get(item) {
+      var q = Query.get();
+      if (item) {
+         return q[item];
+      }
+      return q;
+   }
+
+   static _changeState(a) {
+      var stateObj = {
+         url: a
+      };
+      history.pushState(stateObj, a, a);
+      PushState.changed();
+   }
+
+   static force(data, userUrl) {
+      this._changeState((userUrl || window.location.pathname) + this._createQueryString(data));
+   }
+
+   static merge(data, userUrl) {
+      if (_.isPlainObject(data)) {
+         var current = Query.get();
+         var params = _.merge(current, data);
+         var url = (userUrl || window.location.pathname) + this._createQueryString(params);
+         this._changeState(url);
+      }
+   }
+}
+if (window) {
+   window.onpopstate = function(state) {
+      PushState.changed();
+   }
+}
+
+
+$_exports = PushState;
+
+return $_exports;
+});
+realm.module("wires.app.Query",[],function(){ var $_exports;
+
+class Query {
+   static get() {
+      // This function is anonymous, is executed immediately and
+      // the return value is assigned to QueryString!
+      var query_string = {};
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i = 0; i < vars.length; i++) {
+         var pair = vars[i].split("=");
+         // If first entry with this name
+         if (typeof query_string[pair[0]] === "undefined") {
+
+            if (pair[0]) {
+               query_string[pair[0]] = decodeURIComponent(pair[1]);
+            }
+
+            // If second entry with this name
+         } else if (typeof query_string[pair[0]] === "string") {
+            var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];
+            query_string[pair[0]] = arr;
+            // If third or later entry with this name
+         } else {
+            query_string[pair[0]].push(decodeURIComponent(pair[1]));
+         }
+      }
+      return query_string;
+   }
+}
+
+
+$_exports = Query;
+
+return $_exports;
+});
+realm.module("wires.app.Router",["wires.app.Dispatcher", "utils.lodash"],function(dispatcher, _){ var $_exports;
+
+class Router {
+
+   static start() {
+      dispatcher.assign(this);
+   }
+
+   render(target) {
+      if (_.isString(target)) {
+         return {
+            type: "schema",
+            path: target
+         }
+      }
+      if (target instanceof Router) {
+         return {
+            type: "router",
+            instance: target
+         }
+      }
+   }
+}
+
+$_exports = Router;
+
+return $_exports;
+});
+realm.module("wires.app.render",[],function(){ var $_exports;
+
+var SchemaDecorator = (cls, method) => {
+
+}
+
+
+$_exports = SchemaDecorator;
 
 return $_exports;
 });

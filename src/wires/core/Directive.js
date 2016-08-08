@@ -19,7 +19,6 @@ class Directive extends Common {
 
       // adding transclude schema to the scope;
       if (transclude) {
-
          prop.defineHidden(scope, '$$transcluded', transclude);
 
       }
