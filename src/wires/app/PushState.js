@@ -61,10 +61,10 @@ class PushState {
       }
    }
 }
-if (window) {
-   window.onpopstate = function(state) {
-      PushState.changed();
-   }
+const $window = $isBackend ? {} : window;
+
+$window.onpopstate = function(state) {
+   PushState.changed();
 }
 
 export PushState;

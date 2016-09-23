@@ -22,13 +22,20 @@ class SchemaGenerator {
       });
    }
 
-   static compact(dir, _package, dest) {
+   static compact(dir, dest) {
       return new Promise(function(resolve, reject) {
+         console.log(dir)
+         SchemaGenerator.collectWiresSchemas(dir).then(function(files) {
+            console.log("FILES", files)
+            return resolve()
+         }).catch(e => {
+            console.log('eror', e)
+         })
 
-         SchemaGenerator.getJavascript(dir, _package).then(function(js) {
-            fs.writeFileSync(dest, js);
-            console.log('here is good')
-         }).catch(reject).then(resolve)
+         // SchemaGenerator.getJavascript(dir, _package).then(function(js) {
+         //    fs.writeFileSync(dest, js);
+         //
+         // }).catch(reject).then(resolve)
       })
    }
 
@@ -57,6 +64,25 @@ class SchemaGenerator {
             var contents = fs.readFileSync(f).toString();
             var baseFileName = f.split(dirName)[1];
             data[baseFileName] = JSONifier.htmlString(contents)
+            next();
+         });
+         walker.on("end", function() {
+            return resolve(data);
+         });
+      });
+   }
+
+   static collectWiresSchemas(dirName) {
+      return new Promise((resolve, reject) => {
+         var walker = walk.walk(dirName);
+         var data = {};
+         walker.on("file", function(root, fileStats, next) {
+            if (fileStats.name.match(/\.html$/)) {
+               var f = path.join(root, fileStats.name);
+               var contents = fs.readFileSync(f).toString();
+               var baseFileName = f.split(dirName)[1];
+               data[baseFileName] = JSONifier.htmlString(contents)
+            }
             next();
          });
          walker.on("end", function() {

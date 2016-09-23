@@ -1,6 +1,6 @@
 (function(___scope___) { "use strict"; var $isBackend = ___scope___.isNode; var realm  = ___scope___.realm;
 
-realm.module("wires.app.Server",[],function(){ var $_exports;
+realm.module("wires.app.Server",[],function(){ var $_exports;/* @#realm-source:src/wires/app/Server.js#*/
 
 class Engine {
 

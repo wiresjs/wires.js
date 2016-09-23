@@ -1,6 +1,6 @@
 (function(___scope___) { "use strict"; var $isBackend = ___scope___.isNode; var realm  = ___scope___.realm;
 
-realm.module("app.Server",["realm.server.Express"],function(Express){ var $_exports;
+realm.module("app.Server",["realm.server.Express"],function(Express){ var $_exports;/* @#realm-source:test-app/app/Server.js#*/
 
 class Server extends Express {
 

@@ -1,14 +1,24 @@
 (function(___scope___) { "use strict"; var $isBackend = ___scope___.isNode; var realm  = ___scope___.realm;
 
-realm.module("wires.Router",["utils.lodash"],function(_){ var $_exports;
+realm.module("wires.Router",["utils.lodash"],function(_){ var $_exports;/* @#realm-source:src/wires/Router.js#*/
 
 class Router {
    constructor(config) {
       this.package = config.package || '';
+
    }
 
+   setupUserURL(url) {
+      this.userURL = url;
+   }
+
+   /**
+    * getURLSnippets - description
+    *
+    * @return {type}  description
+    */
    getURLSnippets() {
-      var data = window.location.pathname.split("/");
+      var data = (this.userURL || window.location.pathname).split("/");
       data = data.splice(1, data.length);
       if (data.length === 1) {
          return [];
@@ -97,7 +107,7 @@ realm.module("AsyncTransaction", function() {
    return $isBackend ? nodeAsyncLib.AsyncTransaction : window.AsyncTransaction;
 });
 
-realm.module("wires.utils.DotNotation",["wires.AsyncWatch"],function(AsyncWatch){ var $_exports;
+realm.module("wires.utils.DotNotation",["wires.AsyncWatch"],function(AsyncWatch){ var $_exports;/* @#realm-source:src/wires/utils/DotNotation.js#*/
 
 
 var DotNotation = {
@@ -165,7 +175,7 @@ $_exports = DotNotation;
 
 return $_exports;
 });
-realm.module("wires.utils.Properties",[],function(){ var $_exports;
+realm.module("wires.utils.Properties",[],function(){ var $_exports;/* @#realm-source:src/wires/utils/Properties.js#*/
 
 class Properties {
    static defineHidden(obj, key, value) {
@@ -182,7 +192,7 @@ $_exports = Properties;
 
 return $_exports;
 });
-realm.module("wires.services.Watch",["wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "utils.lodash"],function(AngularExpressions, WatchBatch, _){ var $_exports;
+realm.module("wires.services.Watch",["wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "utils.lodash"],function(AngularExpressions, WatchBatch, _){ var $_exports;/* @#realm-source:src/wires/services/Watch.js#*/
 
 
 
@@ -213,7 +223,7 @@ $_exports = Watch;
 
 return $_exports;
 });
-realm.module("wires.runtime.Directives",["realm"],function(realm){ var $_exports;
+realm.module("wires.runtime.Directives",["realm"],function(realm){ var $_exports;/* @#realm-source:src/wires/runtime/Directives.js#*/
 
 
 
@@ -221,7 +231,7 @@ $_exports = realm.requirePackage('wires.directives');
 
 return $_exports;
 });
-realm.module("wires.runtime.Schema",["utils.lodash"],function(_){ var $_exports;
+realm.module("wires.runtime.Schema",["utils.lodash"],function(_){ var $_exports;/* @#realm-source:src/wires/runtime/Schema.js#*/
 
 var data = {};
 
@@ -237,7 +247,7 @@ $_exports = realm.requirePackage('wires.schema').then(function(items) {
 
 return $_exports;
 });
-realm.module("wires.htmlparser.AttributeAnalyzer",["wires.htmlparser.State"],function(State){ var $_exports;
+realm.module("wires.htmlparser.AttributeAnalyzer",["wires.htmlparser.State"],function(State){ var $_exports;/* @#realm-source:src/wires/htmlparser/AttributeAnalyzer.js#*/
 
 var s = 0;
 const NAME_PENDING = (s++).toString();
@@ -386,7 +396,7 @@ $_exports = AttributeAnalyzer;
 
 return $_exports;
 });
-realm.module("wires.htmlparser.Parser",["utils.lodash", "wires.htmlparser.TagAnalyzer", "wires.htmlparser.Tag", "wires.htmlparser.Text"],function(_, TagAnalyzer, Tag, Text){ var $_exports;
+realm.module("wires.htmlparser.Parser",["utils.lodash", "wires.htmlparser.TagAnalyzer", "wires.htmlparser.Tag", "wires.htmlparser.Text"],function(_, TagAnalyzer, Tag, Text){ var $_exports;/* @#realm-source:src/wires/htmlparser/Parser.js#*/
 
 
 const AUTO_CLOSED_TAGS = ["area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"]
@@ -491,7 +501,7 @@ $_exports = Parser;
 
 return $_exports;
 });
-realm.module("wires.htmlparser.State",[],function(){ var $_exports;
+realm.module("wires.htmlparser.State",[],function(){ var $_exports;/* @#realm-source:src/wires/htmlparser/State.js#*/
 
 class State {
    constructor() {
@@ -565,7 +575,7 @@ $_exports = State;
 
 return $_exports;
 });
-realm.module("wires.htmlparser.Tag",["wires.htmlparser.AttributeAnalyzer", "utils.lodash"],function(AttributeAnalyzer, _){ var $_exports;
+realm.module("wires.htmlparser.Tag",["wires.htmlparser.AttributeAnalyzer", "utils.lodash"],function(AttributeAnalyzer, _){ var $_exports;/* @#realm-source:src/wires/htmlparser/Tag.js#*/
 class Tag {
    constructor(parent) {
       this.parent = parent;
@@ -650,7 +660,7 @@ $_exports = Tag;
 
 return $_exports;
 });
-realm.module("wires.htmlparser.TagAnalyzer",["wires.htmlparser.State"],function(State){ var $_exports;
+realm.module("wires.htmlparser.TagAnalyzer",["wires.htmlparser.State"],function(State){ var $_exports;/* @#realm-source:src/wires/htmlparser/TagAnalyzer.js#*/
 
 
 const TAG_OPENED = "1";
@@ -789,7 +799,7 @@ $_exports = TagAnalyzer;
 
 return $_exports;
 });
-realm.module("wires.htmlparser.Text",[],function(){ var $_exports;
+realm.module("wires.htmlparser.Text",[],function(){ var $_exports;/* @#realm-source:src/wires/htmlparser/Text.js#*/
 
 /**
  * Just Text
@@ -808,7 +818,7 @@ $_exports = Text;
 
 return $_exports;
 });
-realm.module("wires.expressions.AngularExpressionParser",[],function(){ var $_exports;
+realm.module("wires.expressions.AngularExpressionParser",[],function(){ var $_exports;/* @#realm-source:src/wires/expressions/AngularExpressionParser.js#*/
 
 // We don't want to lint angular's code...
 /* eslint-disable */
@@ -1896,7 +1906,7 @@ $_exports = {
 
 return $_exports;
 });
-realm.module("wires.expressions.AngularExpressions",["wires.expressions.AngularExpressionParser", "utils.lodash"],function(AngularExpressionParser, _){ var $_exports;
+realm.module("wires.expressions.AngularExpressions",["wires.expressions.AngularExpressionParser", "utils.lodash"],function(AngularExpressionParser, _){ var $_exports;/* @#realm-source:src/wires/expressions/AngularExpressions.js#*/
 
 var parse = AngularExpressionParser;
 var filters = {};
@@ -1991,7 +2001,7 @@ $_exports = {
 
 return $_exports;
 });
-realm.module("wires.expressions.StringInterpolation",["utils.lodash", "wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "wires.utils.DotNotation"],function(_, AngularExpressions, WatchBatch, DotNotation){ var $_exports;
+realm.module("wires.expressions.StringInterpolation",["utils.lodash", "wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "wires.utils.DotNotation"],function(_, AngularExpressions, WatchBatch, DotNotation){ var $_exports;/* @#realm-source:src/wires/expressions/StringInterpolation.js#*/
 
 
 var StringInterpolation = {
@@ -2077,7 +2087,7 @@ $_exports = StringInterpolation;
 
 return $_exports;
 });
-realm.module("wires.expressions.WatchBatch",["utils.lodash", "wires.AsyncWatch", "wires.utils.DotNotation"],function(_, AsyncWatch, DotNotation){ var $_exports;
+realm.module("wires.expressions.WatchBatch",["utils.lodash", "wires.AsyncWatch", "wires.utils.DotNotation"],function(_, AsyncWatch, DotNotation){ var $_exports;/* @#realm-source:src/wires/expressions/WatchBatch.js#*/
 
 
 
@@ -2119,7 +2129,7 @@ $_exports = function(opts, cb) {
 
 return $_exports;
 });
-realm.module("wires.directives.Click",["wires.core.Directive"],function(Directive){ var $_exports;
+realm.module("wires.directives.Click",["wires.core.Directive"],function(Directive){ var $_exports;/* @#realm-source:src/wires/directives/Click.js#*/
 
 
 class Click extends Directive {
@@ -2145,7 +2155,7 @@ $_exports = Click;
 
 return $_exports;
 });
-realm.module("wires.directives.Conditional",["wires.core.Directive"],function(Directive){ var $_exports;
+realm.module("wires.directives.Conditional",["wires.core.Directive"],function(Directive){ var $_exports;/* @#realm-source:src/wires/directives/Conditional.js#*/
 
 
 class Conditional extends Directive {
@@ -2189,7 +2199,7 @@ $_exports = Conditional;
 
 return $_exports;
 });
-realm.module("wires.directives.IncludeView",["wires.core.Directive", "wires.runtime.Schema"],function(Directive, userSchemas){ var $_exports;
+realm.module("wires.directives.IncludeView",["wires.core.Directive", "wires.runtime.Schema"],function(Directive, userSchemas){ var $_exports;/* @#realm-source:src/wires/directives/IncludeView.js#*/
 
 
 class IncludeView extends Directive {
@@ -2233,7 +2243,7 @@ $_exports = IncludeView;
 
 return $_exports;
 });
-realm.module("wires.directives.Model",["wires.expressions.AngularExpressions", "wires.core.Directive"],function(AngularExpressions, Directive){ var $_exports;
+realm.module("wires.directives.Model",["wires.expressions.AngularExpressions", "wires.core.Directive"],function(AngularExpressions, Directive){ var $_exports;/* @#realm-source:src/wires/directives/Model.js#*/
 
 
 class Model extends Directive {
@@ -2303,7 +2313,7 @@ $_exports = Model;
 
 return $_exports;
 });
-realm.module("wires.directives.MyDirective",["wires.core.Directive"],function(Directive){ var $_exports;
+realm.module("wires.directives.MyDirective",["wires.core.Directive"],function(Directive){ var $_exports;/* @#realm-source:src/wires/directives/MyDirective.js#*/
 
 
 class MyDirective extends Directive {
@@ -2323,7 +2333,7 @@ $_exports = MyDirective;
 
 return $_exports;
 });
-realm.module("wires.directives.Show",["wires.core.Directive"],function(Directive){ var $_exports;
+realm.module("wires.directives.Show",["wires.core.Directive"],function(Directive){ var $_exports;/* @#realm-source:src/wires/directives/Show.js#*/
 
 
 class Show extends Directive {
@@ -2357,7 +2367,7 @@ $_exports = Show;
 
 return $_exports;
 });
-realm.module("wires.directives.ToggleClass",["wires.core.Directive"],function(Directive){ var $_exports;
+realm.module("wires.directives.ToggleClass",["wires.core.Directive"],function(Directive){ var $_exports;/* @#realm-source:src/wires/directives/ToggleClass.js#*/
 
 
 class ToggleClass extends Directive {
@@ -2379,7 +2389,7 @@ $_exports = ToggleClass;
 
 return $_exports;
 });
-realm.module("wires.directives.Transclude",["wires.core.Directive"],function(Directive){ var $_exports;
+realm.module("wires.directives.Transclude",["wires.core.Directive"],function(Directive){ var $_exports;/* @#realm-source:src/wires/directives/Transclude.js#*/
 
 
 class Transclude extends Directive {
@@ -2405,7 +2415,7 @@ $_exports = Transclude;
 
 return $_exports;
 });
-realm.module("wires.directives.WsLink",["wires.core.Directive", "wires.app.PushState"],function(Directive, PushState){ var $_exports;
+realm.module("wires.directives.WsLink",["wires.core.Directive", "wires.app.PushState"],function(Directive, PushState){ var $_exports;/* @#realm-source:src/wires/directives/WsLink.js#*/
 
 //import Dispatcher as dispatcher from wires.app;
 
@@ -2434,7 +2444,7 @@ $_exports = WsLink;
 
 return $_exports;
 });
-realm.module("wires.directives.WsRoute",["wires.core.Directive"],function(Directive){ var $_exports;
+realm.module("wires.directives.WsRoute",["wires.core.Directive"],function(Directive){ var $_exports;/* @#realm-source:src/wires/directives/WsRoute.js#*/
 
 //import Dispatcher as dispatcher from wires.app;
 
@@ -2460,7 +2470,7 @@ $_exports = WsRoute;
 
 return $_exports;
 });
-realm.module("wires.core.Attribute",["wires.expressions.StringInterpolation", "wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "wires.services.Watch", "wires.core.Common"],function(StringInterpolation, AngularExpressions, WatchBatch, Watch, Common){ var $_exports;
+realm.module("wires.core.Attribute",["wires.expressions.StringInterpolation", "wires.expressions.AngularExpressions", "wires.expressions.WatchBatch", "wires.services.Watch", "wires.core.Common"],function(StringInterpolation, AngularExpressions, WatchBatch, Watch, Common){ var $_exports;/* @#realm-source:src/wires/core/Attribute.js#*/
 
 
 class Attribute extends Common {
@@ -2535,7 +2545,7 @@ $_exports = Attribute;
 
 return $_exports;
 });
-realm.module("wires.core.Common",["utils.lodash"],function(_){ var $_exports;
+realm.module("wires.core.Common",["utils.lodash"],function(_){ var $_exports;/* @#realm-source:src/wires/core/Common.js#*/
 
 class Common {
    constructor() {
@@ -2587,7 +2597,7 @@ $_exports = Common
 
 return $_exports;
 });
-realm.module("wires.core.Directive",["wires.runtime.Schema", "wires.utils.Properties", "wires.core.Common"],function(userSchemas, prop, Common){ var $_exports;
+realm.module("wires.core.Directive",["wires.runtime.Schema", "wires.utils.Properties", "wires.core.Common"],function(userSchemas, prop, Common){ var $_exports;/* @#realm-source:src/wires/core/Directive.js#*/
 
 
 class Directive extends Common {
@@ -2605,7 +2615,6 @@ class Directive extends Common {
 
       // adding transclude schema to the scope;
       if (transclude) {
-
          prop.defineHidden(scope, '$$transcluded', transclude);
 
       }
@@ -2633,7 +2642,7 @@ $_exports = Directive;
 
 return $_exports;
 });
-realm.module("wires.core.Element",["wires.core.Attribute", "wires.core.Common", "utils.lodash", "wires.expressions.StringInterpolation", "wires.compiler.Packer", "wires.runtime.Directives"],function(Attribute, Common, _, StringInterpolation, Packer, appDirectives){ var $_exports;
+realm.module("wires.core.Element",["wires.core.Attribute", "wires.core.Common", "utils.lodash", "wires.expressions.StringInterpolation", "wires.compiler.Packer", "wires.runtime.Directives"],function(Attribute, Common, _, StringInterpolation, Packer, appDirectives){ var $_exports;/* @#realm-source:src/wires/core/Element.js#*/
 
 
 class Element extends Common {
@@ -2911,7 +2920,7 @@ $_exports = Element;
 
 return $_exports;
 });
-realm.module("wires.core.Schema",["wires.compiler.Packer", "utils.lodash", "wires.core.Element", "wires.core.TextNode", "wires.runtime.Directives", "wires.runtime.Schema"],function(Packer, _, Element, TextNode, appDirectives, userSchemas){ var $_exports;
+realm.module("wires.core.Schema",["wires.compiler.Packer", "utils.lodash", "wires.core.Element", "wires.core.TextNode", "wires.runtime.Directives", "wires.runtime.Schema"],function(Packer, _, Element, TextNode, appDirectives, userSchemas){ var $_exports;/* @#realm-source:src/wires/core/Schema.js#*/
 
 
 class Schema {
@@ -3007,7 +3016,7 @@ $_exports = Schema;
 
 return $_exports;
 });
-realm.module("wires.core.TextNode",["wires.expressions.StringInterpolation", "wires.core.Common"],function(StringInterpolation, Common){ var $_exports;
+realm.module("wires.core.TextNode",["wires.expressions.StringInterpolation", "wires.core.Common"],function(StringInterpolation, Common){ var $_exports;/* @#realm-source:src/wires/core/TextNode.js#*/
 
 
 class TextNode extends Common {
@@ -3059,7 +3068,7 @@ $_exports = TextNode;
 
 return $_exports;
 });
-realm.module("wires.compiler.JSONifier",["realm", "utils.lodash", "wires.expressions.StringInterpolation", "wires.compiler.Packer", "wires.runtime.Directives", "wires.htmlparser.Parser"],function(realm, _, interpolate, Packer, appDirectives, Parser){ var $_exports;
+realm.module("wires.compiler.JSONifier",["realm", "utils.lodash", "wires.expressions.StringInterpolation", "wires.compiler.Packer", "wires.runtime.Directives", "wires.htmlparser.Parser"],function(realm, _, interpolate, Packer, appDirectives, Parser){ var $_exports;/* @#realm-source:src/wires/compiler/JSONifier.js#*/
 
 
 
@@ -3175,7 +3184,7 @@ $_exports = JSONifier;
 
 return $_exports;
 });
-realm.module("wires.compiler.Packer",["utils.lodash"],function(_){ var $_exports;
+realm.module("wires.compiler.Packer",["utils.lodash"],function(_){ var $_exports;/* @#realm-source:src/wires/compiler/Packer.js#*/
 
 
 class NumType {
@@ -3271,7 +3280,7 @@ $_exports = Packer;
 
 return $_exports;
 });
-realm.module("wires.compiler.SchemaGenerator",["nodejs.utils.fs", "nodejs.utils.walk", "nodejs.utils.path", "nodejs.utils.stream", "wires.compiler.JSONifier", "utils.lodash", "utils.Promise", "realm"],function(fs, walk, path, stream, JSONifier, _, Promise, realm){ var $_exports;
+realm.module("wires.compiler.SchemaGenerator",["nodejs.utils.fs", "nodejs.utils.walk", "nodejs.utils.path", "nodejs.utils.stream", "wires.compiler.JSONifier", "utils.lodash", "utils.Promise", "realm"],function(fs, walk, path, stream, JSONifier, _, Promise, realm){ var $_exports;/* @#realm-source:src/wires/compiler/SchemaGenerator.js#*/
 
 
 class SchemaGenerator {
@@ -3291,13 +3300,20 @@ class SchemaGenerator {
       });
    }
 
-   static compact(dir, _package, dest) {
+   static compact(dir, dest) {
       return new Promise(function(resolve, reject) {
+         console.log(dir)
+         SchemaGenerator.collectWiresSchemas(dir).then(function(files) {
+            console.log("FILES", files)
+            return resolve()
+         }).catch(e => {
+            console.log('eror', e)
+         })
 
-         SchemaGenerator.getJavascript(dir, _package).then(function(js) {
-            fs.writeFileSync(dest, js);
-            console.log('here is good')
-         }).catch(reject).then(resolve)
+         // SchemaGenerator.getJavascript(dir, _package).then(function(js) {
+         //    fs.writeFileSync(dest, js);
+         //
+         // }).catch(reject).then(resolve)
       })
    }
 
@@ -3333,6 +3349,25 @@ class SchemaGenerator {
          });
       });
    }
+
+   static collectWiresSchemas(dirName) {
+      return new Promise((resolve, reject) => {
+         var walker = walk.walk(dirName);
+         var data = {};
+         walker.on("file", function(root, fileStats, next) {
+            if (fileStats.name.match(/\.html$/)) {
+               var f = path.join(root, fileStats.name);
+               var contents = fs.readFileSync(f).toString();
+               var baseFileName = f.split(dirName)[1];
+               data[baseFileName] = JSONifier.htmlString(contents)
+            }
+            next();
+         });
+         walker.on("end", function() {
+            return resolve(data);
+         });
+      });
+   }
 }
 
 
@@ -3340,7 +3375,7 @@ $_exports = SchemaGenerator;
 
 return $_exports;
 });
-realm.module("wires.app.Dispatcher",["wires.core.Schema", "wires.runtime.Schema", "utils.lodash", "wires.app.PushState"],function(Schema, runtimeSchemas, _, PushState){ var $_exports;
+realm.module("wires.app.Dispatcher",["wires.core.Schema", "wires.runtime.Schema", "utils.lodash", "wires.app.PushState"],function(Schema, runtimeSchemas, _, PushState){ var $_exports;/* @#realm-source:src/wires/app/Dispatcher.js#*/
 
 
 var $rootRoute;
@@ -3569,7 +3604,7 @@ $_exports = dispatcher;
 
 return $_exports;
 });
-realm.module("wires.app.PushState",["wires.app.Query", "utils.lodash"],function(Query, _){ var $_exports;
+realm.module("wires.app.PushState",["wires.app.Query", "utils.lodash"],function(Query, _){ var $_exports;/* @#realm-source:src/wires/app/PushState.js#*/
 
 
 var subscriptions = [];
@@ -3630,10 +3665,10 @@ class PushState {
       }
    }
 }
-if (window) {
-   window.onpopstate = function(state) {
-      PushState.changed();
-   }
+const $window = $isBackend ? {} : window;
+
+$window.onpopstate = function(state) {
+   PushState.changed();
 }
 
 
@@ -3641,7 +3676,7 @@ $_exports = PushState;
 
 return $_exports;
 });
-realm.module("wires.app.Query",[],function(){ var $_exports;
+realm.module("wires.app.Query",[],function(){ var $_exports;/* @#realm-source:src/wires/app/Query.js#*/
 
 class Query {
    static get() {
@@ -3677,7 +3712,7 @@ $_exports = Query;
 
 return $_exports;
 });
-realm.module("wires.app.Router",["wires.app.Dispatcher", "utils.lodash"],function(dispatcher, _){ var $_exports;
+realm.module("wires.app.Router",["wires.app.Dispatcher", "utils.lodash"],function(dispatcher, _){ var $_exports;/* @#realm-source:src/wires/app/Router.js#*/
 
 class Router {
 
@@ -3705,7 +3740,7 @@ $_exports = Router;
 
 return $_exports;
 });
-realm.module("wires.app.render",[],function(){ var $_exports;
+realm.module("wires.app.render",[],function(){ var $_exports;/* @#realm-source:src/wires/app/render.js#*/
 
 var SchemaDecorator = (cls, method) => {
 

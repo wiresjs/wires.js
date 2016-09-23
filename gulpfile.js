@@ -9,7 +9,9 @@ var _ = require('lodash')
 var realm = require('realm-js');
 var runSequence = require('run-sequence');
 var spawn = require('child_process').spawn;
+var rename = require("gulp-rename");
 var node;
+var uglify = require('gulp-uglify');
 require("./build/universal.js")
 
 gulp.task('server', function() {
@@ -32,8 +34,8 @@ gulp.task('watch', function() {
 });
 gulp.task("build-views", function(done) {
    realm.require('wires.compiler.SchemaGenerator', function(Generator) {
-
-      return Generator.compact("test-app/app/schemas/", "wires.schema.test", "build/views.js");
+      console.log('here')
+      return Generator.compact(__dirname + "/schema/", "build/schema.js");
    }).then(function() {
       console.log("ALL GOOD")
       done()
@@ -52,6 +54,30 @@ gulp.task("build-app", function(done) {
    return realm.transpiler2.universal("test-app/", "build/app");
 });;
 
+gulp.task("build-es5", function(){
+
+   return gulp.src(["build/universal.js"])
+
+   .pipe(rename("universal.es5.js"))
+   .pipe(babel({
+      presets: ["es2015"]
+   }))
+   .pipe(uglify())
+   .pipe(gulp.dest("build/"))
+})
+
+
+gulp.task("build-standalone", ["build-es5"], function(){
+   return gulp.src([
+      "node_modules/async-watch/dist/async-watch.min.js",
+      "node_modules/realm-server/dist/frontend/lodash.min.js",
+      "node_modules/realm-server/dist/frontend/realm.min.js",
+      "build/universal.es5.js"
+   ])
+   .pipe(concat("wires.standalone.js"))
+
+   .pipe(gulp.dest("dist/"))
+});
 gulp.task('start', function() {
    return runSequence('build', 'build-app', 'build-views', function() {
       runSequence('server')
@@ -59,6 +85,7 @@ gulp.task('start', function() {
       gulp.watch(['src/**/*.js'], function() {
 
          return realm.transpiler2.universal("src/", "build/").then(function(changes) {
+            runSequence('build-views');
             runSequence('server')
          });
       });
@@ -74,7 +101,7 @@ gulp.task('start', function() {
             runSequence('server')
          });
       });
-      gulp.watch(['test-app/app/schemas/**/*.html'], function() {
+      gulp.watch(['schema/**/*.html'], function() {
          runSequence('build-views');
       });
    });

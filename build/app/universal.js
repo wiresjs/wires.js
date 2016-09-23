@@ -1,23 +1,30 @@
 (function(___scope___) { "use strict"; var $isBackend = ___scope___.isNode; var realm  = ___scope___.realm;
 
-realm.module("app.Application",["wires.Router"],function(Router){ var $_exports;
+realm.module("app.Application",["wires.core.Schema", "wires.schema.test", "wires.runtime.Schema"],function(Schema, test, userSchemas){ var $_exports;/* @#realm-source:test-app/app/Application.js#*/
 
 
+class TestController {
+   constructor()
+   {
+      let self = this;
+      let index = 0;
+      this.name = "Foo";
+      setTimeout(() => {
+         self.name += index;
+         index++;
+      },1000)
+   }
+}
 class Application {
    static main() {
-      let router = new Router({
-         package: 'app.controllers'
-      });
 
-      router.root('BaseController -> base.html', [
-         // users
-         router.state('users/', 'UsersController -> users.html', [
-            router.state(':id/', 'UsersDetails -> users_details.html')
-         ]),
-         // blogs
-         router.state('blogs/', 'BlogsController -> blogs.html')
-      ]);
-      router.start();
+      console.log('here')
+      Schema.inflate({
+         scope : new TestController(),
+         target : document.querySelector("body"),
+         schema : userSchemas["index.html"]
+      })
+
    }
 }
 
@@ -25,7 +32,20 @@ $_exports = Application;
 
 return $_exports;
 });
-realm.module("app.routes.Root",["app.routes.UserRoute", "wires.app.Router"],function(UserRoute, Router){ var $_exports;
+realm.module("app.TestInflate",[],function(){ var $_exports;/* @#realm-source:test-app/app/TestInflate.js#*/
+
+class TestInflate {
+   static main() {
+
+   }
+
+}
+
+$_exports = TestInflate;
+
+return $_exports;
+});
+realm.module("app.routes.Root",["app.routes.UserRoute", "wires.app.Router"],function(UserRoute, Router){ var $_exports;/* @#realm-source:test-app/app/routes/Root.js#*/
 
 class Root extends Router {
 
@@ -51,7 +71,7 @@ $_exports = Root;
 
 return $_exports;
 });
-realm.module("app.routes.UserRoute",["wires.app.render", "wires.app.Router"],function(render, Router){ var $_exports;
+realm.module("app.routes.UserRoute",["wires.app.render", "wires.app.Router"],function(render, Router){ var $_exports;/* @#realm-source:test-app/app/routes/UserRoute.js#*/
 
 class UserRoute extends Router {
    initialize() {
@@ -74,7 +94,7 @@ $_exports = UserRoute;
 
 return $_exports;
 });
-realm.module("app.controllers.BaseController",[],function(){ var $_exports;
+realm.module("app.controllers.BaseController",[],function(){ var $_exports;/* @#realm-source:test-app/app/controllers/BaseController.js#*/
 
 class BaseController {
    initialize() {
